@@ -75,7 +75,7 @@ export default function NewCategoryPage() {
             value={formData.name}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             placeholder="e.g., Men's Clothing"
           />
         </div>
@@ -88,7 +88,7 @@ export default function NewCategoryPage() {
             value={formData.description}
             onChange={handleChange}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             placeholder="Category description..."
           />
         </div>
@@ -104,7 +104,7 @@ export default function NewCategoryPage() {
                 onClick={() => setFormData((prev) => ({ ...prev, image_url: icon }))}
                 className={`w-10 h-10 flex items-center justify-center text-xl rounded-lg transition-colors ${
                   formData.image_url === icon
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-red-600 text-white'
                     : 'bg-white hover:bg-gray-100 border border-gray-200'
                 }`}
               >
@@ -134,7 +134,7 @@ export default function NewCategoryPage() {
             id="is_active"
             checked={formData.is_active}
             onChange={handleChange}
-            className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
+            className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
           />
           <label htmlFor="is_active" className="text-sm font-medium text-gray-700">
             Active (visible on store)
@@ -146,7 +146,7 @@ export default function NewCategoryPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors font-medium"
+            className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors font-medium"
           >
             {isSubmitting ? 'Creating...' : 'Create Category'}
           </button>

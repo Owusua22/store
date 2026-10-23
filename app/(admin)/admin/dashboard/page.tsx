@@ -90,7 +90,7 @@ export default async function AdminDashboard() {
         <div className="flex items-center gap-4">
           <Link
             href="/admin/products/new"
-            className="px-5 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+            className="px-5 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors"
           >
             + Add Product
           </Link>
@@ -161,16 +161,16 @@ export default async function AdminDashboard() {
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <p className="text-purple-200 text-sm font-medium">Low Stock Items</p>
+                  <p className="text-red-100 text-sm font-medium">Low Stock Items</p>
                   <p className="text-white text-3xl font-bold mt-1">{lowStock?.length || 0}</p>
                 </div>
                 <div className="text-3xl opacity-40">⚠️</div>
               </div>
               <div className="mt-2">
-                <div className="h-1 bg-purple-300 rounded-full opacity-50 mb-1">
+                <div className="h-1 bg-red-300 rounded-full opacity-50 mb-1">
                   <div className="h-1 bg-white rounded-full" style={{ width: '30%' }} />
                 </div>
-                <p className="text-purple-200 text-xs">Needs attention →</p>
+                <p className="text-red-100 text-xs">Needs attention →</p>
               </div>
             </div>
           </div>
@@ -179,7 +179,7 @@ export default async function AdminDashboard() {
         {/* Row 2: Metric cards */}
         <div className="grid grid-cols-4 gap-6 mb-6">
           {[
-            { label: 'Total Products', value: productCount || 0, icon: '📦', color: 'bg-indigo-50', sub: '▲ In your catalog', subColor: 'text-green-500' },
+            { label: 'Total Products', value: productCount || 0, icon: '📦', color: 'bg-red-50', sub: '▲ In your catalog', subColor: 'text-green-500' },
             { label: 'Completed Orders', value: revenue?.length || 0, icon: '✅', color: 'bg-green-50', sub: '▲ Fulfilled successfully', subColor: 'text-green-500' },
             { label: 'Total Revenue', value: formatPrice(totalRevenue), icon: '💰', color: 'bg-emerald-50', sub: '▲ Lifetime earnings', subColor: 'text-green-500', green: true },
             { label: 'All Orders', value: orderCount || 0, icon: '🛒', color: 'bg-orange-50', sub: lowStock?.length ? `▼ ${lowStock.length} low stock` : '✓ Stock looks good', subColor: lowStock?.length ? 'text-orange-500' : 'text-green-500' },

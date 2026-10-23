@@ -2,6 +2,15 @@
 
 import { create } from 'zustand';
 import { toast } from 'react-toastify';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import {
+  addDemoLine,
+  buildDemoCart,
+  clearDemoLines,
+  removeDemoLine,
+  toCartProduct,
+  updateDemoLine,
+} from '@/lib/demo/cart';
 
 export interface CartProduct {
   id: string;
@@ -248,6 +257,18 @@ export const useCart = create<CartState>((set, get) => ({
   fetchCart: async () => {
     if (get().isSyncing) return;
 
+    if (!isSupabaseConfigured) {
+      const demoCart = buildDemoCart();
+      const derived = applyItems(demoCart.items);
+      set({
+        cart: { ...demoCart, items: derived.items },
+        ...derived,
+        isLoading: false,
+        isSyncing: false,
+      });
+      return;
+    }
+
     set({ isSyncing: true });
 
     try {
@@ -312,6 +333,26 @@ export const useCart = create<CartState>((set, get) => ({
       isOpen: true,
     });
 
+    if (!isSupabaseConfigured) {
+      const product = toCartProduct(productId);
+      if (!product) {
+        toast.error('This product is unavailable.');
+        set({ isLoading: false, isOpen: false });
+        return;
+      }
+
+      addDemoLine(productId, safeQuantity, size, color);
+      const demoCart = buildDemoCart();
+      const derived = applyItems(demoCart.items);
+      set({
+        cart: { ...demoCart, items: derived.items },
+        ...derived,
+        isLoading: false,
+      });
+      toast.success('Added to cart!');
+      return;
+    }
+
     try {
       const response = await fetch('/api/cart', {
         method: 'POST',
@@ -343,6 +384,15 @@ export const useCart = create<CartState>((set, get) => ({
   },
 
   removeFromCart: async (itemId) => {
+    if (!isSupabaseConfigured) {
+      removeDemoLine(itemId);
+      const demoCart = buildDemoCart();
+      const derived = applyItems(demoCart.items);
+      set({ cart: { ...demoCart, items: derived.items }, ...derived });
+      toast.success('Item removed');
+      return;
+    }
+
     const previousCart = get().cart;
     const previousItems = get().items;
 
@@ -386,6 +436,14 @@ export const useCart = create<CartState>((set, get) => ({
   },
 
   updateQuantity: async (itemId, quantity) => {
+    if (!isSupabaseConfigured) {
+      updateDemoLine(itemId, Math.floor(quantity));
+      const demoCart = buildDemoCart();
+      const derived = applyItems(demoCart.items);
+      set({ cart: { ...demoCart, items: derived.items }, ...derived });
+      return;
+    }
+
     const previousCart = get().cart;
     const previousItems = get().items;
 
@@ -474,6 +532,18 @@ export const useCart = create<CartState>((set, get) => ({
   },
 
   clearCart: async () => {
+    if (!isSupabaseConfigured) {
+      clearDemoLines();
+      const derived = applyItems([]);
+      set({
+        cart: { id: 'demo-cart', user_id: 'demo-user', items: [] },
+        ...derived,
+        isLoading: false,
+      });
+      toast.success('Cart cleared');
+      return;
+    }
+
     const previousCart = get().cart;
     const previousItems = get().items;
 

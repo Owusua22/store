@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, ChevronLeft, ChevronRight, Star } from 'lucide-react';
-import { formatPrice } from '@/lib/utils';
+import { formatCedis } from '@/lib/utils';
 
 interface ShowroomProduct {
   id: string;
@@ -34,10 +34,10 @@ interface ShowroomsProps {
 }
 
 const TYPE_GRADIENTS: Record<string, string> = {
-  manual: 'from-indigo-600 via-purple-600 to-pink-600',
+  manual: 'from-red-600 via-red-700 to-rose-600',
   auto_new: 'from-emerald-500 via-teal-500 to-cyan-500',
   auto_deals: 'from-red-500 via-orange-500 to-amber-500',
-  auto_bestselling: 'from-violet-500 via-purple-500 to-fuchsia-500',
+  auto_bestselling: 'from-violet-500 via-red-600 to-fuchsia-500',
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -132,7 +132,7 @@ function ShowroomSection({
             </button>
             <Link
               href={`/showrooms/${showroom.slug}`}
-              className="group ml-1 inline-flex items-center gap-1 rounded-lg bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-600 transition-colors hover:bg-indigo-100 active:bg-indigo-200 sm:ml-2 sm:gap-1.5 sm:px-4 sm:py-2 sm:text-sm"
+              className="group ml-1 inline-flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 active:bg-red-100 sm:ml-2 sm:gap-1.5 sm:px-4 sm:py-2 sm:text-sm"
             >
               <span className="hidden sm:inline">View All</span>
               <span className="sm:hidden">All</span>
@@ -240,17 +240,17 @@ function ShowroomProductCard({
 
         {/* Content */}
         <div className="p-2 sm:p-3 lg:p-4">
-          <h3 className="line-clamp-1 text-[11px] font-semibold text-gray-900 transition-colors group-hover:text-indigo-600 sm:text-sm">
+          <h3 className="line-clamp-1 text-[11px] font-semibold text-gray-900 transition-colors group-hover:text-red-600 sm:text-sm">
             {product.name}
           </h3>
 
           <div className="mt-1 flex items-baseline gap-1 sm:mt-1.5 sm:gap-2">
             <span className="text-xs font-bold text-gray-900 sm:text-base">
-              {formatPrice(product.price)}
+              {formatCedis(product.price)}
             </span>
             {product.compare_at_price && (
               <span className="text-[9px] text-gray-400 line-through sm:text-xs">
-                {formatPrice(product.compare_at_price)}
+                {formatCedis(product.compare_at_price)}
               </span>
             )}
           </div>

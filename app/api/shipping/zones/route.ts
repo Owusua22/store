@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { demoShippingZones } from '@/lib/demo/shipping';
 
 function getPublicClient() {
   return createClient(
@@ -10,6 +12,10 @@ function getPublicClient() {
 
 // ✅ Named HTTP Method Export
 export async function GET() {
+  if (!isSupabaseConfigured) {
+    return NextResponse.json({ success: true, data: demoShippingZones });
+  }
+
   try {
     const client = getPublicClient();
 

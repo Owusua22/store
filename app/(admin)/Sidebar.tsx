@@ -44,6 +44,11 @@ export default function Sidebar({
   const handleLogout = async () => {
     if (!confirm('Are you sure you want to sign out?')) return;
 
+    if (!supabase) {
+      toast.error('Authentication is not configured');
+      return;
+    }
+
     const { error } = await supabase.auth.signOut();
     if (error) {
       toast.error('Failed to logout');
@@ -59,12 +64,12 @@ export default function Sidebar({
       {/* Logo Header */}
       <div className="p-8 border-b border-gray-800 bg-gray-950">
         <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-11 h-11 bg-gradient-to-br from-indigo-500 via-purple-600 to-fuchsia-500 rounded-2xl flex items-center justify-center shadow-xl shadow-indigo-500/40 transition-transform group-hover:scale-110">
+          <div className="w-11 h-11 bg-gradient-to-br from-red-500 via-red-700 to-fuchsia-500 rounded-2xl flex items-center justify-center shadow-xl shadow-red-500/40 transition-transform group-hover:scale-110">
             <span className="text-white font-bold text-3xl tracking-tighter">S</span>
           </div>
           <div>
             <p className="text-3xl font-semibold text-white tracking-tighter">Sally&apos;s</p>
-            <p className="text-[10px] text-indigo-400 font-medium -mt-1 tracking-[2px]">ADMINISTRATOR</p>
+            <p className="text-[10px] text-red-400 font-medium -mt-1 tracking-[2px]">ADMINISTRATOR</p>
           </div>
         </Link>
       </div>
@@ -83,18 +88,18 @@ export default function Sidebar({
               href={item.href}
               className={`group flex items-center gap-3.5 px-6 py-4 rounded-2xl text-sm font-medium transition-all duration-200 ${
                 active
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30'
+                  ? 'bg-red-600 text-white shadow-md shadow-red-500/30'
                   : 'text-gray-400 hover:bg-gray-800 hover:text-gray-100'
               }`}
             >
               <Icon 
                 className={`w-5 h-5 transition-colors ${
-                  active ? 'text-white' : 'text-gray-500 group-hover:text-indigo-400'
+                  active ? 'text-white' : 'text-gray-500 group-hover:text-red-400'
                 }`} 
               />
               {item.label}
               {active && (
-                <div className="ml-auto w-1.5 h-1.5 bg-white rounded-full ring-2 ring-indigo-300 animate-pulse" />
+                <div className="ml-auto w-1.5 h-1.5 bg-white rounded-full ring-2 ring-red-300 animate-pulse" />
               )}
             </Link>
           );

@@ -102,7 +102,7 @@ export default function ProductsClient({ products, categories }: ProductsClientP
             placeholder="Search by product name or description..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2.5 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full px-4 py-2.5 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
           />
           <svg
             className="absolute left-3 top-3 w-5 h-5 text-gray-400"
@@ -131,7 +131,7 @@ export default function ProductsClient({ products, categories }: ProductsClientP
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
             >
               <option value="all">All Categories</option>
               {categories.map((cat) => (
@@ -150,7 +150,7 @@ export default function ProductsClient({ products, categories }: ProductsClientP
             <select
               value={stockFilter}
               onChange={(e) => setStockFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
             >
               <option value="all">All Stock Levels</option>
               <option value="in">In Stock (10)</option>
@@ -167,7 +167,7 @@ export default function ProductsClient({ products, categories }: ProductsClientP
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>
@@ -289,7 +289,7 @@ export default function ProductsClient({ products, categories }: ProductsClientP
                         <p className="text-sm font-medium text-gray-900">{variants.length} variant{variants.length !== 1 ? 's' : ''}</p>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {uniqueSizes.map((size: string) => (
-                            <span key={size} className="text-[10px] px-1.5 py-0.5 bg-indigo-50 text-indigo-700 rounded font-medium">
+                            <span key={size} className="text-[10px] px-1.5 py-0.5 bg-red-50 text-red-700 rounded font-medium">
                               {size}
                             </span>
                           ))}
@@ -348,7 +348,7 @@ export default function ProductsClient({ products, categories }: ProductsClientP
                     <div className="flex items-center gap-2">
                       <Link
                         href={`/admin/products/${product.id}/edit`}
-                        className="px-3 py-1.5 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                        className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       >
                         Edit
                       </Link>
@@ -369,7 +369,7 @@ export default function ProductsClient({ products, categories }: ProductsClientP
                 <p className="text-gray-500 mb-4">No products match your filters</p>
                 <button
                   onClick={resetFilters}
-                  className="text-indigo-600 hover:text-indigo-700 font-medium"
+                  className="text-red-600 hover:text-red-700 font-medium"
                 >
                   Reset filters →
                 </button>
@@ -377,7 +377,7 @@ export default function ProductsClient({ products, categories }: ProductsClientP
             ) : (
               <>
                 <p className="text-gray-500 mb-4">No products found</p>
-                <Link href="/admin/products/new" className="text-indigo-600 hover:text-indigo-700 font-medium">
+                <Link href="/admin/products/new" className="text-red-600 hover:text-red-700 font-medium">
                   Add your first product →
                 </Link>
               </>

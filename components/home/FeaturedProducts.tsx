@@ -25,7 +25,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
         {/* Header */}
         <div className="flex items-end justify-between mb-12">
           <div>
-            <p className="text-sm font-semibold text-indigo-600 mb-2 uppercase tracking-wider">
+            <p className="text-sm font-semibold text-red-600 mb-2 uppercase tracking-wider">
               Featured
             </p>
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900">
@@ -38,7 +38,7 @@ export function FeaturedProducts({ products }: FeaturedProductsProps) {
 
           <Link
             href="/products"
-            className="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-indigo-600 transition-colors group"
+            className="hidden sm:inline-flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-red-600 transition-colors group"
           >
             View All
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

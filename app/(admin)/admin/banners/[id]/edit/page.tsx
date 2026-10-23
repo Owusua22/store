@@ -161,7 +161,7 @@ export default function EditBannerPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
       </div>
     );
   }
@@ -188,19 +188,19 @@ export default function EditBannerPage() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
             <input type="text" name="title" value={formData.title} onChange={handleChange} required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Subtitle</label>
             <input type="text" name="subtitle" value={formData.subtitle} onChange={handleChange}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
             <textarea name="description" value={formData.description} onChange={handleChange} rows={2}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
           </div>
 
           <div>
@@ -217,7 +217,7 @@ export default function EditBannerPage() {
               </div>
             ) : (
               <label htmlFor="banner-upload"
-                className="flex items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-indigo-500">
+                className="flex items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-red-500">
                 <div className="text-center">
                   <Upload className="w-10 h-10 mx-auto text-gray-400 mb-2" />
                   <p className="text-sm text-gray-600">{isUploading ? 'Uploading...' : 'Upload image'}</p>
@@ -230,12 +230,12 @@ export default function EditBannerPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Link URL</label>
               <input type="text" name="link_url" value={formData.link_url} onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Button Text</label>
               <input type="text" name="link_text" value={formData.link_text} onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
             </div>
           </div>
 
@@ -259,20 +259,20 @@ export default function EditBannerPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
               <input type="number" name="sort_order" value={formData.sort_order} onChange={handleChange} min="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <input type="checkbox" name="is_active" id="is_active" checked={formData.is_active} onChange={handleChange}
-              className="w-4 h-4 text-indigo-600 rounded" />
+              className="w-4 h-4 text-red-600 rounded" />
             <label htmlFor="is_active" className="text-sm font-medium text-gray-700">Active</label>
           </div>
 
           <div className="flex items-center justify-between pt-4 border-t">
             <div className="flex gap-3">
               <button type="submit" disabled={isSubmitting || isUploading}
-                className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 font-medium">
+                className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 font-medium">
                 {isSubmitting ? 'Saving...' : 'Save Changes'}
               </button>
               <button type="button" onClick={() => router.back()}

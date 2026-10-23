@@ -5,6 +5,7 @@ import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { formatZodError } from '@/lib/validation';
 import type { Product } from '@/types';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 
 // ============================================
 // Schemas and Helpers
@@ -42,6 +43,32 @@ function getAdminClient() {
 // CHECKOUT API ROUTE (POST)
 // ============================================
 export async function POST(request: NextRequest) {
+  // Demo mode: accept the order without a backend so checkout can be tested.
+  if (!isSupabaseConfigured) {
+    try {
+      const body = await request.json();
+      const shipping = body?.shipping_address ?? {};
+      const name = String(shipping.full_name ?? '').trim();
+
+      if (!name) {
+        return NextResponse.json(
+          { success: false, error: 'Full name is required' },
+          { status: 400 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: { order_number: generateOrderNumber(), demo: true },
+      });
+    } catch {
+      return NextResponse.json(
+        { success: false, error: 'Invalid request body' },
+        { status: 400 }
+      );
+    }
+  }
+
   try {
     const supabase = await createRouteHandlerSupabaseClient();
     const user = await getAuthenticatedUser();

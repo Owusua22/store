@@ -156,7 +156,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
         </label>
         <input
           {...register('name')}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none"
           placeholder="Enter product name"
         />
         {errors.name && (
@@ -172,7 +172,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
         <textarea
           {...register('description')}
           rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none resize-none"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none resize-none"
           placeholder="Describe your product..."
         />
       </div>
@@ -189,7 +189,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
             type="number"
             step="0.01"
             min="0"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none"
           />
           {errors.price && (
             <p className="mt-1 text-sm text-red-600">{errors.price.message}</p>
@@ -205,7 +205,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
             type="number"
             step="0.01"
             min="0"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none"
           />
           {errors.compare_at_price && (
             <p className="mt-1 text-sm text-red-600">
@@ -224,7 +224,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           {...register('stock_quantity', { valueAsNumber: true })}
           type="number"
           min="0"
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none"
         />
         {errors.stock_quantity && (
           <p className="mt-1 text-sm text-red-600">
@@ -239,7 +239,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
           {...register('is_active')}
           type="checkbox"
           id="is_active"
-          className="w-4 h-4 text-indigo-600 rounded"
+          className="w-4 h-4 text-red-600 rounded"
         />
         <label htmlFor="is_active" className="text-sm font-medium text-gray-700">
           Active (visible to customers)
@@ -258,7 +258,7 @@ export function ProductForm({ product, onSuccess }: ProductFormProps) {
         <button
           type="submit"
           disabled={isLoading}
-          className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+          className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors"
         >
           {isLoading
             ? 'Saving...'

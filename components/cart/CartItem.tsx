@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import { AlertTriangle, Minus, Plus, Trash2 } from 'lucide-react';
 import { useCart, type CartItem as CartItemType } from '@/hooks/useCart';
-import { formatPrice } from '@/lib/utils';
+import { formatCedis } from '@/lib/utils';
 
 interface CartItemProps {
   item: CartItemType;
@@ -86,7 +86,7 @@ export function CartItem({ item }: CartItemProps) {
   return (
     <div
       className={[
-        'flex gap-3 rounded-xl border p-3 transition-colors',
+        'flex gap-3 rounded-lg border p-2.5 transition-colors',
         hasCheckoutIssue
           ? 'border-red-200 bg-red-50/70'
           : 'border-gray-200 bg-gray-50',
@@ -193,13 +193,13 @@ export function CartItem({ item }: CartItemProps) {
 
             {/* Price row */}
             <div className="mt-0.5 flex items-baseline gap-2">
-              <p className="text-sm font-medium text-indigo-600">
-                {formatPrice(item.product.price)}
+              <p className="text-sm font-medium text-red-600">
+                {formatCedis(item.product.price)}
               </p>
 
               {hasCompareAtPrice && compareAtPrice != null && (
                 <p className="text-xs text-gray-400 line-through">
-                  {formatPrice(compareAtPrice)}
+                  {formatCedis(compareAtPrice)}
                 </p>
               )}
             </div>
@@ -263,7 +263,7 @@ export function CartItem({ item }: CartItemProps) {
               hasCheckoutIssue ? 'text-gray-700' : 'text-gray-900',
             ].join(' ')}
           >
-            {formatPrice(item.product.price * quantity)}
+            {formatCedis(item.product.price * quantity)}
           </span>
         </div>
 

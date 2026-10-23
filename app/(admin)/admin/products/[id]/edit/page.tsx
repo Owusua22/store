@@ -291,7 +291,7 @@ export default function EditProductPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
       </div>
     );
   }
@@ -309,13 +309,13 @@ export default function EditProductPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
               <input type="text" name="name" value={formData.name} onChange={handleChange} required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
               <textarea name="description" value={formData.description} onChange={handleChange} rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
             </div>
 
             {variants.length === 0 && (
@@ -323,12 +323,12 @@ export default function EditProductPage() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Price *</label>
                   <input type="number" name="price" value={formData.price} onChange={handleChange} required step="0.01" min="0"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Stock Quantity *</label>
                   <input type="number" name="stock_quantity" value={formData.stock_quantity} onChange={handleChange} required min="0"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
                 </div>
               </div>
             )}
@@ -336,7 +336,7 @@ export default function EditProductPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
               <select name="category_id" value={formData.category_id} onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
                 <option value="">Select category</option>
                 {parentCategories.map((cat) => (
                   <option key={cat.id} value={cat.id}>{cat.icon || '📁'} {cat.name}</option>
@@ -356,7 +356,7 @@ export default function EditProductPage() {
             <label className="block text-sm font-medium text-gray-700 mb-2">Product Images</label>
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} disabled={isUploading} className="hidden" id="image-upload" />
             <label htmlFor="image-upload"
-              className="flex items-center justify-center w-full px-4 py-8 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-colors">
+              className="flex items-center justify-center w-full px-4 py-8 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-red-500 hover:bg-red-50 transition-colors">
               <div className="text-center">
                 <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
                 <p className="text-sm text-gray-600">{isUploading ? 'Uploading...' : 'Click to upload image'}</p>
@@ -367,8 +367,8 @@ export default function EditProductPage() {
               <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {formData.thumbnail && (
                   <div className="relative group">
-                    <img src={formData.thumbnail} alt="Thumbnail" className="w-full h-32 object-cover rounded-lg border-2 border-indigo-500" />
-                    <span className="absolute top-1 left-1 px-2 py-0.5 bg-indigo-600 text-white text-xs rounded shadow-sm">Thumbnail</span>
+                    <img src={formData.thumbnail} alt="Thumbnail" className="w-full h-32 object-cover rounded-lg border-2 border-red-500" />
+                    <span className="absolute top-1 left-1 px-2 py-0.5 bg-red-600 text-white text-xs rounded shadow-sm">Thumbnail</span>
                     <button type="button" onClick={() => removeImage(0, true)} className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
                       <X className="w-3 h-3" />
                     </button>
@@ -400,32 +400,32 @@ export default function EditProductPage() {
               )}
             </div>
 
-            <div className={`bg-gray-50 rounded-xl p-4 mb-4 border ${editingIndex !== null ? 'border-indigo-400 ring-1 ring-indigo-100' : 'border-transparent'}`}>
+            <div className={`bg-gray-50 rounded-xl p-4 mb-4 border ${editingIndex !== null ? 'border-red-400 ring-1 ring-red-100' : 'border-transparent'}`}>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Size *</label>
                   <input type="text" value={newVariant.size} onChange={(e) => setNewVariant((p) => ({ ...p, size: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g., M" />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g., M" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Color *</label>
                   <input type="text" value={newVariant.color} onChange={(e) => setNewVariant((p) => ({ ...p, color: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="e.g., Blue" />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="e.g., Blue" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Price *</label>
                   <input type="number" step="0.01" value={newVariant.price} onChange={(e) => setNewVariant((p) => ({ ...p, price: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="0.00" />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="0.00" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Compare Price</label>
                   <input type="number" step="0.01" value={newVariant.compare_at_price} onChange={(e) => setNewVariant((p) => ({ ...p, compare_at_price: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="0.00" />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="0.00" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Stock</label>
                   <input type="number" value={newVariant.stock_quantity} onChange={(e) => setNewVariant((p) => ({ ...p, stock_quantity: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="0" />
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="0" />
                 </div>
                 <div className="flex items-end gap-2">
                   <button type="button" onClick={addOrUpdateVariant}
@@ -444,7 +444,7 @@ export default function EditProductPage() {
                 </div>
               </div>
               {editingIndex !== null && (
-                <p className="mt-2 text-xs text-indigo-600 font-medium">
+                <p className="mt-2 text-xs text-red-600 font-medium">
                   Editing variant #{editingIndex + 1}. Make changes and click Update.
                 </p>
               )}
@@ -466,7 +466,7 @@ export default function EditProductPage() {
                     </thead>
                     <tbody className="divide-y divide-gray-100 bg-white">
                       {variants.map((v, i) => (
-                        <tr key={i} className={`hover:bg-gray-50 transition-colors ${editingIndex === i ? 'bg-indigo-50/50' : ''}`}>
+                        <tr key={i} className={`hover:bg-gray-50 transition-colors ${editingIndex === i ? 'bg-red-50/50' : ''}`}>
                           <td className="px-4 py-3 text-sm font-medium text-gray-900">{v.size}</td>
                           <td className="px-4 py-3 text-sm">
                             <span className="flex items-center gap-2">
@@ -489,7 +489,7 @@ export default function EditProductPage() {
                           </td>
                           <td className="px-4 py-3 text-right">
                             <div className="flex items-center justify-end gap-2">
-                              <button type="button" onClick={() => handleEditVariant(i)} className="p-1.5 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-md transition-colors" title="Edit Variant">
+                              <button type="button" onClick={() => handleEditVariant(i)} className="p-1.5 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors" title="Edit Variant">
                                 <Pencil className="w-4 h-4" />
                               </button>
                               <button type="button" onClick={() => removeVariant(i)} className="p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors" title="Delete Variant">
@@ -510,8 +510,8 @@ export default function EditProductPage() {
             <div className="flex items-center gap-3">
               <div className="relative inline-block w-10 mr-2 align-middle select-none">
                 <input type="checkbox" name="is_active" id="is_active" checked={formData.is_active} onChange={handleChange}
-                  className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-gray-300 appearance-none cursor-pointer checked:right-0 checked:border-indigo-600 transition-all duration-200 ease-in-out right-5" />
-                <label htmlFor="is_active" className="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer checked:bg-indigo-600 transition-colors"></label>
+                  className="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-gray-300 appearance-none cursor-pointer checked:right-0 checked:border-red-600 transition-all duration-200 ease-in-out right-5" />
+                <label htmlFor="is_active" className="toggle-label block overflow-hidden h-5 rounded-full bg-gray-300 cursor-pointer checked:bg-red-600 transition-colors"></label>
               </div>
               <label htmlFor="is_active" className="text-sm font-medium text-gray-700 cursor-pointer">
                 Product is Active (Visible on store)

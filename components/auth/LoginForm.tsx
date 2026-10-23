@@ -53,7 +53,7 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
         <h2 className="text-2xl font-bold text-gray-900">Sign in</h2>
         <p className="mt-2 text-sm text-gray-600">
           Don&apos;t have an account?{' '}
-          <button type="button" onClick={onSwitchToRegister} className="text-indigo-600 hover:text-indigo-500 font-medium">
+          <button type="button" onClick={onSwitchToRegister} className="text-red-600 hover:text-red-500 font-medium">
             Register
           </button>
         </p>
@@ -64,7 +64,7 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
           <input {...register('email')} id="email" type="email" autoComplete="email"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             placeholder="you@example.com" />
           {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
         </div>
@@ -72,13 +72,13 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
         <div>
           <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
           <input {...register('password')} id="password" type="password" autoComplete="current-password"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             placeholder="••••••••" />
           {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
         </div>
 
         <button type="submit" disabled={isLoading}
-          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 transition-colors">
+          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 transition-colors">
           {isLoading ? 'Signing in...' : 'Sign in'}
         </button>
       </form>

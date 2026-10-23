@@ -1,162 +1,133 @@
-// app/contact/page.tsx
-import { Mail, MapPin, Phone, Clock, Send } from 'lucide-react';
+import type { Metadata } from 'next';
+import {
+  Clock,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+  Truck,
+  Wallet,
+} from 'lucide-react';
+import { ContactForm } from '@/components/contact/ContactForm';
+import { site } from '@/lib/site';
+
+export const metadata: Metadata = {
+  title: 'Contact us',
+  description:
+    'Talk to the Sally team about orders, delivery, products or returns. Call, WhatsApp or send a message.',
+};
 
 export default function ContactPage() {
+  const details = [
+    {
+      icon: Phone,
+      title: 'Call us',
+      value: site.phoneDisplay,
+      href: `tel:${site.phone}`,
+    },
+    {
+      icon: MessageCircle,
+      title: 'WhatsApp',
+      value: site.phoneDisplay,
+      href: `https://wa.me/${site.whatsapp}`,
+    },
+    {
+      icon: Mail,
+      title: 'Email',
+      value: site.email,
+      href: `mailto:${site.email}`,
+    },
+    { icon: MapPin, title: 'Location', value: site.address, href: undefined },
+    {
+      icon: Clock,
+      title: 'Opening hours',
+      value: 'Mon – Sat, 8:00am – 6:00pm',
+      href: undefined,
+    },
+  ];
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-purple-50">
-      <section className="relative overflow-hidden">
-        {/* Decorative blobs */}
-        <div className="absolute top-0 -left-40 w-96 h-96 bg-indigo-200/40 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 -right-40 w-96 h-96 bg-purple-200/40 rounded-full blur-3xl pointer-events-none" />
+    <div className="container-page py-6 sm:py-8">
+      <div className="rounded-xl border border-line bg-brand-soft p-5 sm:p-6">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-brand">
+          <Mail className="h-3 w-3" /> Help Center
+        </span>
+        <h1 className="mt-2 text-[24px] font-extrabold tracking-tight text-ink sm:text-[28px]">
+          We&apos;re here to help
+        </h1>
+        <p className="mt-1 max-w-2xl text-[12.5px] leading-relaxed text-gray-600">
+          Questions about an order, delivery timelines, product recommendations or returns?
+          Reach us on WhatsApp for the fastest reply, or send a message below.
+        </p>
+      </div>
 
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24">
-          {/* Header */}
-          <div className="text-center max-w-3xl mx-auto mb-14">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100 border border-indigo-200/60 mb-6">
-              <Mail className="w-3.5 h-3.5 text-indigo-600" />
-              <span className="text-xs font-semibold text-indigo-700 uppercase tracking-wide">
-                Contact Us
-              </span>
-            </div>
-
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-gray-900">
-              Let&apos;s Start a
-              <br />
-              <span className="bg-gradient-to-r from-indigo-600 via-purple-400 to-pink-600 bg-clip-text text-transparent">
-                Conversation
-              </span>
-            </h1>
-
-            <p className="mt-6 text-lg text-gray-600 leading-relaxed">
-              Have a question, need help with an order, or want to learn more about our
-              products? We&apos;d love to hear from you.
-            </p>
-          </div>
-
-          <div className="grid lg:grid-cols-2 gap-10">
-            {/* Contact form */}
-            <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100/30 border border-gray-100 p-8 sm:p-10">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">Send us a message</h2>
-
-              <form className="space-y-5">
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      First Name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="John"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Last Name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Doe"
-                      className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Email Address
-                  </label>
-                  <input
-                    type="email"
-                    placeholder="you@example.com"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Subject
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="How can we help?"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Message
-                  </label>
-                  <textarea
-                    rows={6}
-                    placeholder="Write your message here..."
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-white text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-gray-900 text-white rounded-xl font-medium hover:bg-indigo-600 transition-all hover:shadow-xl hover:shadow-indigo-200/40"
-                >
-                  <Send className="w-4 h-4" />
-                  Send Message
-                </button>
-              </form>
-            </div>
-
-            {/* Contact info */}
-            <div className="space-y-6">
-              <div className="bg-white rounded-3xl shadow-xl shadow-indigo-100/30 border border-gray-100 p-8 sm:p-10">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Get in touch</h2>
-
-                <div className="space-y-5">
-                  {[
-                    {
-                      icon: Mail,
-                      title: 'Email',
-                      value: 'support@sallysclothing.com',
-                    },
-                    {
-                      icon: Phone,
-                      title: 'Phone',
-                      value: '+256 700 000 000',
-                    },
-                    {
-                      icon: MapPin,
-                      title: 'Address',
-                      value: 'Kampala, Uganda',
-                    },
-                    {
-                      icon: Clock,
-                      title: 'Business Hours',
-                      value: 'Mon - Sat, 8:00 AM - 6:00 PM',
-                    },
-                  ].map(({ icon: Icon, title, value }) => (
-                    <div key={title} className="flex items-start gap-4">
-                      <div className="w-11 h-11 rounded-xl bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-5 h-5 text-indigo-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-500">{title}</p>
-                        <p className="text-base font-semibold text-gray-900">{value}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-3xl p-8 text-white shadow-xl shadow-purple-200/30">
-                <h3 className="text-xl font-bold mb-3">We&apos;re here to help</h3>
-                <p className="text-white/90 leading-relaxed">
-                  Our team is always happy to answer your questions about orders, products,
-                  shipping, or anything else you need.
-                </p>
-              </div>
-            </div>
+      <div className="mt-4 grid gap-4 lg:grid-cols-5">
+        <div className="panel p-5 lg:col-span-3">
+          <h2 className="text-[15px] font-extrabold text-ink">Send us a message</h2>
+          <p className="mt-0.5 text-[11.5px] text-muted">
+            We usually reply within a few hours during business hours.
+          </p>
+          <div className="mt-4">
+            <ContactForm />
           </div>
         </div>
-      </section>
-    </main>
+
+        <div className="space-y-3 lg:col-span-2">
+          <div className="panel p-5">
+            <h2 className="text-[15px] font-extrabold text-ink">Contact details</h2>
+            <ul className="mt-3 space-y-3">
+              {details.map(({ icon: Icon, title, value, href }) => (
+                <li key={title} className="flex items-start gap-2.5">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand">
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-[10.5px] font-bold uppercase tracking-[0.12em] text-muted">
+                      {title}
+                    </p>
+                    {href ? (
+                      <a
+                        href={href}
+                        target={href.startsWith('http') ? '_blank' : undefined}
+                        rel="noopener noreferrer"
+                        className="break-words text-[12.5px] font-semibold text-ink hover:text-brand"
+                      >
+                        {value}
+                      </a>
+                    ) : (
+                      <p className="text-[12.5px] font-semibold text-ink">{value}</p>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="panel p-5">
+            <h2 className="text-[13px] font-extrabold text-ink">Delivery & payment</h2>
+            <ul className="mt-2 space-y-2 text-[12px] text-gray-600">
+              <li className="flex items-center gap-2">
+                <Truck className="h-4 w-4 shrink-0 text-brand" />
+                Nationwide delivery in 1–4 business days
+              </li>
+              <li className="flex items-center gap-2">
+                <Wallet className="h-4 w-4 shrink-0 text-brand" />
+                Pay on delivery, MoMo or card
+              </li>
+            </ul>
+          </div>
+
+          <a
+            href={`https://wa.me/${site.whatsapp}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 rounded-xl bg-[#1faa59] py-3 text-[13px] font-extrabold text-white transition-colors hover:bg-[#178a47]"
+          >
+            <MessageCircle className="h-4 w-4" />
+            Chat with us on WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
   );
 }

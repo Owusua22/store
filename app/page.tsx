@@ -1,266 +1,105 @@
 // app/page.tsx
-import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { Hero } from '@/components/home/Hero';
-import { CategoriesComponent } from '@/components/home/CategoriesComponent';
-import { Showrooms } from '@/components/home/showrooms'
-
-import { Categories } from '@/components/home/Categories';
-
-import type { Category, Product } from '@/types';
+import { HeroBanner } from '@/components/home/HeroBanner';
+import { CategoryStrip } from '@/components/home/CategoryStrip';
+import { ProductSection } from '@/components/home/ProductSection';
+import { ProductRail } from '@/components/home/ProductRail';
+import { DealBanner, PromoBands, ValueStrip } from '@/components/home/PromoBands';
+import { getHomeData } from '@/lib/data/store';
 
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const supabase = await createServerSupabaseClient();
+  const { banners, categories, hotArrivals, topPicks, hotSellers, showrooms } =
+    await getHomeData();
 
-  // Fetch all data in parallel
-  const [
-    bannersResult,
-    categoriesResult,
-    productsResult,
-    showroomsResult,
-    categoryProductsResult,
-  ] = await Promise.all([
-    supabase
-      .from('banners')
-      .select('*')
-      .eq('is_active', true)
-      .eq('archived', false)
-      .order('sort_order', { ascending: true }),
-    supabase
-      .from('categories')
-      .select('*')
-      .eq('is_active', true)
-      .eq('archived', false)
-      .order('sort_order', { ascending: true })
-      .limit(8),
-    supabase
-      .from('products')
-      .select('*, category:categories(*)')
-      .eq('is_active', true)
-      .order('created_at', { ascending: false })
-      .limit(8),
-    fetchShowroomsWithProducts(supabase),
-    fetchCategoryProducts(supabase),
-  ]);
-
-  const banners = bannersResult.data ?? [];
-  const categories = (categoriesResult.data ?? []) as Category[];
-
-  const showrooms = showroomsResult;
-  const categoryProducts = categoryProductsResult;
+  const deals = showrooms[0]?.products ?? [];
 
   return (
     <>
-      <Hero banners={banners} />
-      {categories.length > 0 && <CategoriesComponent categories={categories} />}
+      <HeroBanner banners={banners} />
+      <CategoryStrip categories={categories} />
+      <ValueStrip />
 
-      <Showrooms showrooms={showrooms} />
-      <Categories categories={categories} categoryProducts={categoryProducts} />
+      <ProductSection
+        title="Hot arrivals!"
+        subtitle="Fresh stock, loved by our customers"
+        href="/products?sort=newest"
+        hrefLabel="View more"
+        products={hotArrivals.slice(0, 10)}
+        columns="five"
+      />
+
+      <PromoBands />
+
+      <ProductSection
+        title="Mega deals"
+        subtitle="More shopping, less spending"
+        href="/products?deals=1"
+        hrefLabel="All deals"
+        products={deals.slice(0, 8)}
+      />
+
+      <DealBanner />
+
+      <ProductSection
+        title="Our top picks"
+        subtitle="Tried, loved and highly rated"
+        href="/products?sort=popular"
+        hrefLabel="View more"
+        products={topPicks.slice(0, 8)}
+      />
+
+      <ProductRail
+        title="Hot sellers"
+        subtitle="The items everyone is buying"
+        href="/products?sort=popular"
+        products={hotSellers.slice(0, 10)}
+      />
+
+      <section className="container-page pt-8 sm:pt-10">
+        <div className="grid gap-3 rounded-xl border border-line bg-white p-5 sm:grid-cols-3 sm:p-6">
+          {[
+            {
+              name: 'Ama D.',
+              location: 'East Legon, Accra',
+              quote:
+                'The shea body lotion is everything. My skin stayed soft through harmattan and delivery took one day.',
+              stars: 5,
+            },
+            {
+              name: 'Kwame A.',
+              location: 'Kumasi',
+              quote:
+                'Ordered diapers and baby lotion on Friday, received them Saturday morning. Genuine products, fair prices.',
+              stars: 5,
+            },
+            {
+              name: 'Nana A.',
+              location: 'Takoradi',
+              quote:
+                'The vitamin C serum cleared my dark spots in three weeks. Customer support on WhatsApp was super helpful.',
+              stars: 5,
+            },
+          ].map((review) => (
+            <figure key={review.name} className="rounded-lg bg-surface-soft p-4">
+              <div className="mb-2 flex gap-0.5 text-amber-500" aria-label={`${review.stars} star review`}>
+                {Array.from({ length: review.stars }).map((_, index) => (
+                  <span key={index} aria-hidden="true">
+                    ★
+                  </span>
+                ))}
+              </div>
+              <blockquote className="text-[12.5px] leading-relaxed text-gray-700">
+                “{review.quote}”
+              </blockquote>
+              <figcaption className="mt-3 text-[11px] font-bold text-ink">
+                {review.name}
+                <span className="ml-1 font-medium text-muted">· {review.location}</span>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
     </>
   );
-}
-
-// ============================================
-// HELPER FUNCTIONS
-// ============================================
-
-interface ShowroomProduct {
-  id: string;
-  name: string;
-  slug: string;
-  price: number;
-  compare_at_price: number | null;
-  thumbnail: string | null;
-  stock_quantity: number;
-  is_active: boolean;
-  sizes: string[];
-  colors: string[];
-}
-
-interface ShowroomProductJoin {
-  product: ShowroomProduct | null;
-}
-
-async function fetchShowroomsWithProducts(
-  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>
-) {
-  const { data: showrooms } = await supabase
-    .from('showrooms')
-    .select('*')
-    .eq('is_active', true)
-    .eq('archived', false)
-    .eq('show_on_homepage', true)
-    .order('sort_order', { ascending: true });
-
-  if (!showrooms || showrooms.length === 0) return [];
-
-  const results = await Promise.all(
-    showrooms.map(async (showroom) => {
-      let products: ShowroomProduct[] = [];
-      const limit = showroom.max_products || 8;
-
-      if (showroom.type === 'manual') {
-        const { data } = await supabase
-          .from('showroom_products')
-          .select(
-            'product:products(id, name, slug, price, compare_at_price, thumbnail, stock_quantity, is_active, sizes, colors)'
-          )
-          .eq('showroom_id', showroom.id)
-          .order('sort_order', { ascending: true })
-          .limit(limit);
-
-        const joined = (data ?? []) as unknown as ShowroomProductJoin[];
-        products = joined
-          .map((sp) => sp.product)
-          .filter((p): p is ShowroomProduct => p !== null && p.is_active);
-
-      } else if (showroom.type === 'auto_new') {
-        const thirtyDaysAgo = new Date();
-        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-
-        const { data } = await supabase
-          .from('products')
-          .select('id, name, slug, price, compare_at_price, thumbnail, stock_quantity, is_active, sizes, colors')
-          .eq('is_active', true)
-          .eq('archived', false)
-          .gte('created_at', thirtyDaysAgo.toISOString())
-          .order('created_at', { ascending: false })
-          .limit(limit);
-
-        products = (data ?? []) as ShowroomProduct[];
-
-        if (products.length === 0) {
-          const { data: fallback } = await supabase
-            .from('products')
-            .select('id, name, slug, price, compare_at_price, thumbnail, stock_quantity, is_active, sizes, colors')
-            .eq('is_active', true)
-            .eq('archived', false)
-            .order('created_at', { ascending: false })
-            .limit(limit);
-          products = (fallback ?? []) as ShowroomProduct[];
-        }
-
-      } else if (showroom.type === 'auto_deals') {
-        const { data } = await supabase
-          .from('products')
-          .select('id, name, slug, price, compare_at_price, thumbnail, stock_quantity, is_active, sizes, colors')
-          .eq('is_active', true)
-          .eq('archived', false)
-          .not('compare_at_price', 'is', null)
-          .gt('compare_at_price', 0)
-          .order('created_at', { ascending: false })
-          .limit(limit);
-
-        products = ((data ?? []) as ShowroomProduct[]).filter(
-          (p) => p.compare_at_price !== null && p.compare_at_price > p.price
-        );
-
-      } else if (showroom.type === 'auto_bestselling') {
-        const { data: topProducts } = await supabase
-          .from('order_items')
-          .select('product_id, quantity');
-
-        if (topProducts && topProducts.length > 0) {
-          const salesCount: Record<string, number> = {};
-          for (const item of topProducts) {
-            if (item.product_id) {
-              salesCount[item.product_id] = (salesCount[item.product_id] || 0) + item.quantity;
-            }
-          }
-
-          const topIds = Object.entries(salesCount)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, limit)
-            .map(([id]) => id);
-
-          if (topIds.length > 0) {
-            const { data: best } = await supabase
-              .from('products')
-              .select('id, name, slug, price, compare_at_price, thumbnail, stock_quantity, is_active, sizes, colors')
-              .in('id', topIds)
-              .eq('is_active', true)
-              .eq('archived', false);
-
-            const map = new Map(((best ?? []) as ShowroomProduct[]).map((p) => [p.id, p]));
-            products = topIds
-              .map((id) => map.get(id))
-              .filter((p): p is ShowroomProduct => p !== undefined);
-          }
-        }
-
-        if (products.length === 0) {
-          const { data: fallback } = await supabase
-            .from('products')
-            .select('id, name, slug, price, compare_at_price, thumbnail, stock_quantity, is_active, sizes, colors')
-            .eq('is_active', true)
-            .eq('archived', false)
-            .order('updated_at', { ascending: false })
-            .limit(limit);
-          products = (fallback ?? []) as ShowroomProduct[];
-        }
-      }
-
-      return { ...showroom, products };
-    })
-  );
-
-  return results;
-}
-
-// Fetch products for first 3 categories (first 10 products each)
-async function fetchCategoryProducts(
-  supabase: Awaited<ReturnType<typeof createServerSupabaseClient>>
-): Promise<Record<string, Product[]>> {
-  const result: Record<string, Product[]> = {};
-
-  try {
-    // Get first 3 categories
-    const { data: categories } = await supabase
-      .from('categories')
-      .select('id')
-      .eq('is_active', true)
-      .eq('archived', false)
-      .order('sort_order', { ascending: true })
-      .limit(3);
-
-    if (!categories || categories.length === 0) {
-      console.log('No categories found for homepage');
-      return result;
-    }
-
-    console.log(`Fetching products for ${categories.length} categories`);
-
-    // Fetch products for each category in parallel
-    const categoryRequests = categories.map((cat) =>
-      supabase
-        .from('products')
-        .select('*, category:categories(*)')
-        .eq('category_id', cat.id)
-        .eq('is_active', true)
-        .eq('archived', false)
-        .order('created_at', { ascending: false })
-        .limit(10)
-    );
-
-    const responses = await Promise.all(categoryRequests);
-
-    // Process responses and map to category IDs
-    responses.forEach((response, index) => {
-      const categoryId = categories[index].id;
-      const products = (response.data ?? []) as Product[];
-
-      if (products.length > 0) {
-        result[categoryId] = products;
-        console.log(`Fetched ${products.length} products for category ${categoryId}`);
-      } else {
-        console.log(`No products found for category ${categoryId}`);
-      }
-    });
-
-    return result;
-  } catch (error) {
-    console.error('Error fetching category products:', error);
-    return result;
-  }
 }

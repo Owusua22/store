@@ -30,3 +30,29 @@ export function extractR2KeyFromUrl(url: string): string {
   const publicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL!;
   return url.replace(`${publicUrl}/`, '');
 }
+/** Compact Ghana cedi formatting used across the storefront: GH₵1,299 */
+export function formatCedis(price: number): string {
+  const amount = Number.isFinite(price) ? price : 0;
+  return `GH₵${new Intl.NumberFormat('en-GH', {
+    minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+    maximumFractionDigits: 2,
+  }).format(amount)}`;
+}
+
+/** Pull a numeric value out of the product.metadata JSON column */
+export function metaNumber(
+  metadata: Record<string, unknown> | null | undefined,
+  key: string,
+  fallback = 0
+): number {
+  const value = metadata?.[key];
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+}
+
+export function metaString(
+  metadata: Record<string, unknown> | null | undefined,
+  key: string
+): string | null {
+  const value = metadata?.[key];
+  return typeof value === 'string' && value.length > 0 ? value : null;
+}

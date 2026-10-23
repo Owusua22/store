@@ -77,7 +77,10 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
       const result = await signUp(data.email, data.password, data.full_name);
 
       // If your hook returns a `needsEmailConfirmation` flag (recommended), you can branch here:
-      if ((result as { needsEmailConfirmation: boolean })?.needsEmailConfirmation) {
+      if (
+        (result as unknown as { needsEmailConfirmation?: boolean })
+          ?.needsEmailConfirmation
+      ) {
         toast.info('Please check your email and click the confirmation link before signing in.');
         setTimeout(() => {
           onSwitchToLogin?.();
@@ -109,7 +112,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
           <button
             type="button"
             onClick={onSwitchToLogin}
-            className="text-indigo-600 hover:text-indigo-500 font-medium"
+            className="text-red-600 hover:text-red-500 font-medium"
           >
             Sign in
           </button>
@@ -127,7 +130,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
             id="full_name"
             type="text"
             autoComplete="name"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             placeholder="Jane Doe"
           />
           {errors.full_name && (
@@ -145,7 +148,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
             id="email"
             type="email"
             autoComplete="email"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             placeholder="you@example.com"
           />
           {errors.email && (
@@ -163,7 +166,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
             id="phone"
             type="tel"
             autoComplete="tel"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             placeholder="+233 50 123 4567"
           />
           {errors.phone && (
@@ -182,7 +185,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
               id="password"
               type={showPassword ? 'text' : 'password'}
               autoComplete="new-password"
-              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               placeholder="Create a strong password"
             />
             <button
@@ -214,7 +217,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
               id="confirm_password"
               type={showConfirmPassword ? 'text' : 'password'}
               autoComplete="new-password"
-              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
               placeholder="Re-enter your password"
             />
             <button
@@ -235,7 +238,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full py-3 px-4 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+          className="w-full py-3 px-4 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 transition-colors"
         >
           {isLoading ? 'Creating account...' : 'Create account'}
         </button>

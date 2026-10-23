@@ -116,7 +116,7 @@ function RoleBadge({ role }: { role: UserRole }) {
   return (
     <span className={cn(
       'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold capitalize shadow-sm ring-1 ring-inset',
-      role === 'admin' ? 'bg-indigo-50 text-indigo-700 ring-indigo-200' : 'bg-slate-50 text-slate-700 ring-slate-200'
+      role === 'admin' ? 'bg-red-50 text-red-700 ring-red-100' : 'bg-slate-50 text-slate-700 ring-slate-200'
     )}>
       {role === 'admin' && <ShieldCheck className="mr-1 h-3.5 w-3.5" />}
       {role}
@@ -127,9 +127,9 @@ function RoleBadge({ role }: { role: UserRole }) {
 function StatCard({ title, value, icon, tone = 'slate' }: { title: string; value: number; icon: ReactNode; tone?: string }) {
   const tones: Record<string, string> = {
     slate: 'bg-slate-100 text-slate-700 ring-slate-200',
-    indigo: 'bg-indigo-100 text-indigo-700 ring-indigo-200',
+    indigo: 'bg-red-100 text-red-700 ring-red-100',
     green: 'bg-green-100 text-green-700 ring-green-200',
-    purple: 'bg-purple-100 text-purple-700 ring-purple-200',
+    purple: 'bg-red-100 text-red-800 ring-red-100',
   };
   return (
     <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:shadow-md hover:border-slate-300">
@@ -240,7 +240,7 @@ export default function AdminUsersPage() {
       {/* Top Header */}
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-indigo-700 ring-1 ring-inset ring-indigo-200">
+          <div className="inline-flex items-center gap-2 rounded-full bg-red-50 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-red-700 ring-1 ring-inset ring-red-100">
             <Users className="h-3.5 w-3.5" />
             Admin Panel
           </div>
@@ -273,15 +273,15 @@ export default function AdminUsersPage() {
               name="q"
               defaultValue={q}
               placeholder="Search by name, email..."
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm font-medium outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm font-medium outline-none transition focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-100"
             />
           </div>
-          <select name="role" defaultValue={role} className="rounded-2xl border-slate-200 bg-slate-50 px-4 text-sm font-bold text-slate-700 focus:ring-indigo-500">
+          <select name="role" defaultValue={role} className="rounded-2xl border-slate-200 bg-slate-50 px-4 text-sm font-bold text-slate-700 focus:ring-red-500">
             <option value="all">All Roles</option>
             <option value="customer">Customers</option>
             <option value="admin">Admins</option>
           </select>
-          <select name="limit" defaultValue={limit} className="rounded-2xl border-slate-200 bg-slate-50 px-4 text-sm font-bold text-slate-700 focus:ring-indigo-500">
+          <select name="limit" defaultValue={limit} className="rounded-2xl border-slate-200 bg-slate-50 px-4 text-sm font-bold text-slate-700 focus:ring-red-500">
             <option value="10">10 / page</option>
             <option value="25">25 / page</option>
             <option value="50">50 / page</option>
@@ -314,7 +314,7 @@ export default function AdminUsersPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {users.map((user) => (
-                  <tr key={user.id} className="group transition hover:bg-indigo-50/30">
+                  <tr key={user.id} className="group transition hover:bg-red-50/30">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 text-xs font-black text-white">
@@ -343,7 +343,7 @@ export default function AdminUsersPage() {
                     <td className="px-6 py-4"><RoleBadge role={user.role} /></td>
                     <td className="px-6 py-4">
                       <div className="flex justify-end gap-2">
-                        <button onClick={() => setEditingUser(user)} className="rounded-xl border border-slate-200 p-2 text-slate-600 transition hover:bg-white hover:text-indigo-600">
+                        <button onClick={() => setEditingUser(user)} className="rounded-xl border border-slate-200 p-2 text-slate-600 transition hover:bg-white hover:text-red-600">
                           <Edit3 className="h-4 w-4" />
                         </button>
                         <button onClick={() => setDeletingUser(user)} className="rounded-xl border border-slate-200 p-2 text-slate-600 transition hover:bg-white hover:text-red-600">

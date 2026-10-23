@@ -1,6 +1,11 @@
 // proxy.ts  (at project root, alongside app/)
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
+import {
+  isSupabaseConfigured,
+  supabaseAnonKey,
+  supabaseUrl,
+} from './lib/supabase/config';
 
 const PROTECTED_ROUTES = ['/orders', '/checkout', '/profile'];
 const ADMIN_ROUTES = ['/admin'];
@@ -8,13 +13,18 @@ const AUTH_ROUTES = ['/login', '/register'];
 
 // ✅ Renamed from `middleware` → `proxy`
 export async function proxy(request: NextRequest) {
+  // Demo mode (no Supabase credentials): never block navigation.
+  if (!isSupabaseConfigured) {
+    return NextResponse.next();
+  }
+
   let response = NextResponse.next({
     request: { headers: request.headers },
   });
 
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         get(name: string) {

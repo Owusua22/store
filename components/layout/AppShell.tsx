@@ -1,4 +1,4 @@
-// src/components/layout/AppShell.tsx
+// components/layout/AppShell.tsx
 'use client';
 
 import type { ReactNode } from 'react';
@@ -10,6 +10,7 @@ import { CartSidebar } from '@/components/cart/CartSidebar';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { ToastProvider } from '@/components/providers/ToastProvider';
 import { CartProvider } from '@/components/providers/CartProvider';
+import { DemoModeBanner } from '@/components/layout/DemoModeBanner';
 
 interface AppShellProps {
   children: ReactNode;
@@ -24,22 +25,17 @@ export function AppShell({ children }: AppShellProps) {
   const adminRoute = isAdminRoute(pathname);
 
   if (adminRoute) {
-    return (
-      <ToastProvider>
-        {children}
-      </ToastProvider>
-    );
+    return <ToastProvider>{children}</ToastProvider>;
   }
 
   return (
     <ToastProvider>
       <AuthGuard>
         <CartProvider>
+          <DemoModeBanner />
           <Navbar />
 
-          <main className="min-h-screen">
-            {children}
-          </main>
+          <main className="min-h-[60vh] pb-16 md:pb-0">{children}</main>
 
           <Footer />
           <CartSidebar />

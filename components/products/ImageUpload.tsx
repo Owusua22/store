@@ -88,7 +88,7 @@ export function ImageUpload({
           onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
           onDragLeave={() => setDragOver(false)}
           className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors ${
-            dragOver ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300 hover:border-gray-400'
+            dragOver ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400'
           }`}
         >
           <input
@@ -103,7 +103,7 @@ export function ImageUpload({
           <label htmlFor="image-upload" className="cursor-pointer">
             {uploading ? (
               <div className="flex flex-col items-center gap-2">
-                <Loader2 className="w-10 h-10 text-indigo-600 animate-spin" />
+                <Loader2 className="w-10 h-10 text-red-600 animate-spin" />
                 <p className="text-gray-600">Uploading...</p>
               </div>
             ) : (
@@ -111,7 +111,7 @@ export function ImageUpload({
                 <Upload className="w-10 h-10 text-gray-400" />
                 <div>
                   <p className="text-gray-600 font-medium">
-                    Drop images here or <span className="text-indigo-600">browse</span>
+                    Drop images here or <span className="text-red-600">browse</span>
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
                     PNG, JPG, WebP up to 5MB • Max {maxFiles} images
@@ -144,7 +144,7 @@ export function ImageUpload({
                 <X className="w-4 h-4" />
               </button>
               {index === 0 && (
-                <span className="absolute bottom-2 left-2 bg-indigo-600 text-white text-xs px-2 py-0.5 rounded-full">
+                <span className="absolute bottom-2 left-2 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
                   Thumbnail
                 </span>
               )}

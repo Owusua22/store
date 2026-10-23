@@ -189,7 +189,7 @@ export default function NewProductPage() {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
           <input type="text" name="name" value={formData.name} onChange={handleChange} required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             placeholder="e.g., Classic White T-Shirt" />
         </div>
 
@@ -197,7 +197,7 @@ export default function NewProductPage() {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
           <textarea name="description" value={formData.description} onChange={handleChange} rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             placeholder="Product description..." />
         </div>
 
@@ -207,12 +207,12 @@ export default function NewProductPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Price *</label>
               <input type="number" name="price" value={formData.price} onChange={handleChange} required step="0.01" min="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="0.00" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="0.00" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Stock Quantity *</label>
               <input type="number" name="stock_quantity" value={formData.stock_quantity} onChange={handleChange} required min="0"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="0" />
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="0" />
             </div>
           </div>
         )}
@@ -221,7 +221,7 @@ export default function NewProductPage() {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
           <select name="category_id" value={formData.category_id} onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
             <option value="">Select category</option>
             {parentCategories.map((cat) => (
               <option key={cat.id} value={cat.id}>{cat.icon || '📁'} {cat.name}</option>
@@ -241,7 +241,7 @@ export default function NewProductPage() {
           <label className="block text-sm font-medium text-gray-700 mb-1">Product Images</label>
           <input type="file" accept="image/*" onChange={handleImageUpload} disabled={isUploading} className="hidden" id="image-upload" />
           <label htmlFor="image-upload"
-            className="flex items-center justify-center w-full px-4 py-8 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-indigo-500 hover:bg-indigo-50 transition-colors">
+            className="flex items-center justify-center w-full px-4 py-8 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-red-500 hover:bg-red-50 transition-colors">
             <div className="text-center">
               <Upload className="w-8 h-8 mx-auto text-gray-400 mb-2" />
               <p className="text-sm text-gray-600">{isUploading ? 'Uploading...' : 'Click to upload'}</p>
@@ -251,8 +251,8 @@ export default function NewProductPage() {
             <div className="mt-4 grid grid-cols-4 gap-4">
               {formData.thumbnail && (
                 <div className="relative group">
-                  <img src={formData.thumbnail} alt="Thumbnail" className="w-full h-32 object-cover rounded-lg border-2 border-indigo-500" />
-                  <span className="absolute top-1 left-1 px-2 py-0.5 bg-indigo-600 text-white text-xs rounded">Thumbnail</span>
+                  <img src={formData.thumbnail} alt="Thumbnail" className="w-full h-32 object-cover rounded-lg border-2 border-red-500" />
+                  <span className="absolute top-1 left-1 px-2 py-0.5 bg-red-600 text-white text-xs rounded">Thumbnail</span>
                   <button type="button" onClick={() => removeImage(0, true)} className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100">
                     <X className="w-3 h-3" />
                   </button>
@@ -292,35 +292,35 @@ export default function NewProductPage() {
                 <label className="block text-xs font-medium text-gray-600 mb-1">Size *</label>
                 <input type="text" value={newVariant.size}
                   onChange={(e) => setNewVariant((p) => ({ ...p, size: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
                   placeholder="e.g., M" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Color *</label>
                 <input type="text" value={newVariant.color}
                   onChange={(e) => setNewVariant((p) => ({ ...p, color: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
                   placeholder="e.g., Blue" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Price *</label>
                 <input type="number" step="0.01" value={newVariant.price}
                   onChange={(e) => setNewVariant((p) => ({ ...p, price: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
                   placeholder="0.00" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Compare Price</label>
                 <input type="number" step="0.01" value={newVariant.compare_at_price}
                   onChange={(e) => setNewVariant((p) => ({ ...p, compare_at_price: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
                   placeholder="0.00" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-600 mb-1">Stock</label>
                 <input type="number" value={newVariant.stock_quantity}
                   onChange={(e) => setNewVariant((p) => ({ ...p, stock_quantity: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
                   placeholder="0" />
               </div>
               <div className="flex items-end">
@@ -387,7 +387,7 @@ export default function NewProductPage() {
         {/* Status */}
         <div className="flex items-center gap-2">
           <input type="checkbox" name="is_active" id="is_active" checked={formData.is_active} onChange={handleChange}
-            className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500" />
+            className="w-4 h-4 text-red-600 rounded focus:ring-red-500" />
           <label htmlFor="is_active" className="text-sm font-medium text-gray-700">Active (visible on store)</label>
         </div>
 

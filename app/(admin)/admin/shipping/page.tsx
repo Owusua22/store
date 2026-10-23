@@ -475,7 +475,7 @@ export default function ShippingPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600" />
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600" />
       </div>
     );
   }
@@ -772,7 +772,7 @@ export default function ShippingPage() {
                   <tr key={zone.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <MapPin className="w-4 h-4 text-indigo-600" />
+                        <MapPin className="w-4 h-4 text-red-600" />
                         <span className="font-medium text-sm text-gray-900">{zone.name}</span>
                       </div>
                     </td>
@@ -809,7 +809,7 @@ export default function ShippingPage() {
                     <td className="px-6 py-4 flex items-center gap-2">
                       <button
                         onClick={() => openEditZone(zone)}
-                        className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
                         title="Edit"
                       >
                         <Edit2 className="w-4 h-4" />
@@ -1081,7 +1081,7 @@ export default function ShippingPage() {
                           'linear-gradient(135deg, rgba(79,70,229,0.1), rgba(236,72,153,0.1))',
                       }}
                     >
-                      <Tag className="w-5 h-5 text-indigo-600" />
+                      <Tag className="w-5 h-5 text-red-600" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
@@ -1090,7 +1090,7 @@ export default function ShippingPage() {
                         </p>
                         <button
                           onClick={() => copyCode(code.code)}
-                          className="p-1 text-gray-400 hover:text-indigo-600"
+                          className="p-1 text-gray-400 hover:text-red-600"
                           title="Copy"
                         >
                           {copiedCode === code.code ? (
@@ -1119,7 +1119,7 @@ export default function ShippingPage() {
                     </button>
                     <button
                       onClick={() => openEditCode(code)}
-                      className="p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg"
+                      className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg"
                       title="Edit"
                     >
                       <Edit2 className="w-4 h-4" />

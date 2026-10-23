@@ -1,6 +1,8 @@
 // app/api/products/search/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { searchDemoProducts } from '@/lib/demo/catalog';
 
 export const dynamic = 'force-dynamic';
 
@@ -49,6 +51,24 @@ export async function GET(request: NextRequest) {
         success: true,
         data: [] as ProductSearchRow[],
       });
+    }
+
+    if (!isSupabaseConfigured) {
+      const results = searchDemoProducts(q, limit).map((product) => ({
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        thumbnail: product.thumbnail,
+        price: product.price,
+        compare_at_price: product.compare_at_price,
+        category: product.category?.name ?? null,
+        stock_quantity: product.stock_quantity,
+      }));
+
+      return NextResponse.json(
+        { success: true, data: results },
+        { headers: { 'Cache-Control': 'no-store' } }
+      );
     }
 
     const supabase = getSupabaseAdminClient();

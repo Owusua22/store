@@ -151,7 +151,7 @@ function AdminMobileChrome({ fullName, email }: AdminMobileChromeProps) {
           </p>
         </div>
 
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-600">
           <ShieldCheck className="h-5 w-5" />
         </div>
       </header>
@@ -197,7 +197,7 @@ export default function AdminDashboardShell({
           </div>
 
           <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-sm font-black text-white">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-600 text-sm font-black text-white">
               {fullName?.[0]?.toUpperCase() || 'A'}
             </div>
 
