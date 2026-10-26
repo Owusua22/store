@@ -355,6 +355,8 @@ create index if not exists order_items_order_idx on public.order_items (order_id
 -- ---------------------------------------------------------------------------
 create table if not exists public.shipping_zones (
   id                 uuid primary key default gen_random_uuid(),
+  name               text,
+  postal_code_prefix text,
   country            text not null default 'Ghana',
   region             text not null,
   town               text not null,
@@ -634,6 +636,46 @@ $$;
 -- ---------------------------------------------------------------------------
 -- 11. Low stock view for the admin dashboard
 -- ---------------------------------------------------------------------------
+create or replace view public.low_stock_products as
+select id, name, slug, stock_quantity, low_stock_threshold, thumbnail
+from public.products
+where not archived
+  and stock_quantity <= low_stock_threshold
+order by stock_quantity asc;
+
+-- ---------------------------------------------------------------------------
+-- 12. Idempotent upgrades
+-- Adds columns introduced after an earlier run of this file, so re-running it
+-- against an existing project is always safe.
+-- ---------------------------------------------------------------------------
+alter table public.shipping_zones add column if not exists name text;
+alter table public.shipping_zones add column if not exists postal_code_prefix text;
+alter table public.shipping_zones add column if not exists free_over_amount numeric(12, 2);
+
+alter table public.products add column if not exists short_description text;
+alter table public.products add column if not exists brand text;
+alter table public.products add column if not exists skin_types text[] not null default '{}';
+alter table public.products add column if not exists concerns text[] not null default '{}';
+alter table public.products add column if not exists ingredients text;
+alter table public.products add column if not exists how_to_use text;
+alter table public.products add column if not exists benefits text;
+alter table public.products add column if not exists low_stock_threshold integer not null default 10;
+alter table public.products add column if not exists weight_grams integer;
+alter table public.products add column if not exists sold_count integer not null default 0;
+alter table public.products add column if not exists rating numeric(3, 2) not null default 0;
+alter table public.products add column if not exists reviews_count integer not null default 0;
+alter table public.products add column if not exists is_featured boolean not null default false;
+alter table public.products add column if not exists seo_title text;
+alter table public.products add column if not exists seo_description text;
+
+alter table public.banners add column if not exists text_color text default '#FFFFFF';
+alter table public.banners add column if not exists overlay_opacity numeric(3, 2) default 0.4;
+
+alter table public.orders add column if not exists delivery_method text not null default 'delivery';
+alter table public.orders add column if not exists shipping_zone_id uuid;
+alter table public.orders add column if not exists discount_amount numeric(12, 2) not null default 0;
+
+-- Keep the low_stock view in sync after upgrades
 create or replace view public.low_stock_products as
 select id, name, slug, stock_quantity, low_stock_threshold, thumbnail
 from public.products

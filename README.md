@@ -47,11 +47,14 @@ The full walkthrough lives in **[docs/backend-setup.md](docs/backend-setup.md)**
 Short version:
 
 1. Create a Supabase project and run `supabase/schema.sql`, then `supabase/seed.sql`
-   in the SQL editor (both are idempotent).
+   in the SQL editor (both are idempotent). Live mode reads **only** from Postgres —
+   no demo products appear once keys are set.
 2. Create a user in **Authentication → Users**, then promote it:
    `update public.profiles set role = 'admin' where id = '<user-uuid>';`
-3. Create a Cloudflare R2 bucket + API token, enable public access, and point
-   `CLOUDFLARE_R2_PUBLIC_URL` at it.
+3. Create a Cloudflare R2 bucket (`glow-up`), generate an **R2 API token**
+   (R2 → Manage R2 API Tokens → Object Read & Write) for the Access Key ID /
+   Secret Access Key, enable public access, and set `CLOUDFLARE_R2_PUBLIC_URL`.
+   Verify at `/api/test-r2`.
 4. Copy `.env.example` → `.env.local`, fill in the values, restart the dev server.
 5. Sign in at `/login` and open `/admin/dashboard`.
 
@@ -64,8 +67,8 @@ SUPABASE_SERVICE_ROLE_KEY=
 CLOUDFLARE_R2_ACCOUNT_ID=
 CLOUDFLARE_R2_ACCESS_KEY_ID=
 CLOUDFLARE_R2_SECRET_ACCESS_KEY=
-CLOUDFLARE_R2_BUCKET_NAME=
-CLOUDFLARE_R2_PUBLIC_URL=
+CLOUDFLARE_R2_BUCKET_NAME=glow-up
+CLOUDFLARE_R2_PUBLIC_URL=          # https://pub-xxxx.r2.dev or your CDN domain
 
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
@@ -134,6 +137,38 @@ Skin types (`normal`, `dry`, `oily`, `combination`, `sensitive`, `acne-prone`) a
 managed at `/admin/skin-types` and power the storefront filter chips
 (`/products?skin=dry`). Journal articles are written at `/admin/blog` and published
 at `/blog`.
+
+## Troubleshooting
+
+### `Turbopack is not supported on this platform` / `dlopen ... next-swc.darwin-arm64.node`
+
+This is a **corrupted native binary**, not an app bug — usually a truncated npm
+download or a half-finished extraction. The lockfile ships the correct optional
+package (`@next/swc-darwin-arm64@16.2.4`), so a clean reinstall fixes it:
+
+```bash
+npm run reset          # deletes node_modules + .next
+npm cache verify       # or: npm cache clean --force
+rm -rf ~/.npm/_cacache  # only if the error persists
+npm install
+npm run dev
+```
+
+If you cannot reinstall right now, run the Webpack fallback (no native binaries
+required for dev):
+
+```bash
+npm run dev:webpack
+# or: npm run build:webpack
+```
+
+Other notes:
+
+- Always `cd` into the folder that contains `package.json` before running scripts.
+- On macOS, avoid running the dev server from a synced folder (iCloud/Dropbox) or
+  straight out of `~/Downloads` if you see `.next` filesystem warnings — move the
+  project to `~/Developer/store` first.
+- Node 20+ is recommended (`node -v`).
 
 ## Notes
 

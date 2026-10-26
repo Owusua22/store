@@ -68,9 +68,14 @@ export async function getBlogPosts(query: BlogQuery = {}): Promise<BlogPost[]> {
       }
 
       const { data, error } = await request;
-      if (!error && data) return data as BlogPost[];
+      if (error) {
+        console.error('getBlogPosts failed:', error.message);
+        return [];
+      }
+      return (data ?? []) as BlogPost[];
     } catch (error) {
-      console.error('getBlogPosts: falling back to demo posts', error);
+      console.error('getBlogPosts failed:', error);
+      return [];
     }
   }
 
@@ -87,9 +92,14 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
         .eq('slug', slug)
         .maybeSingle();
 
-      if (!error && data) return data as BlogPost;
+      if (error) {
+        console.error('getBlogPostBySlug failed:', error.message);
+        return null;
+      }
+      return (data as BlogPost | null) ?? null;
     } catch (error) {
-      console.error('getBlogPostBySlug: falling back to demo posts', error);
+      console.error('getBlogPostBySlug failed:', error);
+      return null;
     }
   }
 

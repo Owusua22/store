@@ -12,6 +12,8 @@ function getAdminClient() {
 }
 
 const zoneUpdateSchema = z.object({
+  name: z.string().trim().optional(),
+  postal_code_prefix: z.string().trim().optional(),
   country: z.string().trim().optional(),
   region: z.string().trim().min(1, 'Region is required').optional(),
   town: z.string().trim().min(1, 'Town is required').optional(),
@@ -52,6 +54,7 @@ export async function PUT(
     const { free_shipping_threshold, ...fields } = validated.data;
     const payload = {
       ...fields,
+      ...(validated.data.town && !validated.data.name ? { name: validated.data.town } : {}),
       country: validated.data.country || 'Ghana',
       free_over_amount: validated.data.free_over_amount ?? free_shipping_threshold ?? null,
       updated_at: new Date().toISOString(),

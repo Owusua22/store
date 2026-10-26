@@ -1,11 +1,23 @@
 // src/app/(admin)/dashboard/page.tsx
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { formatPrice } from '@/lib/utils';
+import { formatCedis } from '@/lib/utils';
 import Link from 'next/link';
 import SalesTrendChart from '@/components/admin/SalesTrendChart';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { getCatalogCounts } from '@/lib/data/store';
+import { getR2Status } from '@/lib/r2/client';
+import SetupChecklist from '@/components/admin/SetupChecklist';
+
+export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboard() {
   const supabase = await createServerSupabaseClient();
+  const catalog = await getCatalogCounts();
+  const storage = getR2Status();
+  const needsSetup =
+    isSupabaseConfigured &&
+    catalog !== null &&
+    (catalog.products === 0 || catalog.categories === 0 || !storage.configured);
 
   const [{ count: productCount }, { count: orderCount }, { data: revenue }] = await Promise.all([
     supabase.from('products').select('*', { count: 'exact', head: true }),
@@ -104,6 +116,8 @@ export default async function AdminDashboard() {
       </div>
 
       <div className="p-8">
+        {needsSetup ? <SetupChecklist counts={catalog} storage={storage} /> : null}
+
         {/* Row 1: Revenue banner + accent cards */}
         <div className="grid grid-cols-3 gap-6 mb-6">
           <div
@@ -117,7 +131,7 @@ export default async function AdminDashboard() {
             <div className="absolute right-24 bottom-0 w-48 h-48 rounded-full opacity-10 bg-white" style={{ transform: 'translateY(30%)' }} />
             <div className="relative z-10">
               <p className="text-blue-200 text-sm font-medium mb-1">Total Revenue</p>
-              <p className="text-white text-4xl font-bold mb-1">{formatPrice(totalRevenue)}</p>
+              <p className="text-white text-4xl font-bold mb-1">{formatCedis(totalRevenue)}</p>
               <p className="text-blue-300 text-sm flex items-center gap-1">
                 <span className="text-green-400">▲</span> from completed orders
               </p>
@@ -181,7 +195,7 @@ export default async function AdminDashboard() {
           {[
             { label: 'Total Products', value: productCount || 0, icon: '📦', color: 'bg-red-50', sub: '▲ In your catalog', subColor: 'text-green-500' },
             { label: 'Completed Orders', value: revenue?.length || 0, icon: '✅', color: 'bg-green-50', sub: '▲ Fulfilled successfully', subColor: 'text-green-500' },
-            { label: 'Total Revenue', value: formatPrice(totalRevenue), icon: '💰', color: 'bg-emerald-50', sub: '▲ Lifetime earnings', subColor: 'text-green-500', green: true },
+            { label: 'Total Revenue', value: formatCedis(totalRevenue), icon: '💰', color: 'bg-emerald-50', sub: '▲ Lifetime earnings', subColor: 'text-green-500', green: true },
             { label: 'All Orders', value: orderCount || 0, icon: '🛒', color: 'bg-orange-50', sub: lowStock?.length ? `▼ ${lowStock.length} low stock` : '✓ Stock looks good', subColor: lowStock?.length ? 'text-orange-500' : 'text-green-500' },
           ].map((card, i) => (
             <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
@@ -206,7 +220,7 @@ export default async function AdminDashboard() {
               <div className="flex items-center gap-2 bg-blue-50 rounded-lg px-3 py-1.5">
                 <span className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
                 <span className="text-xs text-gray-500">Revenue:</span>
-                <span className="text-xs font-bold text-blue-600">{formatPrice(thirtyDayRevenue)}</span>
+                <span className="text-xs font-bold text-blue-600">{formatCedis(thirtyDayRevenue)}</span>
               </div>
               <div className="flex items-center gap-2 bg-emerald-50 rounded-lg px-3 py-1.5">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0" />
@@ -312,7 +326,7 @@ export default async function AdminDashboard() {
                       {order.status}
                     </span>
                     <span className="text-sm font-bold text-gray-900 text-right">
-                      {formatPrice(order.total_amount || 0)}
+                      {formatCedis(order.total_amount || 0)}
                     </span>
                   </div>
                 ))

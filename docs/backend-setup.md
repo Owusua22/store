@@ -4,8 +4,8 @@ This app runs in two modes:
 
 | Mode | Trigger | What happens |
 | --- | --- | --- |
-| **Demo** | no `NEXT_PUBLIC_SUPABASE_URL` / anon key | Bundled skincare catalogue, localStorage cart, fake sign-in, admin screens render sample data (writes return a demo notice) |
-| **Live** | Supabase keys present | Postgres data, auth, RLS, admin CRUD, Cloudflare R2 image uploads |
+| **Demo** | no `NEXT_PUBLIC_SUPABASE_URL` / anon key | Bundled skincare catalogue, localStorage cart, fake sign-in, admin screens render sample data (writes return a demo notice like under `⚠️` banners) |
+| **Live** | Supabase keys present | Postgres is the **only** source of truth — an empty catalogue renders empty (no sample products leak in), real auth, RLS, admin CRUD, Cloudflare R2 uploads |
 
 Everything below is one-time setup.
 
@@ -59,26 +59,73 @@ where id = 'PASTE-USER-UUID-HERE';
 
 New signups get `role = 'customer'` automatically via the `handle_new_user` trigger.
 
-## 4. Cloudflare R2 for images
+## 4. Cloudflare R2 for images (bucket `glow-up`)
 
-1. Cloudflare dashboard → **R2 → Create bucket** (e.g. `sally-images`).
-2. **Manage R2 API tokens → Create API token** with *Object Read & Write* for that bucket.
-   Copy the Access Key ID, Secret Access Key and Account ID.
-3. Public access:
-   - Either enable the **r2.dev public development URL**, or
-   - Connect a custom domain (recommended, e.g. `cdn.sallyskincare.com`).
-4. Fill in `.env.local`:
+### 4a. Where the two keys come from
+
+`CLOUDFLARE_R2_ACCESS_KEY_ID` and `CLOUDFLARE_R2_SECRET_ACCESS_KEY` are **not** the
+same as your Cloudflare login, and they are not found under "My Profile". They are
+created per bucket:
+
+1. Open <https://dash.cloudflare.com> → **R2** in the left sidebar.
+2. Click **Manage R2 API Tokens** (top-right of the R2 overview, sometimes under
+   *API* → *Manage API tokens*).
+3. **Create API token**:
+   - *Token name*: `sally-admin-uploads`
+   - *Permissions*: **Object Read & Write**
+   - *Specify bucket(s)*: `glow-up` (or *All buckets*)
+   - Optionally set a TTL, then **Create API Token**
+4. The next screen shows, **once**:
+   - **Access Key ID** → `CLOUDFLARE_R2_ACCESS_KEY_ID`
+   - **Secret Access Key** → `CLOUDFLARE_R2_SECRET_ACCESS_KEY` (copy it now; you
+     cannot view it again — if you lose it, roll the token and create a new one)
+5. **Account ID** → R2 overview page, right-hand sidebar (*Account ID*), or the
+   part of the dashboard URL before `.r2.cloudflarestorage.com`.
+
+> The S3 endpoint used by the app is
+> `https://<CLOUDFLARE_R2_ACCOUNT_ID>.r2.cloudflarestorage.com` (region `auto`).
+
+### 4b. Make the bucket publicly readable
+
+Uploads return a public URL, so the bucket needs public access:
+
+1. R2 → **glow-up** → **Settings** → **Public access**.
+2. Either enable the **r2.dev public development URL** (fine for testing, e.g.
+   `https://pub-xxxxxxxx.r2.dev`) or attach a **custom domain**
+   (`cdn.yourdomain.com`) — recommended for production.
+3. Copy that base URL (no trailing slash) into `CLOUDFLARE_R2_PUBLIC_URL`.
+
+### 4c. Environment
 
 ```bash
-CLOUDFLARE_R2_ACCOUNT_ID=xxxxxxxx
-CLOUDFLARE_R2_ACCESS_KEY_ID=xxxxxxxx
-CLOUDFLARE_R2_SECRET_ACCESS_KEY=xxxxxxxx
-CLOUDFLARE_R2_BUCKET_NAME=sally-images
-CLOUDFLARE_R2_PUBLIC_URL=https://cdn.sallyskincare.com   # no trailing slash
+CLOUDFLARE_R2_ACCOUNT_ID=xxxxxxxxxxxxxxxx
+CLOUDFLARE_R2_ACCESS_KEY_ID=xxxxxxxxxxxxxxxx
+CLOUDFLARE_R2_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxx
+CLOUDFLARE_R2_BUCKET_NAME=glow-up
+CLOUDFLARE_R2_PUBLIC_URL=https://pub-xxxxxxxx.r2.dev   # no trailing slash
 ```
 
-5. Test it: sign in as admin → `/api/test-r2` or upload an image in
-   **Admin → Products → Add product → Gallery**.
+`CLOUDFLARE_R2_BUCKET_NAME` also defaults to `glow-up` in code
+(`lib/r2/client.ts`), so uploads still target the right bucket if the variable is
+missing — but the public URL **must** be set or images will not render.
+
+### 4d. Verify
+
+Restart the dev server, sign in as admin, then open **`/api/test-r2`**:
+
+```json
+{
+  "success": true,
+  "storage": { "bucket": "glow-up", "configured": true, "publicUrl": "https://…" },
+  "message": "Connected to the "glow-up" bucket.",
+  "sampleObjects": ["products/…jpg"]
+}
+```
+
+You can also upload from **Admin → Products → Add product → Gallery**, or
+**Admin → Blog → New article → Cover image**. `next/image` remote hosts are read
+from `CLOUDFLARE_R2_PUBLIC_URL` in `next.config.ts`, so any custom domain works
+without code changes (restart after changing it).
 
 Uploads go through `POST /api/upload` (admin session required), are placed under
 `products/`, and return `{ success: true, data: { url } }`. The public URL must be
@@ -150,12 +197,37 @@ Restart `npm run dev` after editing.
 | GET/POST/PATCH/DELETE | `/api/admin/skin-types` | Skin type vocabulary |
 | GET/POST | `/api/admin/stock` | Stock overview / adjust (`{product_id, quantity, mode: add\|remove\|set, reason, note}`) |
 | GET/POST | `/api/admin/blog` · GET/PUT/PATCH/DELETE `/api/admin/blog/[id]` | Articles |
-| POST | `/api/upload` | multipart `file` → R2 URL |
+| POST | `/api/upload` | multipart `file` (+ optional `folder`) → R2 `{ url, key, bucket }`. JPG/PNG/WEBP/AVIF/GIF, max 8 MB |
+| GET | `/api/test-r2` | admin-only storage diagnostics (bucket + public URL) |
 
 Unauthenticated calls return `401`; signed-in non-admins get `403`; in demo mode
 every admin route returns `503` with `{ demo: true }`.
 
-## 9. Deploying
+## 9. Live-mode behaviour worth knowing
+
+- **No demo data in live mode.** `lib/data/store.ts` only uses the bundled
+  catalogue when no Supabase project is configured. An empty table renders an
+  empty state instead of fake products.
+- **Setup checklist.** Until `categories`, `products` or R2 are ready,
+  `/admin/dashboard` shows a checklist with the exact next action.
+- **Caching.** The homepage revalidates every 60 s; every other storefront page
+  is dynamic, so admin edits appear immediately there.
+- **Images.** Uploaded URLs live under `products/`, `blog/`, `banners/`,
+  `categories/` or `showrooms/` in the bucket.
+
+## 10. Troubleshooting
+
+| Symptom | Cause / fix |
+| --- | --- |
+| Storefront shows nothing after connecting Supabase | `supabase/schema.sql` + `supabase/seed.sql` have not run, or all products are `is_active = false` / `archived = true` |
+| `/admin/*` redirects to the homepage | The signed-in user's `profiles.role` is not `admin` — run the `update public.profiles set role='admin' …` statement |
+| `permission denied for table …` | RLS is on (correct) — anonymous reads need `is_active`/published rows; writes need the service-role key on the server |
+| `/api/upload` returns "R2 is not configured" | One of `CLOUDFLARE_R2_ACCOUNT_ID`, `_ACCESS_KEY_ID`, `_SECRET_ACCESS_KEY` is empty; restart after editing `.env.local` |
+| Upload succeeds but the image is broken | `CLOUDFLARE_R2_PUBLIC_URL` is missing/wrong, or the bucket has no public access |
+| `signature does not match` from R2 | Secret key was copied incorrectly (or truncated) — roll the token and re-copy |
+| Cart is always empty | The user must be signed in; carts are per-user rows guarded by RLS |
+
+## 11. Deploying
 
 - Vercel (or any Node host): add the same env vars to the project.
 - Set `NEXT_PUBLIC_APP_URL` to the production origin.

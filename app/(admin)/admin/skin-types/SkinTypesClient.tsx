@@ -49,9 +49,11 @@ const EMPTY_FORM: FormState = {
 export default function SkinTypesClient({
   skinTypes,
   demoMode,
+  usingDefaults = false,
 }: {
   skinTypes: SkinTypeWithCount[];
   demoMode: boolean;
+  usingDefaults?: boolean;
 }) {
   const router = useRouter();
   const [editing, setEditing] = useState<SkinTypeWithCount | null>(null);
@@ -171,6 +173,15 @@ export default function SkinTypesClient({
       />
 
       {demoMode ? <DemoNotice /> : null}
+
+      {usingDefaults ? (
+        <div className="mb-6 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-[12.5px] text-sky-900">
+          <strong className="font-bold">Built-in defaults.</strong> Your{' '}
+          <code>skin_types</code> table is empty, so these six values are shown from the app.
+          They already match seeded products — add your own below, or run{' '}
+          <code>supabase/seed.sql</code> to store them in the database.
+        </div>
+      ) : null}
 
       {showForm ? (
         <AdminCard className="mb-6 border-red-100 bg-red-50/30">

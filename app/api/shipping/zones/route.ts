@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { mapShippingZones } from '@/lib/shipping/zones';
 import { demoShippingZones } from '@/lib/demo/shipping';
 
 function getPublicClient() {
@@ -13,7 +14,7 @@ function getPublicClient() {
 // ✅ Named HTTP Method Export
 export async function GET() {
   if (!isSupabaseConfigured) {
-    return NextResponse.json({ success: true, data: demoShippingZones });
+    return NextResponse.json({ success: true, data: mapShippingZones(demoShippingZones) });
   }
 
   try {
@@ -31,7 +32,10 @@ export async function GET() {
       return NextResponse.json({ success: false, error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, data: zones ?? [] });
+    return NextResponse.json({
+      success: true,
+      data: mapShippingZones(zones),
+    });
   } catch (error) {
     console.error('Zone fetch error:', error);
     return NextResponse.json({ success: false, error: 'Server error' }, { status: 500 });

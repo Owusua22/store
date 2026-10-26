@@ -3,6 +3,7 @@ import { createRouteHandlerSupabaseClient, getAuthenticatedUser } from '@/lib/su
 import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { formatZodError } from '@/lib/validation';
+import { mapShippingZones } from '@/lib/shipping/zones';
 
 function getAdminClient() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
@@ -11,10 +12,10 @@ function getAdminClient() {
 const zoneSchema = z
   .object({
     name: z.string().trim().optional(),
+    postal_code_prefix: z.string().trim().optional(),
     country: z.string().trim().default('Ghana'),
     region: z.string().trim().min(1, 'Region is required'),
     town: z.string().trim().min(1, 'Town is required'),
-    postal_code_prefix: z.string().optional(),
     shipping_fee: z.number().nonnegative(),
     estimated_days_min: z.number().int().positive(),
     estimated_days_max: z.number().int().positive(),
@@ -46,7 +47,7 @@ export async function GET() {
       .order('town');
 
     if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-    return NextResponse.json({ success: true, data });
+    return NextResponse.json({ success: true, data: mapShippingZones(data) });
   } catch (error) {
     return NextResponse.json({ success: false, error: error instanceof Error ? error.message : 'Server error' }, { status: 500 });
   }
@@ -71,6 +72,7 @@ export async function POST(request: NextRequest) {
     const { free_shipping_threshold, ...zoneFields } = validated.data;
     const zoneData = {
       ...zoneFields,
+      name: validated.data.name || validated.data.town,
       country: validated.data.country || 'Ghana',
       free_over_amount: validated.data.free_over_amount ?? free_shipping_threshold ?? null,
     };
@@ -83,7 +85,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-    return NextResponse.json({ success: true, data }, { status: 201 });
+    return NextResponse.json({ success: true, data: mapShippingZones([data])[0] }, { status: 201 });
   } catch (error) {
     return NextResponse.json({ success: false, error: error instanceof Error ? error.message : 'Server error' }, { status: 500 });
   }

@@ -30,7 +30,7 @@ async function loadStock(): Promise<{ rows: StockRow[]; movements: Movement[] }>
         .order('created_at', { ascending: false })
         .limit(20);
 
-      if (products && products.length > 0) {
+      if (products) {
         return {
           rows: products.map((row) => ({
             ...row,
@@ -41,8 +41,13 @@ async function loadStock(): Promise<{ rows: StockRow[]; movements: Movement[] }>
         };
       }
     } catch (error) {
-      console.error('stock page: falling back to demo data', error);
+      console.error('stock page: could not load live stock', error);
     }
+  }
+
+  // Live mode with a failed lookup: render an empty table, never demo rows.
+  if (isSupabaseConfigured) {
+    return { rows: [], movements: [] };
   }
 
   return {

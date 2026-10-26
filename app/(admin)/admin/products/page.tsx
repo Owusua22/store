@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { demoProducts, demoCategories } from '@/lib/demo/catalog';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { getSkinTypes } from '@/lib/data/skin-types';
 import ProductsClient, { type AdminProductRow } from './ProductsClient';
 
@@ -32,9 +32,9 @@ export default async function ProductsPage() {
     categories = categoryRows ?? [];
   }
 
-  // Demo mode (or an empty live store) shows the bundled catalogue so the
-  // screen is never blank while you are setting things up.
-  if (products.length === 0) {
+  // Demo mode only: show the bundled catalogue so the screen is not blank.
+  // In live mode an empty catalogue stays empty — no fake products.
+  if (!isSupabaseConfigured && products.length === 0) {
     products = demoProducts.map((product) => ({
       id: product.id,
       name: product.name,
@@ -53,7 +53,7 @@ export default async function ProductsPage() {
     }));
   }
 
-  if (categories.length === 0) {
+  if (!isSupabaseConfigured && categories.length === 0) {
     categories = demoCategories.map((category) => ({ id: category.id, name: category.name }));
   }
 

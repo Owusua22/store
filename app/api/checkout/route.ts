@@ -19,6 +19,8 @@ const shippingSchema = z.object({
   email: z.string().email('Valid email required'),
   phone: z.string().min(1, 'Phone number is required'),
   address: z.string().optional(),
+  address_line1: z.string().optional(),
+  address_line2: z.string().optional(),
   town: z.string().optional(),
   city: z.string().optional(),
   region: z.string().optional(),
@@ -28,8 +30,11 @@ const shippingSchema = z.object({
 
 const checkoutSchema = z.object({
   shipping_address: shippingSchema,
-  payment_method: z.enum(['cod', 'card', 'mpesa']).default('cod'),
+  payment_method: z.enum(['cod', 'card', 'mpesa', 'momo']).default('cod'),
   notes: z.string().optional(),
+  delivery_method: z.enum(['delivery', 'pickup']).default('delivery'),
+  shipping_zone_id: z.string().uuid().optional().nullable(),
+  discount_code_id: z.string().uuid().optional().nullable(),
 });
 
 function generateOrderNumber(): string {
@@ -207,20 +212,23 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Delivery is free above the brand threshold (GH₵300). Below that we use
-    // the zone fee the shopper picked, falling back to the cheapest active zone.
+    // Delivery is free above the brand threshold (GH₵300) and for pickup.
+    // Below that we use the zone the shopper picked, falling back to the
+    // matching town/region and finally the cheapest active zone.
     const address = validated.data.shipping_address;
     const adminClient = getAdminClient();
+    const deliveryMethod = validated.data.delivery_method;
+    const zoneId = validated.data.shipping_zone_id ?? address.zone_id ?? null;
     let shippingAmount = 0;
 
-    if (subtotal < FREE_DELIVERY_THRESHOLD) {
+    if (deliveryMethod === 'delivery' && subtotal < FREE_DELIVERY_THRESHOLD) {
       let zoneFee: number | null = null;
 
-      if (address.zone_id) {
+      if (zoneId) {
         const { data: zone } = await adminClient
           .from('shipping_zones')
           .select('shipping_fee')
-          .eq('id', address.zone_id)
+          .eq('id', zoneId)
           .maybeSingle();
         zoneFee = zone ? Number(zone.shipping_fee) : null;
       }
@@ -280,8 +288,8 @@ export async function POST(request: NextRequest) {
         payment_status: 'pending',
         payment_method: validated.data.payment_method,
         notes: validated.data.notes || null,
-        delivery_method: 'delivery',
-        shipping_zone_id: address.zone_id ?? null,
+        delivery_method: deliveryMethod,
+        shipping_zone_id: zoneId,
         discount_amount: 0,
       })
       .select()

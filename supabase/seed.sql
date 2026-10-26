@@ -159,6 +159,10 @@ values
   ('Ghana','Northern','Tamale',             50, 3, 5, 12)
 on conflict (country, region, town) do nothing;
 
+-- Give every zone a display name (the admin UI shows `name`).
+update public.shipping_zones
+   set name = coalesce(nullif(name, ''), town);
+
 -- ---------------------------------------------------------------------------
 -- Promo code example
 -- ---------------------------------------------------------------------------

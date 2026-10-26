@@ -6,7 +6,7 @@ import SkinTypesClient, { type SkinTypeWithCount } from './SkinTypesClient';
 
 export const dynamic = 'force-dynamic';
 
-async function loadSkinTypes(): Promise<SkinTypeWithCount[]> {
+async function loadSkinTypes(): Promise<{ rows: SkinTypeWithCount[]; usingDefaults: boolean }> {
   if (isSupabaseConfigured) {
     try {
       const supabase = await createServerSupabaseClient();
@@ -28,26 +28,52 @@ async function loadSkinTypes(): Promise<SkinTypeWithCount[]> {
       }
 
       if (data && data.length > 0) {
-        return (data as SkinTypeRow[]).map((row) => ({
-          ...row,
-          product_count: counts[row.slug] ?? 0,
-        }));
+        return {
+          rows: (data as SkinTypeRow[]).map((row) => ({
+            ...row,
+            product_count: counts[row.slug] ?? 0,
+          })),
+          usingDefaults: false,
+        };
       }
+
+      // Table exists but is empty: fall back to the built-in vocabulary so the
+      // product form and storefront filters still work.
+      return {
+        rows: fallbackSkinTypes.map((row) => ({
+          ...row,
+          product_count: 0,
+        })),
+        usingDefaults: true,
+      };
     } catch (error) {
       console.error('skin types page: falling back to defaults', error);
     }
   }
 
-  return fallbackSkinTypes.map((row) => ({
-    ...row,
-    product_count: demoProducts.filter((product) =>
-      (product.skin_types ?? []).includes(row.slug)
-    ).length,
-  }));
+  if (isSupabaseConfigured) {
+    return { rows: [], usingDefaults: false };
+  }
+
+  return {
+    rows: fallbackSkinTypes.map((row) => ({
+      ...row,
+      product_count: demoProducts.filter((product) =>
+        (product.skin_types ?? []).includes(row.slug)
+      ).length,
+    })),
+    usingDefaults: !isSupabaseConfigured,
+  };
 }
 
 export default async function SkinTypesPage() {
-  const skinTypes = await loadSkinTypes();
+  const { rows, usingDefaults } = await loadSkinTypes();
 
-  return <SkinTypesClient skinTypes={skinTypes} demoMode={!isSupabaseConfigured} />;
+  return (
+    <SkinTypesClient
+      skinTypes={rows}
+      demoMode={!isSupabaseConfigured}
+      usingDefaults={usingDefaults && isSupabaseConfigured}
+    />
+  );
 }
