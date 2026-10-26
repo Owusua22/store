@@ -46,6 +46,7 @@ export const HELP_LINKS = [
 
 export const USEFUL_LINKS = [
   { label: 'About us', href: '/about' },
+  { label: 'Skin care journal', href: '/blog' },
   { label: 'Shop all products', href: '/products' },
   { label: 'My account', href: '/account' },
   { label: 'My orders', href: '/orders' },

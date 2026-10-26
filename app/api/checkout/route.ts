@@ -6,6 +6,9 @@ import { z } from 'zod';
 import { formatZodError } from '@/lib/validation';
 import type { Product } from '@/types';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { site } from '@/lib/site';
+
+const FREE_DELIVERY_THRESHOLD = site.freeDeliveryThreshold;
 
 // ============================================
 // Schemas and Helpers
@@ -15,8 +18,12 @@ const shippingSchema = z.object({
   full_name: z.string().min(1, 'Full name is required'),
   email: z.string().email('Valid email required'),
   phone: z.string().min(1, 'Phone number is required'),
- 
-  
+  address: z.string().optional(),
+  town: z.string().optional(),
+  city: z.string().optional(),
+  region: z.string().optional(),
+  zone_id: z.string().uuid().optional().nullable(),
+  delivery_notes: z.string().optional(),
 });
 
 const checkoutSchema = z.object({
@@ -200,7 +207,50 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const shippingAmount = subtotal > 500 ? 0 : 50;
+    // Delivery is free above the brand threshold (GH₵300). Below that we use
+    // the zone fee the shopper picked, falling back to the cheapest active zone.
+    const address = validated.data.shipping_address;
+    const adminClient = getAdminClient();
+    let shippingAmount = 0;
+
+    if (subtotal < FREE_DELIVERY_THRESHOLD) {
+      let zoneFee: number | null = null;
+
+      if (address.zone_id) {
+        const { data: zone } = await adminClient
+          .from('shipping_zones')
+          .select('shipping_fee')
+          .eq('id', address.zone_id)
+          .maybeSingle();
+        zoneFee = zone ? Number(zone.shipping_fee) : null;
+      }
+
+      if (zoneFee === null && (address.town || address.city || address.region)) {
+        let zoneQuery = adminClient
+          .from('shipping_zones')
+          .select('shipping_fee')
+          .eq('is_active', true)
+          .limit(1);
+        if (address.town || address.city) zoneQuery = zoneQuery.eq('town', address.town ?? address.city);
+        else if (address.region) zoneQuery = zoneQuery.eq('region', address.region);
+
+        const { data: zone } = await zoneQuery;
+        zoneFee = zone && zone[0] ? Number(zone[0].shipping_fee) : null;
+      }
+
+      if (zoneFee === null) {
+        const { data: cheapest } = await adminClient
+          .from('shipping_zones')
+          .select('shipping_fee')
+          .eq('is_active', true)
+          .order('shipping_fee', { ascending: true })
+          .limit(1);
+        zoneFee = cheapest && cheapest[0] ? Number(cheapest[0].shipping_fee) : 0;
+      }
+
+      shippingAmount = zoneFee ?? 0;
+    }
+
     const taxAmount = 0;
     const totalAmount = subtotal + shippingAmount + taxAmount;
 
@@ -213,9 +263,6 @@ export async function POST(request: NextRequest) {
       totalAmount,
       itemCount: orderItemsPayload.length,
     });
-
-    // Use admin client for write operations
-    const adminClient = getAdminClient();
 
     // Create the Order
     console.log('📝 [CHECKOUT] Creating order...');
@@ -233,6 +280,9 @@ export async function POST(request: NextRequest) {
         payment_status: 'pending',
         payment_method: validated.data.payment_method,
         notes: validated.data.notes || null,
+        delivery_method: 'delivery',
+        shipping_zone_id: address.zone_id ?? null,
+        discount_amount: 0,
       })
       .select()
       .single();
@@ -271,6 +321,13 @@ export async function POST(request: NextRequest) {
         console.error(`❌ [CHECKOUT] Stock update error for ${update.product_id}:`, stockUpdateError);
       } else {
         console.log(`  ✅ ${update.product_name}: ${update.old_stock} → ${update.new_stock}`);
+        await adminClient.from('inventory_movements').insert({
+          product_id: update.product_id,
+          change: update.new_stock - update.old_stock,
+          reason: 'order-fulfilled',
+          note: `Order ${orderNumber}`,
+          order_id: order.id,
+        });
       }
     }
 

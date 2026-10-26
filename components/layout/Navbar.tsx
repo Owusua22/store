@@ -45,6 +45,7 @@ const PRIMARY_LINKS = [
   { href: '/categories/body-lotions', label: 'Body Care' },
   { href: '/categories/face-care', label: 'Face Care' },
   { href: '/categories/baby-care', label: 'Baby Care' },
+  { href: '/blog', label: 'Journal' },
 ] as const;
 
 function Logo() {

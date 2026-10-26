@@ -21,6 +21,7 @@ import {
 import { toast } from 'react-toastify';
 import { useCart } from '@/hooks/useCart';
 import { formatCedis, metaNumber, metaString } from '@/lib/utils';
+import { skinTypeLabel } from '@/lib/skin-types';
 import { ProductCard } from '@/components/products/ProductCard';
 import type { Product, ProductVariant } from '@/types';
 
@@ -454,6 +455,14 @@ export function ProductDetails({ product, relatedProducts }: ProductDetailsProps
                   {product.category?.name ?? 'Skin care'}
                 </span>
               </li>
+              <li className="flex justify-between gap-3">
+                <span className="text-muted">Skin type</span>
+                <span className="text-right font-semibold text-ink">
+                  {(product.skin_types ?? []).length > 0
+                    ? (product.skin_types ?? []).map(skinTypeLabel).join(', ')
+                    : 'All skin types'}
+                </span>
+              </li>
               {options.length > 0 && (
                 <li className="flex justify-between gap-3">
                   <span className="text-muted">Options</span>
@@ -473,10 +482,18 @@ export function ProductDetails({ product, relatedProducts }: ProductDetailsProps
             <h2 className="text-[12px] font-extrabold uppercase tracking-[0.12em] text-ink">
               How to use
             </h2>
-            <p className="prose-soft mt-2 text-[12px] leading-relaxed text-gray-600">
-              Apply to clean, dry skin morning and night. For best results use daily and
-              follow with sunscreen in the morning. Patch test before first use.
+            <p className="prose-soft mt-2 whitespace-pre-line text-[12px] leading-relaxed text-gray-600">
+              {product.how_to_use ??
+                'Apply to clean, dry skin morning and night. For best results use daily and follow with sunscreen in the morning. Patch test before first use.'}
             </p>
+            {product.ingredients ? (
+              <p className="mt-2 border-t border-line pt-2 text-[11.5px] leading-relaxed text-muted">
+                <span className="font-bold uppercase tracking-wider text-ink/70">
+                  Key ingredients:
+                </span>{' '}
+                {product.ingredients}
+              </p>
+            ) : null}
           </div>
 
           <div className="panel p-4">

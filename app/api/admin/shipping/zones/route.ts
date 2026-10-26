@@ -8,18 +8,25 @@ function getAdminClient() {
   return createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 }
 
-const zoneSchema = z.object({
-  name: z.string().min(1),
-  region: z.string().min(1, 'Region is required'),
-  town: z.string().optional(),
-  postal_code_prefix: z.string().optional(),
-  shipping_fee: z.number().nonnegative(),
-  estimated_days_min: z.number().int().positive(),
-  estimated_days_max: z.number().int().positive(),
-  free_shipping_threshold: z.number().nonnegative().nullable().optional(),
-  is_active: z.boolean().default(true),
-  sort_order: z.number().int().default(0),
-});
+const zoneSchema = z
+  .object({
+    name: z.string().trim().optional(),
+    country: z.string().trim().default('Ghana'),
+    region: z.string().trim().min(1, 'Region is required'),
+    town: z.string().trim().min(1, 'Town is required'),
+    postal_code_prefix: z.string().optional(),
+    shipping_fee: z.number().nonnegative(),
+    estimated_days_min: z.number().int().positive(),
+    estimated_days_max: z.number().int().positive(),
+    free_over_amount: z.number().nonnegative().nullable().optional(),
+    free_shipping_threshold: z.number().nonnegative().nullable().optional(),
+    is_active: z.boolean().default(true),
+    sort_order: z.number().int().default(0),
+  })
+  .refine((value) => value.estimated_days_max >= value.estimated_days_min, {
+    message: 'Maximum delivery days must be greater than or equal to the minimum',
+    path: ['estimated_days_max'],
+  });
 
 export async function GET() {
   try {
@@ -60,10 +67,12 @@ export async function POST(request: NextRequest) {
     const validated = zoneSchema.safeParse(body);
     if (!validated.success) return NextResponse.json({ success: false, error: formatZodError(validated.error) }, { status: 400 });
 
-    // Automatically set country to Ghana
+    // Only persist columns that exist on public.shipping_zones
+    const { free_shipping_threshold, ...zoneFields } = validated.data;
     const zoneData = {
-      ...validated.data,
-      country: 'Ghana'
+      ...zoneFields,
+      country: validated.data.country || 'Ghana',
+      free_over_amount: validated.data.free_over_amount ?? free_shipping_threshold ?? null,
     };
 
     const adminClient = getAdminClient();

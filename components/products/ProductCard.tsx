@@ -31,9 +31,10 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
       ? product.category
       : product.category?.name ?? '';
 
-  const rating = metaNumber(product.metadata, 'rating', 4.8);
-  const reviews = metaNumber(product.metadata, 'reviews', 0);
-  const sold = metaNumber(product.metadata, 'sold', 0);
+  const rating = product.rating ?? metaNumber(product.metadata, 'rating', 4.8);
+  const reviews =
+    product.reviews_count ?? metaNumber(product.metadata, 'reviews', 0);
+  const sold = product.sold_count ?? metaNumber(product.metadata, 'sold', 0);
   const badge = metaString(product.metadata, 'badge');
 
   const isOutOfStock = product.stock_quantity <= 0;

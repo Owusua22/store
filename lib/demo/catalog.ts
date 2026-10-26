@@ -437,23 +437,185 @@ const seeds: ProductSeed[] = [
   },
 ];
 
+
+/**
+ * Skin care attributes kept out of the seed list above so the list stays
+ * readable. Keyed by product id.
+ */
+const EXTRAS: Record<
+  string,
+  {
+    skinTypes: string[];
+    concerns: string[];
+    ingredients: string;
+    howTo: string;
+    benefits: string;
+    brand?: string;
+  }
+> = {
+  'p-body-lotion-shea': {
+    skinTypes: ['dry', 'normal', 'sensitive'],
+    concerns: ['dryness', 'dullness'],
+    ingredients: 'Shea butter, cocoa butter, vitamin E, glycerin',
+    howTo: 'Smooth over damp skin after bathing, morning and night.',
+    benefits: 'Deep hydration, softer skin, less ashiness',
+  },
+  'p-body-lotion-cocoa': {
+    skinTypes: ['normal', 'dry'],
+    concerns: ['uneven-tone', 'dryness'],
+    ingredients: 'Cocoa butter, vitamin E, niacinamide',
+    howTo: 'Massage into clean, dry skin daily, focusing on dry patches.',
+    benefits: 'Even tone, luminous finish, non-greasy',
+  },
+  'p-body-oil-bright': {
+    skinTypes: ['normal', 'dry', 'combination'],
+    concerns: ['dullness', 'uneven-tone'],
+    ingredients: 'Carrot seed oil, shea oil, vitamin E',
+    howTo: 'Add a few drops to damp skin after bathing.',
+    benefits: 'Lit-from-within glow, soft texture',
+  },
+  'p-face-serum-vitc': {
+    skinTypes: ['combination', 'normal', 'oily'],
+    concerns: ['dark-spots', 'dullness', 'uneven-tone'],
+    ingredients: '10% vitamin C, niacinamide 4%, hyaluronic acid',
+    howTo: 'Apply 3–4 drops in the morning before moisturiser and SPF.',
+    benefits: 'Brighter tone, fewer dark spots, antioxidant protection',
+  },
+  'p-face-serum-hydra': {
+    skinTypes: ['dry', 'normal', 'sensitive'],
+    concerns: ['dryness'],
+    ingredients: 'Triple-weight hyaluronic acid, panthenol, glycerin',
+    howTo: 'Apply to damp skin morning and night, then seal with cream.',
+    benefits: 'Plump, dewy skin, reduced tightness',
+  },
+  'p-face-cream-hydra': {
+    skinTypes: ['dry', 'normal', 'sensitive'],
+    concerns: ['dryness', 'sensitivity'],
+    ingredients: 'Ceramides, aloe vera, squalane, glycerin',
+    howTo: 'Apply to face and neck each morning after serum.',
+    benefits: 'Stronger barrier, all-day hydration',
+  },
+  'p-face-cream-night': {
+    skinTypes: ['dry', 'normal'],
+    concerns: ['ageing', 'dryness'],
+    ingredients: 'Shea butter, peptide complex, vitamin B3',
+    howTo: 'Apply a generous layer at night as the last step.',
+    benefits: 'Smoother, firmer morning skin',
+  },
+  'p-face-wash-foam': {
+    skinTypes: ['normal', 'dry', 'sensitive', 'combination'],
+    concerns: ['sensitivity', 'dullness'],
+    ingredients: 'Aloe vera, green tea, amino-acid surfactants',
+    howTo: 'Massage onto damp skin morning and night, rinse with lukewarm water.',
+    benefits: 'Cleans without stripping, calm skin',
+  },
+  'p-face-wash-charcoal': {
+    skinTypes: ['oily', 'combination', 'acne-prone'],
+    concerns: ['acne', 'dullness'],
+    ingredients: 'Activated charcoal, salicylic acid, tea tree',
+    howTo: 'Use once or twice daily on oily areas, then moisturise.',
+    benefits: 'Fewer breakouts, less shine, clearer pores',
+  },
+  'p-shampoo-argan': {
+    skinTypes: ['normal', 'dry'],
+    concerns: ['dryness'],
+    ingredients: 'Argan oil, glycerin, panthenol',
+    howTo: 'Massage into wet scalp and lengths, then rinse well.',
+    benefits: 'Gentle cleanse, less breakage',
+    brand: 'Sally Hair',
+  },
+  'p-conditioner-silk': {
+    skinTypes: ['normal', 'dry'],
+    concerns: ['dryness'],
+    ingredients: 'Silk protein, shea butter, glycerin',
+    howTo: 'Apply to mid-lengths and ends, leave 2–3 minutes, rinse.',
+    benefits: 'Detangled, soft, shiny hair',
+    brand: 'Sally Hair',
+  },
+  'p-shower-gel-refresh': {
+    skinTypes: ['normal', 'oily', 'combination'],
+    concerns: ['dullness'],
+    ingredients: 'Citrus extract, mint, glycerin',
+    howTo: 'Lather onto a sponge or hands, wash and rinse.',
+    benefits: 'Fresh, clean skin that never feels dry',
+  },
+  'p-shower-gel-shea': {
+    skinTypes: ['dry', 'sensitive'],
+    concerns: ['dryness'],
+    ingredients: 'Shea butter, glycerin, oat extract',
+    howTo: 'Massage over damp skin and rinse with lukewarm water.',
+    benefits: 'Comforted, soft skin after every shower',
+  },
+  'p-baby-lotion': {
+    skinTypes: ['sensitive'],
+    concerns: ['dryness', 'sensitivity'],
+    ingredients: 'Shea butter, calendula, glycerin (fragrance-free)',
+    howTo: 'Apply within 3 minutes of bathing, morning and night.',
+    benefits: 'Gentle moisture, calm skin, safe for newborns',
+    brand: 'Sally Baby',
+  },
+  'p-baby-diapers': {
+    skinTypes: ['sensitive'],
+    concerns: ['sensitivity'],
+    ingredients: 'Soft non-woven top sheet, absorbent pulp, breathable back sheet',
+    howTo: 'Change after each feed or when soiled.',
+    benefits: 'Fewer leaks, dry nights, gentle on skin',
+    brand: 'Sally Baby',
+  },
+  'p-baby-wash': {
+    skinTypes: ['sensitive'],
+    concerns: ['sensitivity'],
+    ingredients: 'Tear-free surfactants, calendula, glycerin',
+    howTo: 'Add a small amount to bath water or lather on hair and body, then rinse.',
+    benefits: 'No tears, gentle cleanse',
+    brand: 'Sally Baby',
+  },
+  'p-sunscreen-spf50': {
+    skinTypes: ['normal', 'dry', 'oily', 'combination', 'sensitive'],
+    concerns: ['sun-protection', 'dark-spots'],
+    ingredients: 'SPF 50 filters, niacinamide, vitamin E',
+    howTo: 'Apply generously 15 minutes before sun exposure. Reapply every 2 hours.',
+    benefits: 'No white cast, broad-spectrum protection',
+  },
+  'p-aloe-gel': {
+    skinTypes: ['sensitive', 'oily', 'normal'],
+    concerns: ['sensitivity', 'sun-protection'],
+    ingredients: '98% aloe vera, cucumber, panthenol',
+    howTo: 'Apply a thin layer to irritated or sun-exposed skin as needed.',
+    benefits: 'Cooling relief, fast-absorbing hydration',
+  },
+};
+
 export const demoProducts: Product[] = seeds.map((seed, index) => {
   const cat = demoCategories.find((c) => c.id === seed.category);
   const thumbnail = `/images/products/${seed.image}`;
+
+  const extra = EXTRAS[seed.id];
 
   return {
     id: seed.id,
     name: seed.name,
     slug: seed.slug,
     description: seed.description,
+    short_description: seed.description.slice(0, 90),
     price: seed.price,
     compare_at_price: seed.compareAt,
     stock_quantity: seed.stock,
     category_id: seed.category,
+    brand: extra?.brand ?? 'Sally Skin',
+    skin_types: extra?.skinTypes ?? ['normal'],
+    concerns: extra?.concerns ?? [],
+    ingredients: extra?.ingredients ?? null,
+    how_to_use: extra?.howTo ?? null,
+    benefits: extra?.benefits ?? null,
     images: [thumbnail],
     thumbnail,
     sizes: seed.options ?? [],
     colors: [],
+    rating: seed.rating,
+    reviews_count: seed.reviews,
+    sold_count: seed.sold,
+    is_featured: Boolean(seed.badge),
     is_active: true,
     archived: false,
     metadata: {
@@ -461,7 +623,7 @@ export const demoProducts: Product[] = seeds.map((seed, index) => {
       reviews: seed.reviews,
       sold: seed.sold,
       badge: seed.badge,
-      brand: 'Sally Skin',
+      brand: extra?.brand ?? 'Sally Skin',
     },
     created_at: new Date(Date.UTC(2026, 0, 15 - index)).toISOString(),
     updated_at: now,

@@ -7,6 +7,7 @@ import { ProductCard } from '@/components/products/ProductCard';
 import { ShopFilters, SortSelect } from '@/components/products/ShopFilters';
 import { getCategories, getProducts, type SortKey } from '@/lib/data/store';
 import { metaNumber } from '@/lib/utils';
+import { getSkinTypes } from '@/lib/data/skin-types';
 
 export const metadata: Metadata = {
   title: 'Shop skin care products',
@@ -29,6 +30,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
   const query = first(params.q)?.trim() ?? '';
   const categorySlug = first(params.category) ?? undefined;
+  const skinType = first(params.skin) ?? undefined;
   const deals = first(params.deals) === '1';
   const rawSort = first(params.sort) ?? 'newest';
   const sort: SortKey = SORT_VALUES.includes(rawSort as SortKey)
@@ -40,15 +42,16 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const activeMin = Number.isFinite(min) ? min : undefined;
   const activeMax = Number.isFinite(max) ? max : undefined;
 
-  const [categories, allProducts] = await Promise.all([
-    getCategories(),
-    getProducts({
-      categorySlug,
-      search: query || undefined,
-      dealsOnly: deals,
-      sort: rawSort === 'popular' ? 'newest' : sort,
-    }),
-  ]);
+  const [categories, skinTypes] = await Promise.all([getCategories(), getSkinTypes()]);
+  const activeSkinType = skinTypes.find((type) => type.slug === skinType);
+
+  const allProducts = await getProducts({
+    categorySlug,
+    search: query || undefined,
+    dealsOnly: deals,
+    skinType,
+    sort: rawSort === 'popular' ? 'newest' : sort,
+  });
 
   let products = allProducts;
 
@@ -96,9 +99,44 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             </h1>
             <p className="mt-1 text-[12px] text-muted">
               {products.length} product{products.length === 1 ? '' : 's'} available
-              {activeCategory ? ` in ${activeCategory.name}` : ''} · authentic products,
-              nationwide delivery
+              {activeCategory ? ` in ${activeCategory.name}` : ''}
+              {activeSkinType ? ` for ${activeSkinType.label.toLowerCase()} skin` : ''} ·
+              authentic products, nationwide delivery
             </p>
+
+            {/* Skin type quick filters */}
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              <Link
+                href={`/products${categorySlug ? `?category=${categorySlug}` : ''}`}
+                className={`rounded-full border px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                  !skinType
+                    ? 'border-brand bg-brand text-white'
+                    : 'border-line bg-white text-gray-600 hover:border-brand/60'
+                }`}
+              >
+                All skin types
+              </Link>
+              {skinTypes.map((type) => {
+                const search = new URLSearchParams();
+                if (categorySlug) search.set('category', categorySlug);
+                if (deals) search.set('deals', '1');
+                search.set('skin', type.slug);
+                return (
+                  <Link
+                    key={type.slug}
+                    href={`/products?${search.toString()}`}
+                    className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                      skinType === type.slug
+                        ? 'border-brand bg-brand text-white'
+                        : 'border-line bg-white text-gray-600 hover:border-brand/60'
+                    }`}
+                  >
+                    <span aria-hidden="true">{type.emoji}</span>
+                    {type.label}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
 
           <form action="/products" className="flex h-10 w-full max-w-sm items-center rounded-lg border border-line bg-white pl-3">
@@ -126,6 +164,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
           <ShopFilters
             categories={categories}
             activeCategory={categorySlug}
+            activeSkinType={skinType}
+            skinTypes={skinTypes}
             activeMin={activeMin}
             activeMax={activeMax}
             deals={deals}

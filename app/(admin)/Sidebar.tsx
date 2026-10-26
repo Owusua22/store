@@ -15,16 +15,22 @@ import {
   LogOut,
   ArrowLeft,
   User,
+  Sparkles,
+  Boxes,
+  Newspaper,
 } from 'lucide-react';
 
 const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/products', label: 'Products', icon: Package },
   { href: '/admin/categories', label: 'Categories', icon: FolderTree },
+  { href: '/admin/skin-types', label: 'Skin Types', icon: Sparkles },
+  { href: '/admin/stock', label: 'Stock', icon: Boxes },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
+  { href: '/admin/shipping', label: 'Shipping', icon: Truck },
+  { href: '/admin/blog', label: 'Blog', icon: Newspaper },
   { href: '/admin/showrooms', label: 'Showrooms', icon: Store },
   { href: '/admin/banners', label: 'Banners', icon: ImageIcon },
-  { href: '/admin/shipping', label: 'Shipping', icon: Truck },
   { href: '/admin/users', label: 'Users', icon: User },
 ];
 
@@ -39,7 +45,7 @@ export default function Sidebar({
   const router = useRouter();
   const supabase = createClient();
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   const handleLogout = async () => {
     if (!confirm('Are you sure you want to sign out?')) return;

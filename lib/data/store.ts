@@ -27,6 +27,9 @@ export interface ProductQuery {
   sort?: SortKey;
   dealsOnly?: boolean;
   excludeId?: string;
+  /** e.g. 'dry' | 'oily' | 'sensitive' — matches products flagged for that skin type */
+  skinType?: string;
+  featuredOnly?: boolean;
 }
 
 function sortProducts(products: Product[], sort: SortKey = 'newest') {
@@ -74,6 +77,18 @@ function filterDemoProducts(query: ProductQuery): Product[] {
   if (query.dealsOnly) {
     products = products.filter(
       (p) => p.compare_at_price !== null && p.compare_at_price > p.price
+    );
+  }
+
+  if (query.featuredOnly) {
+    products = products.filter((p) => p.is_featured);
+  }
+
+  if (query.skinType) {
+    products = products.filter(
+      (p) =>
+        (p.skin_types ?? []).length === 0 ||
+        (p.skin_types ?? []).includes(query.skinType as string)
     );
   }
 
@@ -201,6 +216,14 @@ export async function getProducts(
         request = request
           .not('compare_at_price', 'is', null)
           .gt('compare_at_price', 0);
+      }
+
+      if (query.featuredOnly) {
+        request = request.eq('is_featured', true);
+      }
+
+      if (query.skinType) {
+        request = request.contains('skin_types', [query.skinType]);
       }
 
       if (query.search) {

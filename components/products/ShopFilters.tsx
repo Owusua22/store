@@ -5,10 +5,13 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { formatCedis } from '@/lib/utils';
 import type { DemoCategory } from '@/lib/demo/catalog';
+import type { SkinTypeRow } from '@/lib/data/skin-types';
 
 interface ShopFiltersProps {
   categories: DemoCategory[];
   activeCategory?: string;
+  activeSkinType?: string;
+  skinTypes?: SkinTypeRow[];
   activeMin?: number;
   activeMax?: number;
   deals?: boolean;
@@ -25,6 +28,8 @@ const PRICE_BUCKETS = [
 export function ShopFilters({
   categories,
   activeCategory,
+  activeSkinType,
+  skinTypes = [],
   activeMin,
   activeMax,
   deals,
@@ -53,7 +58,11 @@ export function ShopFilters({
   };
 
   const hasFilters = Boolean(
-    activeCategory || activeMin !== undefined || activeMax !== undefined || deals
+    activeCategory ||
+      activeSkinType ||
+      activeMin !== undefined ||
+      activeMax !== undefined ||
+      deals
   );
 
   const categoryLinks = (
@@ -148,6 +157,35 @@ export function ShopFilters({
           Categories
         </h3>
         {categoryLinks}
+      </div>
+
+      <div>
+        <h3 className="mb-2 text-[11px] font-extrabold uppercase tracking-[0.14em] text-ink">
+          Skin type
+        </h3>
+        <ul className="space-y-1">
+          {skinTypes.map((type) => (
+            <li key={type.slug}>
+              <button
+                type="button"
+                onClick={() =>
+                  update(
+                    'skin',
+                    activeSkinType === type.slug ? null : type.slug
+                  )
+                }
+                className={`flex w-full items-center gap-2 rounded-md px-2.5 py-1.5 text-left text-[12.5px] font-semibold transition-colors ${
+                  activeSkinType === type.slug
+                    ? 'bg-brand-soft text-brand'
+                    : 'text-gray-600 hover:bg-surface-soft hover:text-ink'
+                }`}
+              >
+                <span aria-hidden="true">{type.emoji}</span>
+                {type.label}
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
 
       <div>

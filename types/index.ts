@@ -13,6 +13,9 @@ export type {
   CartItem,
   Order,
   OrderItem,
+  SkinType,
+  BlogPost,
+  BlogStatus,
 } from './database';
 
 export type {
