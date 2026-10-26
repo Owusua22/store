@@ -8,6 +8,7 @@
 
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { checkDatabaseHealth, logDatabaseError } from '@/lib/supabase/health';
 import {
   demoBanners,
   demoCategories,
@@ -64,6 +65,20 @@ export interface StoreShowroom {
 }
 
 const LIVE = isSupabaseConfigured;
+
+/**
+ * Cheap guard: when the connected project has no tables yet we return empty
+ * results instead of firing (and logging) a query per section on every render.
+ */
+let schemaReady: boolean | null = null;
+
+async function schemaIsReady(): Promise<boolean> {
+  if (!LIVE) return false;
+  if (schemaReady === true) return true;
+  const health = await checkDatabaseHealth();
+  schemaReady = health.initialized;
+  return schemaReady;
+}
 
 function sortProducts(products: Product[], sort: SortKey = 'newest') {
   const list = [...products];
@@ -160,6 +175,7 @@ export function withCategories(products: Product[]): Product[] {
 // ---------------------------------------------------------------------------
 export async function getCategories(): Promise<DemoCategory[]> {
   if (!LIVE) return demoCategories;
+  if (!(await schemaIsReady())) return [];
 
   try {
     const supabase = await createServerSupabaseClient();
@@ -171,19 +187,20 @@ export async function getCategories(): Promise<DemoCategory[]> {
       .order('sort_order', { ascending: true });
 
     if (error) {
-      console.error('getCategories failed:', error.message);
+      logDatabaseError('getCategories', error);
       return [];
     }
 
     return (data ?? []) as DemoCategory[];
   } catch (error) {
-    console.error('getCategories failed:', error);
+    logDatabaseError('getCategories', error);
     return [];
   }
 }
 
 export async function getCategoryBySlug(slug: string): Promise<DemoCategory | null> {
   if (!LIVE) return findDemoCategory(slug);
+  if (!(await schemaIsReady())) return null;
 
   try {
     const supabase = await createServerSupabaseClient();
@@ -196,13 +213,13 @@ export async function getCategoryBySlug(slug: string): Promise<DemoCategory | nu
       .maybeSingle();
 
     if (error) {
-      console.error('getCategoryBySlug failed:', error.message);
+      logDatabaseError('getCategoryBySlug', error);
       return null;
     }
 
     return (data as DemoCategory | null) ?? null;
   } catch (error) {
-    console.error('getCategoryBySlug failed:', error);
+    logDatabaseError('getCategoryBySlug', error);
     return null;
   }
 }
@@ -212,6 +229,7 @@ export async function getCategoryBySlug(slug: string): Promise<DemoCategory | nu
 // ---------------------------------------------------------------------------
 export async function getBanners(): Promise<Banner[]> {
   if (!LIVE) return demoBanners as Banner[];
+  if (!(await schemaIsReady())) return [];
 
   try {
     const supabase = await createServerSupabaseClient();
@@ -223,13 +241,13 @@ export async function getBanners(): Promise<Banner[]> {
       .order('sort_order', { ascending: true });
 
     if (error) {
-      console.error('getBanners failed:', error.message);
+      logDatabaseError('getBanners', error);
       return [];
     }
 
     return (data ?? []) as Banner[];
   } catch (error) {
-    console.error('getBanners failed:', error);
+    logDatabaseError('getBanners', error);
     return [];
   }
 }
@@ -239,6 +257,7 @@ export async function getBanners(): Promise<Banner[]> {
 // ---------------------------------------------------------------------------
 export async function getProducts(query: ProductQuery = {}): Promise<Product[]> {
   if (!LIVE) return withCategories(filterDemoProducts(query));
+  if (!(await schemaIsReady())) return [];
 
   try {
     const supabase = await createServerSupabaseClient();
@@ -301,7 +320,7 @@ export async function getProducts(query: ProductQuery = {}): Promise<Product[]> 
     const { data, error } = await request;
 
     if (error) {
-      console.error('getProducts failed:', error.message);
+      logDatabaseError('getProducts', error);
       return [];
     }
 
@@ -317,13 +336,14 @@ export async function getProducts(query: ProductQuery = {}): Promise<Product[]> 
 
     return products;
   } catch (error) {
-    console.error('getProducts failed:', error);
+    logDatabaseError('getProducts', error);
     return [];
   }
 }
 
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   if (!LIVE) return findDemoProduct(slug);
+  if (!(await schemaIsReady())) return null;
 
   try {
     const supabase = await createServerSupabaseClient();
@@ -335,13 +355,13 @@ export async function getProductBySlug(slug: string): Promise<Product | null> {
       .maybeSingle();
 
     if (error) {
-      console.error('getProductBySlug failed:', error.message);
+      logDatabaseError('getProductBySlug', error);
       return null;
     }
 
     return (data as Product | null) ?? null;
   } catch (error) {
-    console.error('getProductBySlug failed:', error);
+    logDatabaseError('getProductBySlug', error);
     return null;
   }
 }
@@ -381,6 +401,8 @@ export async function getShowrooms(options: { homepageOnly?: boolean } = {}): Pr
     })) as StoreShowroom[];
   }
 
+  if (!(await schemaIsReady())) return [];
+
   try {
     const supabase = await createServerSupabaseClient();
     let request = supabase
@@ -395,7 +417,7 @@ export async function getShowrooms(options: { homepageOnly?: boolean } = {}): Pr
     const { data, error } = await request;
 
     if (error) {
-      console.error('getShowrooms failed:', error.message);
+      logDatabaseError('getShowrooms', error);
       return [];
     }
 
@@ -450,7 +472,7 @@ export async function getShowrooms(options: { homepageOnly?: boolean } = {}): Pr
 
     return showrooms;
   } catch (error) {
-    console.error('getShowrooms failed:', error);
+    logDatabaseError('getShowrooms', error);
     return [];
   }
 }
@@ -469,6 +491,8 @@ export async function getShowroomBySlug(slug: string): Promise<StoreShowroom | n
     return { ...showroom, products } as StoreShowroom;
   }
 
+  if (!(await schemaIsReady())) return null;
+
   try {
     const supabase = await createServerSupabaseClient();
     const { data: showroom, error } = await supabase
@@ -480,7 +504,7 @@ export async function getShowroomBySlug(slug: string): Promise<StoreShowroom | n
       .maybeSingle();
 
     if (error) {
-      console.error('getShowroomBySlug failed:', error.message);
+      logDatabaseError('getShowroomBySlug', error);
       return null;
     }
     if (!showroom) return null;
@@ -516,7 +540,7 @@ export async function getShowroomBySlug(slug: string): Promise<StoreShowroom | n
 
     return { ...showroom, products } as StoreShowroom;
   } catch (error) {
-    console.error('getShowroomBySlug failed:', error);
+    logDatabaseError('getShowroomBySlug', error);
     return null;
   }
 }
@@ -529,6 +553,8 @@ export async function getAllShowrooms(): Promise<
     return demoShowrooms.map(({ id, name, slug, icon, type }) => ({ id, name, slug, icon, type }));
   }
 
+  if (!(await schemaIsReady())) return [];
+
   try {
     const supabase = await createServerSupabaseClient();
     const { data } = await supabase
@@ -540,7 +566,7 @@ export async function getAllShowrooms(): Promise<
 
     return data ?? [];
   } catch (error) {
-    console.error('getAllShowrooms failed:', error);
+    logDatabaseError('getAllShowrooms', error);
     return [];
   }
 }
@@ -584,6 +610,10 @@ export interface CatalogCounts {
 export async function getCatalogCounts(): Promise<CatalogCounts | null> {
   if (!LIVE) return null;
 
+  if (!(await schemaIsReady())) {
+    return { products: 0, categories: 0, blogPosts: 0, orders: 0 };
+  }
+
   try {
     const supabase = await createServerSupabaseClient();
     const [products, categories, blogPosts, orders] = await Promise.all([
@@ -600,7 +630,7 @@ export async function getCatalogCounts(): Promise<CatalogCounts | null> {
       orders: orders.count ?? 0,
     };
   } catch (error) {
-    console.error('getCatalogCounts failed:', error);
+    logDatabaseError('getCatalogCounts', error);
     return null;
   }
 }

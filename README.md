@@ -73,6 +73,19 @@ CLOUDFLARE_R2_PUBLIC_URL=          # https://pub-xxxx.r2.dev or your CDN domain
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
+### Health check
+
+`GET /api/health` reports whether the database tables exist, whether R2 is
+configured, and the next step if not:
+
+```json
+{ "status": "setup-required", "checks": { "database": { "missingTables": ["products", "…"] } } }
+```
+
+If you see `Could not find the table 'public.x' in the schema cache`, the keys are
+fine but `supabase/schema.sql` has not been run. Sign in and open **`/admin/setup`**
+— it lists the missing tables and copies the SQL for you.
+
 ### Database
 
 | Table(s) | Purpose |

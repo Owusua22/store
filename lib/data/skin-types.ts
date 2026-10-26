@@ -4,6 +4,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { SKIN_TYPES } from '@/lib/skin-types';
+import { checkDatabaseHealth, logDatabaseError } from '@/lib/supabase/health';
 
 export interface SkinTypeRow {
   id: string;
@@ -27,6 +28,13 @@ export const fallbackSkinTypes: SkinTypeRow[] = SKIN_TYPES.map((type, index) => 
 
 export async function getSkinTypes(options: { includeInactive?: boolean } = {}) {
   if (isSupabaseConfigured) {
+    const health = await checkDatabaseHealth();
+    if (!health.initialized) {
+      return options.includeInactive
+        ? fallbackSkinTypes
+        : fallbackSkinTypes.filter((type) => type.is_active);
+    }
+
     try {
       const supabase = await createServerSupabaseClient();
       let query = supabase
@@ -39,7 +47,7 @@ export async function getSkinTypes(options: { includeInactive?: boolean } = {}) 
       const { data, error } = await query;
       if (!error && data && data.length > 0) return data as SkinTypeRow[];
     } catch (error) {
-      console.error('getSkinTypes: falling back to defaults', error);
+      logDatabaseError('getSkinTypes', error);
     }
   }
 

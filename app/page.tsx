@@ -5,6 +5,9 @@ import { ProductSection } from '@/components/home/ProductSection';
 import { ProductRail } from '@/components/home/ProductRail';
 import { DealBanner, PromoBands, ValueStrip } from '@/components/home/PromoBands';
 import { getHomeData } from '@/lib/data/store';
+import { StoreSetupNotice } from '@/components/layout/StoreSetupNotice';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { checkDatabaseHealth } from '@/lib/supabase/health';
 
 export const revalidate = 60;
 
@@ -14,8 +17,13 @@ export default async function HomePage() {
 
   const deals = showrooms[0]?.products ?? [];
 
+  // Connected but no tables yet: tell shoppers instead of showing an empty store.
+  const database = isSupabaseConfigured ? await checkDatabaseHealth() : null;
+  const awaitingCatalogue = Boolean(database?.configured && !database.initialized);
+
   return (
     <>
+      {awaitingCatalogue ? <StoreSetupNotice /> : null}
       <HeroBanner banners={banners} />
       <CategoryStrip categories={categories} />
       <ValueStrip />

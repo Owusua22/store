@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { createRouteHandlerSupabaseClient, getAuthenticatedUser } from '@/lib/supabase/route-handler';
 import { formatZodError } from '@/lib/validation';
 import type { ApiResponse, Cart } from '@/types';
+import { isSchemaMissingError, setupRequiredResponse } from '@/lib/supabase/health';
 
 // 🚨 CRITICAL: Prevent Next.js from caching the cart API response
 export const dynamic = 'force-dynamic';
@@ -71,6 +72,18 @@ export async function GET() {
   let cart = existingCart;
 
   if (cartError) {
+    if (isSchemaMissingError(cartError)) {
+      // Tables not created yet — treat the cart as empty instead of erroring.
+      return NextResponse.json(
+        {
+          success: true,
+          setupRequired: true,
+          data: { id: 'setup-required', user_id: user.id, items: [] },
+        },
+        { status: 200 }
+      );
+    }
+
     return NextResponse.json<ApiResponse>(
       { data: null, error: cartError.message, success: false },
       { status: 500 }
@@ -85,6 +98,8 @@ export async function GET() {
       .single();
 
     if (createError || !newCart) {
+      if (createError && isSchemaMissingError(createError)) return setupRequiredResponse();
+
       return NextResponse.json<ApiResponse>(
         { data: null, error: createError?.message ?? 'Failed to create cart', success: false },
         { status: 500 }
@@ -105,6 +120,8 @@ export async function GET() {
     .order('created_at', { ascending: true });
 
   if (itemsError) {
+    if (isSchemaMissingError(itemsError)) return setupRequiredResponse();
+
     return NextResponse.json<ApiResponse>(
       { data: null, error: itemsError.message, success: false },
       { status: 500 }

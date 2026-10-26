@@ -62,16 +62,30 @@ export async function proxy(request: NextRequest) {
 
   if (ADMIN_ROUTES.some((route) => pathname.startsWith(route))) {
     if (!session) {
-      return NextResponse.redirect(new URL('/login', request.url));
+      const redirectUrl = new URL('/login', request.url);
+      redirectUrl.searchParams.set('redirect', pathname);
+      return NextResponse.redirect(redirectUrl);
     }
 
-    const { data: profile } = await supabase
+    // The setup screen must stay reachable even when the database has not been
+    // initialised — otherwise nobody can get in to fix it.
+    if (pathname === '/admin/setup' || pathname.startsWith('/admin/setup/')) {
+      return response;
+    }
+
+    const { data: profile, error } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', session.user.id)
       .maybeSingle();
 
-    if (!profile || profile.role !== 'admin') {
+    // Profiles table missing (schema not run) or no row for this user: send the
+    // admin to setup instead of bouncing silently to the homepage.
+    if (error || !profile) {
+      return NextResponse.redirect(new URL('/admin/setup', request.url));
+    }
+
+    if (profile.role !== 'admin') {
       return NextResponse.redirect(new URL('/', request.url));
     }
   }

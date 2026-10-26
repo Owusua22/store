@@ -44,6 +44,25 @@ Tables created:
 `products.skin_types` is a `text[]` of slugs from `skin_types` (`normal`, `dry`, `oily`,
 `combination`, `sensitive`, `acne-prone`, plus anything you add in the admin).
 
+## 2b. If you connected Supabase but see "Could not find the table … in the schema cache"
+
+That means the keys work but `schema.sql` has not been run — a brand-new Supabase
+project starts empty. Instead of raw 500s the app now:
+
+- shows a **Database not initialised** banner across `/admin`
+- lets signed-in users reach **`/admin/setup`**, which lists the missing tables and
+  has **Copy schema.sql** / **Copy seed.sql** buttons (plus a link to the SQL editor)
+- reports state at **`/api/health`**
+
+Fix in four steps:
+
+1. Sign in (you can use a user you created in **Authentication → Users**).
+2. Open `/admin/setup` (or <https://supabase.com/dashboard/project/_/sql/new>).
+3. Paste and run `supabase/schema.sql`, then `supabase/seed.sql`.
+4. Press **Re-check** on the setup page — statuses turn green.
+
+`/api/health` returns `setup-required` until every table exists, then `ready`.
+
 ## 3. Create the admin account
 
 1. **Authentication → Users → Add user** — enter your email and a password.
@@ -219,6 +238,9 @@ every admin route returns `503` with `{ demo: true }`.
 
 | Symptom | Cause / fix |
 | --- | --- |
+| `Could not find the table 'public.products' in the schema cache` | Schema not created — run `supabase/schema.sql` (see 2b) |
+| `/admin` bounces you to Setup | Signed in, but no `profiles` row / not an admin yet — run the promote SQL |
+| Cart shows empty and `/api/cart` returns `setupRequired` | Same missing schema; the storefront degrades gracefully until it is fixed |
 | Storefront shows nothing after connecting Supabase | `supabase/schema.sql` + `supabase/seed.sql` have not run, or all products are `is_active = false` / `archived = true` |
 | `/admin/*` redirects to the homepage | The signed-in user's `profiles.role` is not `admin` — run the `update public.profiles set role='admin' …` statement |
 | `permission denied for table …` | RLS is on (correct) — anonymous reads need `is_active`/published rows; writes need the service-role key on the server |

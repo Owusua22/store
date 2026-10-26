@@ -4,6 +4,7 @@
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { demoBlogPosts, findDemoBlogPost } from '@/lib/demo/blog';
+import { checkDatabaseHealth, logDatabaseError } from '@/lib/supabase/health';
 import type { BlogPost } from '@/types';
 
 export interface BlogQuery {
@@ -41,8 +42,19 @@ function filterDemo(query: BlogQuery) {
   return query.limit ? posts.slice(0, query.limit) : posts;
 }
 
+let blogSchemaReady: boolean | null = null;
+
+async function blogReady(): Promise<boolean> {
+  if (!isSupabaseConfigured) return false;
+  if (blogSchemaReady === true) return true;
+  const health = await checkDatabaseHealth();
+  blogSchemaReady = health.initialized;
+  return blogSchemaReady;
+}
+
 export async function getBlogPosts(query: BlogQuery = {}): Promise<BlogPost[]> {
   if (isSupabaseConfigured) {
+    if (!(await blogReady())) return [];
     try {
       const supabase = await createServerSupabaseClient();
       let request = supabase
@@ -69,12 +81,12 @@ export async function getBlogPosts(query: BlogQuery = {}): Promise<BlogPost[]> {
 
       const { data, error } = await request;
       if (error) {
-        console.error('getBlogPosts failed:', error.message);
+        logDatabaseError('getBlogPosts', error);
         return [];
       }
       return (data ?? []) as BlogPost[];
     } catch (error) {
-      console.error('getBlogPosts failed:', error);
+      logDatabaseError('getBlogPosts', error);
       return [];
     }
   }
@@ -84,6 +96,7 @@ export async function getBlogPosts(query: BlogQuery = {}): Promise<BlogPost[]> {
 
 export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
   if (isSupabaseConfigured) {
+    if (!(await blogReady())) return null;
     try {
       const supabase = await createServerSupabaseClient();
       const { data, error } = await supabase
@@ -93,12 +106,12 @@ export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> 
         .maybeSingle();
 
       if (error) {
-        console.error('getBlogPostBySlug failed:', error.message);
+        logDatabaseError('getBlogPostBySlug', error);
         return null;
       }
       return (data as BlogPost | null) ?? null;
     } catch (error) {
-      console.error('getBlogPostBySlug failed:', error);
+      logDatabaseError('getBlogPostBySlug', error);
       return null;
     }
   }

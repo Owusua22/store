@@ -6,6 +6,7 @@ import SalesTrendChart from '@/components/admin/SalesTrendChart';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { getCatalogCounts } from '@/lib/data/store';
 import { getR2Status } from '@/lib/r2/client';
+import { checkDatabaseHealth } from '@/lib/supabase/health';
 import SetupChecklist from '@/components/admin/SetupChecklist';
 
 export const dynamic = 'force-dynamic';
@@ -14,10 +15,14 @@ export default async function AdminDashboard() {
   const supabase = await createServerSupabaseClient();
   const catalog = await getCatalogCounts();
   const storage = getR2Status();
+  const database = await checkDatabaseHealth();
   const needsSetup =
     isSupabaseConfigured &&
     catalog !== null &&
-    (catalog.products === 0 || catalog.categories === 0 || !storage.configured);
+    (!database.initialized ||
+      catalog.products === 0 ||
+      catalog.categories === 0 ||
+      !storage.configured);
 
   const [{ count: productCount }, { count: orderCount }, { data: revenue }] = await Promise.all([
     supabase.from('products').select('*', { count: 'exact', head: true }),
@@ -116,7 +121,13 @@ export default async function AdminDashboard() {
       </div>
 
       <div className="p-8">
-        {needsSetup ? <SetupChecklist counts={catalog} storage={storage} /> : null}
+        {needsSetup && catalog ? (
+          <SetupChecklist
+            counts={catalog}
+            storage={storage}
+            missingTables={database.missingTables}
+          />
+        ) : null}
 
         {/* Row 1: Revenue banner + accent cards */}
         <div className="grid grid-cols-3 gap-6 mb-6">

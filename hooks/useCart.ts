@@ -288,13 +288,20 @@ export const useCart = create<CartState>((set, get) => ({
         return;
       }
 
-      const json = (await response.json()) as ApiResponse<Cart | null>;
+      const json = (await response.json()) as ApiResponse<Cart | null> & {
+        setupRequired?: boolean;
+      };
+
+      // Database tables not created yet: render an empty, usable cart without
+      // spamming the console — the admin Setup page explains what to run.
+      if (json.setupRequired) {
+        const derived = applyItems([]);
+        set({ cart: null, ...derived, isSyncing: false });
+        return;
+      }
 
       if (!response.ok || !json.success) {
-        console.error(
-          'Cart API error:',
-          json.error || `Request failed with status ${response.status}`
-        );
+        console.warn('Cart unavailable:', json.error ?? `HTTP ${response.status}`);
         return;
       }
 
@@ -311,7 +318,7 @@ export const useCart = create<CartState>((set, get) => ({
         ...derived,
       });
     } catch (error) {
-      console.error('fetchCart error:', error);
+      console.warn('Cart unavailable:', error instanceof Error ? error.message : error);
     } finally {
       set({ isSyncing: false });
     }

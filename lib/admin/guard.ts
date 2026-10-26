@@ -17,6 +17,7 @@ import {
   serviceRoleKey,
   supabaseUrl,
 } from '@/lib/supabase/config';
+import { isSchemaMissingError, setupRequiredResponse } from '@/lib/supabase/health';
 
 export type AdminGuard =
   | { ok: true; db: SupabaseClient; userId: string; email: string | null }
@@ -68,10 +69,30 @@ export async function requireAdmin(): Promise<AdminGuard> {
       .eq('id', user.id)
       .maybeSingle();
 
-    if (profile?.role !== 'admin') {
+    if (!profile) {
+      // No profile row: either the schema is missing or the auth trigger has
+      // not run for this user yet.
+      return {
+        ok: false,
+        response: NextResponse.json(
+          {
+            success: false,
+            setupRequired: true,
+            error:
+              'No profile found for this account. Run supabase/schema.sql, then promote yourself: update public.profiles set role = \'admin\' where id = \'<user-uuid>\';',
+          },
+          { status: 503 }
+        ),
+      };
+    }
+
+    if (profile.role !== 'admin') {
       return { ok: false, response: fail('Forbidden — admin access required', 403) };
     }
   } catch (error) {
+    if (isSchemaMissingError(error)) {
+      return { ok: false, response: setupRequiredResponse() };
+    }
     console.error('requireAdmin: profile lookup failed', error);
     return { ok: false, response: fail('Could not verify admin access', 500) };
   }

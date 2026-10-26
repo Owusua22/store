@@ -95,6 +95,7 @@ export function HeroBanner({ banners }: HeroBannerProps) {
               }`}
             >
               <Image
+                loading={slideIndex === 0 ? 'eager' : 'lazy'}
                 src={slide.image_url || '/images/hero-skincare.jpg'}
                 alt={slide.title ?? 'Skincare offer'}
                 fill

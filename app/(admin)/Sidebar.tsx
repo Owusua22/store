@@ -18,6 +18,7 @@ import {
   Sparkles,
   Boxes,
   Newspaper,
+  Wrench,
 } from 'lucide-react';
 
 const navItems = [
@@ -32,6 +33,7 @@ const navItems = [
   { href: '/admin/showrooms', label: 'Showrooms', icon: Store },
   { href: '/admin/banners', label: 'Banners', icon: ImageIcon },
   { href: '/admin/users', label: 'Users', icon: User },
+  { href: '/admin/setup', label: 'Setup', icon: Wrench },
 ];
 
 export default function Sidebar({ 

@@ -9,10 +9,13 @@ import type { R2Status } from '@/lib/r2/client';
 export default function SetupChecklist({
   counts,
   storage,
+  missingTables = [],
 }: {
   counts: CatalogCounts;
   storage: R2Status;
+  missingTables?: string[];
 }) {
+  const schemaMissing = missingTables.length > 0;
   const items = [
     {
       key: 'db',
@@ -22,9 +25,11 @@ export default function SetupChecklist({
       detail:
         counts.categories > 0
           ? `${counts.categories} categories loaded`
-          : 'Run supabase/schema.sql then supabase/seed.sql in the Supabase SQL editor.',
-      href: '/admin/categories',
-      action: 'View categories',
+          : schemaMissing
+            ? `${missingTables.length} tables are missing — paste schema.sql in the Supabase SQL editor.`
+            : 'Run supabase/schema.sql then supabase/seed.sql in the Supabase SQL editor.',
+      href: schemaMissing ? '/admin/setup' : '/admin/categories',
+      action: schemaMissing ? 'Open setup' : 'View categories',
     },
     {
       key: 'products',
@@ -74,8 +79,9 @@ export default function SetupChecklist({
             Finish connecting your store
           </h2>
           <p className="mt-0.5 text-[12.5px] text-amber-800">
-            Supabase is connected — these steps fill your live catalogue and enable image
-            uploads. Nothing is shown publicly until products are active.
+            {schemaMissing
+              ? 'Supabase is connected but the database tables do not exist yet. Open Setup for the exact SQL to paste into the SQL editor.'
+              : 'Supabase is connected — these steps fill your live catalogue and enable image uploads. Nothing is shown publicly until products are active.'}
           </p>
 
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
