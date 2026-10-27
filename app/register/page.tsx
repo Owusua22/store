@@ -5,7 +5,7 @@ import { RegisterForm } from '@/components/auth/RegisterForm';
 
 export const metadata: Metadata = {
   title: 'Create an account',
-  description: 'Create a Sally account for faster checkout and order tracking.',
+  description: 'Create a Glow-Up account for faster checkout and order tracking.',
 };
 
 export default function RegisterPage() {

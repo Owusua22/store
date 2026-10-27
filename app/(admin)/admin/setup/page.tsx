@@ -9,7 +9,7 @@ import SetupClient from './SetupClient';
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: 'Setup — Sally admin',
+  title: 'Setup — Glow-Up admin',
 };
 
 export default async function SetupPage() {

@@ -1,5 +1,5 @@
 -- ============================================================================
---  Sally Skin Care — seed data
+--  Glow-Up Skincare & Mother Care — seed data
 --  Run after schema.sql. Safe to re-run (upserts on slug / code).
 -- ============================================================================
 
@@ -21,18 +21,46 @@ on conflict (slug) do update
       sort_order = excluded.sort_order;
 
 -- ---------------------------------------------------------------------------
+-- Brands (managed from /admin/brands)
+-- Add Nivea, Vaseline, Johnson's Baby, Dove … here or from the admin screen.
+-- ---------------------------------------------------------------------------
+insert into public.brands (name, slug, description, country, sort_order)
+values
+  ('Nivea',          'nivea',          'German skin and body care — Nivea Creme, body lotions and shower creams.', 'Germany', 1),
+  ('Vaseline',       'vaseline',       'Petroleum jelly, cocoa radiant and aloe body lotions.', 'USA', 2),
+  ('Johnson''s Baby','johnsons-baby',  'Gentle baby washes, shampoos, lotions and oils.', 'USA', 3),
+  ('Dove',           'dove',           'Moisturising body washes, shampoos and conditioners.', 'UK', 4),
+  ('Baby Dove',      'baby-dove',      'Fragrance-free baby care for delicate skin.', 'UK', 5),
+  ('Simple',         'simple',         'No perfume, no colour — kind to sensitive skin.', 'UK', 6),
+  ('Cetaphil',       'cetaphil',       'Dermatologist-recommended cleansers and moisturisers.', 'Switzerland', 7),
+  ('CeraVe',         'cerave',         'Ceramide-rich cleansers and creams for the skin barrier.', 'USA', 8),
+  ('Shea Moisture',  'shea-moisture',  'Shea and coconut hair and body care.', 'USA', 9),
+  ('Dark & Lovely',  'dark-and-lovely', 'Relaxers, shampoos and conditioners for Black hair.', 'USA', 10),
+  ('Palmolive',      'palmolive',      'Shower gels and liquid soaps.', 'Germany', 11),
+  ('Garnier',        'garnier',        'Micellar water, face washes and hair care.', 'France', 12),
+  ('Glow-Up',        'glow-up',        'Our own house range, formulated for Ghanaian skin and hair.', 'Ghana', 99)
+on conflict (slug) do update
+  set name = excluded.name,
+      description = excluded.description,
+      country = excluded.country,
+      sort_order = excluded.sort_order;
+
+-- ---------------------------------------------------------------------------
 -- Categories
 -- ---------------------------------------------------------------------------
 insert into public.categories (name, slug, description, icon, image_url, sort_order)
 values
   ('Body Lotions',  'body-lotions', 'Shea, cocoa and vitamin-rich body lotions for soft, glowing skin all day.', '🧴', '/images/products/body-lotion.jpg', 1),
   ('Face Care',     'face-care',    'Creams, serums and treatments that hydrate, brighten and protect.', '✨', '/images/products/face-cream.jpg', 2),
-  ('Hair Care',     'hair-care',    'Nourishing shampoos and conditioners for strong, silky hair.', '💆🏽‍♀️', '/images/products/shampoo.jpg', 3),
+  ('Hair Care',     'hair-care',    'Everything for strong, healthy hair — shampoos, conditioners and treatments.', '💆🏽‍♀️', '/images/products/shampoo.jpg', 3),
+  ('Shampoos',      'shampoos',     'Sulphate-free and everyday shampoos for naturals, braids, relaxed and fine hair.', '🧖🏽‍♀️', '/images/products/shampoo.jpg', 31),
+  ('Conditioners',  'conditioners', 'Deep conditioners, leave-ins and detanglers that soften and repair.', '🫧', '/images/products/shampoo.jpg', 32),
   ('Shower Gels',   'shower-gels',  'Refreshing, pH-balanced body washes for a clean, soft finish.', '🚿', '/images/products/shower-gel.jpg', 4),
   ('Baby Care',     'baby-care',    'Gentle baby lotions, washes and diapers trusted by Ghanaian mums.', '🍼', '/images/products/baby-diapers.jpg', 5),
   ('Serums & Oils', 'serums-oils',  'Vitamin C, hyaluronic and glow oils for targeted skin results.', '💧', '/images/products/serum.jpg', 6),
   ('Face Wash',     'face-wash',    'Everyday cleansers that remove dirt without stripping moisture.', '🫧', '/images/products/face-wash.jpg', 7),
-  ('Sun Care',      'sun-care',     'SPF protection and after-sun soothers for the Ghanaian sun.', '🌤️', '/images/products/face-wash.jpg', 8)
+  ('Sun Care',      'sun-care',     'SPF protection and after-sun soothers for the Ghanaian sun.', '🌤️', '/images/products/face-wash.jpg', 8),
+  ('Mother Care',   'mother-care',  'Stretch mark creams, nipple balms and post-partum care for mums.', '🤱🏽', '/images/products/baby-lotion.jpg', 9)
 on conflict (slug) do update
   set name = excluded.name,
       description = excluded.description,
@@ -56,7 +84,7 @@ values
     '24-hour moisture for dry, ashy skin',
     79, 120,
     (select id from public.categories where slug = 'body-lotions'),
-    'Sally Skin', array['dry','normal','sensitive'], array['dryness','dullness'],
+    'Glow-Up', array['dry','normal','sensitive'], array['dryness','dullness'],
     'Shea butter, cocoa butter, vitamin E, glycerin',
     'Smooth over damp skin after bathing, morning and night. Focus on elbows, knees and heels.',
     'Deep hydration, softer skin, less ashiness',
@@ -70,7 +98,7 @@ values
     'Fades dark spots, boosts glow',
     149, 220,
     (select id from public.categories where slug = 'serums-oils'),
-    'Sally Skin', array['combination','normal','oily'], array['dark-spots','dullness','uneven-tone'],
+    'Glow-Up', array['combination','normal','oily'], array['dark-spots','dullness','uneven-tone'],
     '10% vitamin C, niacinamide 4%, hyaluronic acid, ferulic acid',
     'Apply 3–4 drops to clean skin in the morning before moisturiser and sunscreen.',
     'Brighter tone, fewer dark spots, antioxidant protection',
@@ -84,7 +112,7 @@ values
     'Lightweight barrier repair cream',
     129, 180,
     (select id from public.categories where slug = 'face-care'),
-    'Sally Skin', array['dry','normal','sensitive'], array['dryness','sensitivity'],
+    'Glow-Up', array['dry','normal','sensitive'], array['dryness','sensitivity'],
     'Ceramides, aloe vera, squalane, glycerin',
     'Apply to face and neck each morning after serum. Use a richer layer at night if needed.',
     'Stronger barrier, all-day hydration, smooth base for makeup',
@@ -98,7 +126,7 @@ values
     'Soap-free daily cleanser',
     69, 95,
     (select id from public.categories where slug = 'face-wash'),
-    'Sally Skin', array['normal','dry','sensitive','combination'], array['sensitivity','dullness'],
+    'Glow-Up', array['normal','dry','sensitive','combination'], array['sensitivity','dullness'],
     'Aloe vera, green tea, glycerin, mild amino-acid surfactants',
     'Massage a small amount onto damp skin morning and night, then rinse with lukewarm water.',
     'Cleans without stripping, calm skin, no tight feeling',
@@ -112,7 +140,7 @@ values
     'Sulphate-free, for braids and naturals',
     89, 120,
     (select id from public.categories where slug = 'hair-care'),
-    'Sally Skin', array['normal','dry'], array['dryness'],
+    'Glow-Up', array['normal','dry'], array['dryness'],
     'Argan oil, glycerin, panthenol, mild surfactants',
     'Wet hair, massage into scalp, work through lengths and rinse. Follow with Silk Smooth Conditioner.',
     'Gentle cleanse, less breakage, softer hair',
@@ -126,7 +154,7 @@ values
     'Up to 12 hours of dryness',
     135, 180,
     (select id from public.categories where slug = 'baby-care'),
-    'Sally Baby', array['sensitive'], array[]::text[],
+    'Glow-Up Baby', array['sensitive'], array[]::text[],
     'Soft non-woven top sheet, absorbent pulp, breathable back sheet',
     'Change after each feed or when soiled. Dispose of soiled diapers in a bin.',
     'Fewer leaks, dry nights, gentle on newborn skin',
@@ -135,6 +163,128 @@ values
     74, 4.80, 311, 1420, true, true
   )
 on conflict (slug) do nothing;
+
+-- Branded staples + the shampoo/conditioner and mother-care lines -------------
+insert into public.products (
+  name, slug, description, short_description, price, compare_at_price,
+  category_id, brand, brand_id, skin_types, concerns, ingredients, how_to_use, benefits,
+  sizes, images, thumbnail, stock_quantity, rating, reviews_count, sold_count,
+  is_featured, is_active
+)
+values
+  (
+    'Silk Smooth Conditioner 500ml', 'silk-smooth-conditioner-500ml',
+    'A rich, silicone-free conditioner with shea and panthenol that melts knots out of braids, naturals and relaxed hair in three minutes.',
+    'Detangles in 3 minutes, no build-up',
+    95, 130,
+    (select id from public.categories where slug = 'conditioners'),
+    'Glow-Up Hair', (select id from public.brands where slug = 'glow-up'),
+    array['normal','dry'], array['dryness','breakage'],
+    'Shea butter, panthenol, coconut oil, cetrimonium chloride',
+    'After shampooing, apply from mid-length to ends, leave 3 minutes and rinse thoroughly.',
+    'Softer hair, easy detangling, less breakage',
+    array['500ml','1L'],
+    array['/images/products/shampoo.jpg'], '/images/products/shampoo.jpg',
+    46, 4.70, 88, 320, true, true
+  ),
+  (
+    'Mother Care Stretch Mark Cream 200ml', 'mother-care-stretch-mark-cream-200ml',
+    'Cocoa butter, shea and vitamin E cream for the belly, hips and thighs through pregnancy and after. Fragrance-light and safe for breastfeeding mums.',
+    'Cocoa butter cream for pregnancy skin',
+    119, 160,
+    (select id from public.categories where slug = 'mother-care'),
+    'Glow-Up', (select id from public.brands where slug = 'glow-up'),
+    array['dry','sensitive','normal'], array['stretch-marks','dryness'],
+    'Cocoa butter, shea butter, vitamin E, squalane',
+    'Massage into the belly, hips and thighs twice a day from the second trimester.',
+    'Improves elasticity, soothes itchy stretching skin',
+    array['200ml'],
+    array['/images/products/baby-lotion.jpg'], '/images/products/baby-lotion.jpg',
+    38, 4.80, 64, 210, true, true
+  ),
+  (
+    'Nivea Cocoa Nourish Body Lotion 400ml', 'nivea-cocoa-nourish-body-lotion-400ml',
+    'Nivea''s deep moisture serum with cocoa butter for 48-hour hydration on very dry skin. A Ghanaian favourite in harmattan.',
+    '48-hour moisture for very dry skin',
+    89, 115,
+    (select id from public.categories where slug = 'body-lotions'),
+    'Nivea', (select id from public.brands where slug = 'nivea'),
+    array['dry','normal'], array['dryness','dullness'],
+    'Cocoa butter, glycerin, deep moisture serum',
+    'Apply daily after showering, focusing on elbows, knees and heels.',
+    '48-hour moisture, softer skin',
+    array['400ml'],
+    array['/images/products/body-lotion.jpg'], '/images/products/body-lotion.jpg',
+    120, 4.80, 402, 2100, true, true
+  ),
+  (
+    'Vaseline Cocoa Radiant Body Lotion 400ml', 'vaseline-cocoa-radiant-body-lotion-400ml',
+    'Vaseline cocoa butter and pure petroleum jelly lotion that leaves skin glowing without feeling greasy.',
+    'Glow-boosting cocoa butter lotion',
+    75, 98,
+    (select id from public.categories where slug = 'body-lotions'),
+    'Vaseline', (select id from public.brands where slug = 'vaseline'),
+    array['normal','dry'], array['dullness','dryness'],
+    'Cocoa butter, pure petroleum jelly, glycerin',
+    'Smooth over damp skin after bathing for all-day glow.',
+    'Radiant glow, locks in moisture',
+    array['400ml'],
+    array['/images/products/body-lotion.jpg'], '/images/products/body-lotion.jpg',
+    96, 4.70, 288, 1750, true, true
+  ),
+  (
+    'Johnson''s Baby Shampoo 500ml', 'johnsons-baby-shampoo-500ml',
+    'The original no-more-tears baby shampoo, pH-balanced and free from parabens and dyes.',
+    'No more tears, pH balanced',
+    62, 80,
+    (select id from public.categories where slug = 'shampoos'),
+    'Johnson''s Baby', (select id from public.brands where slug = 'johnsons-baby'),
+    array['sensitive','normal'], array['sensitivity'],
+    'Water, mild cleansers, glycerin, fragrance',
+    'Wet baby''s hair, lather gently with a little shampoo, then rinse with warm water.',
+    'Gentle cleansing, no stinging eyes',
+    array['500ml'],
+    array['/images/products/shampoo.jpg'], '/images/products/shampoo.jpg',
+    88, 4.90, 520, 2600, true, true
+  ),
+  (
+    'Dove Intense Repair Shampoo 400ml', 'dove-intense-repair-shampoo-400ml',
+    'Keratin-actives shampoo that repairs damaged, chemically treated hair from the first wash.',
+    'For dry, damaged and relaxed hair',
+    79, 105,
+    (select id from public.categories where slug = 'shampoos'),
+    'Dove', (select id from public.brands where slug = 'dove'),
+    array['normal','dry'], array['breakage','dryness'],
+    'Keratin repair actives, glycerin, mild surfactants',
+    'Massage into wet hair, lather, then rinse. Follow with Dove Intense Repair Conditioner.',
+    'Repairs damage, softer hair',
+    array['400ml'],
+    array['/images/products/shampoo.jpg'], '/images/products/shampoo.jpg',
+    64, 4.60, 341, 1290, false, true
+  ),
+  (
+    'Johnson''s Baby Soft Lotion 400ml', 'johnsons-baby-soft-lotion-400ml',
+    'Clinically proven mildness for delicate baby skin, with a light, clean scent that mums love.',
+    'Clinically proven mildness',
+    58, 75,
+    (select id from public.categories where slug = 'baby-care'),
+    'Johnson''s Baby', (select id from public.brands where slug = 'johnsons-baby'),
+    array['sensitive'], array[]::text[],
+    'Water, glycerin, mineral oil, mild fragrance',
+    'Apply to baby''s skin after every bath, morning and night.',
+    'Soft, moisturised baby skin',
+    array['400ml'],
+    array['/images/products/baby-lotion.jpg'], '/images/products/baby-lotion.jpg',
+    92, 4.90, 611, 2900, true, true
+  )
+on conflict (slug) do nothing;
+
+-- Link every product that has a brand name to its brands row ---------------
+update public.products p
+   set brand_id = b.id
+  from public.brands b
+ where p.brand_id is null
+   and lower(p.brand) = lower(b.name);
 
 -- ---------------------------------------------------------------------------
 -- Import note: banners above omit text_color/overlay_opacity on purpose so the

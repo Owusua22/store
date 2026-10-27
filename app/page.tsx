@@ -8,6 +8,8 @@ import { getHomeData } from '@/lib/data/store';
 import { StoreSetupNotice } from '@/components/layout/StoreSetupNotice';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { checkDatabaseHealth } from '@/lib/supabase/health';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { breadcrumbSchema, itemListSchema } from '@/lib/seo/jsonld';
 
 export const revalidate = 60;
 
@@ -23,6 +25,17 @@ export default async function HomePage() {
 
   return (
     <>
+      <JsonLd
+        id="home"
+        data={[
+          itemListSchema(topPicks, {
+            name: 'Our top picks',
+            url: '/products?sort=popular',
+            description: 'Bestselling skincare, hair care and baby care at Glow-Up.',
+          }),
+          breadcrumbSchema([{ name: 'Home', href: '/' }]),
+        ]}
+      />
       {awaitingCatalogue ? <StoreSetupNotice /> : null}
       <HeroBanner banners={banners} />
       <CategoryStrip categories={categories} />

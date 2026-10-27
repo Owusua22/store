@@ -25,7 +25,7 @@ Everything below is one-time setup.
 Open **SQL Editor** and run, in order:
 
 1. `supabase/schema.sql` — tables, RLS policies, triggers, stock RPC
-2. `supabase/seed.sql` — categories, skin types, 6 sample products, 12 Ghana shipping zones, banners, 3 blog posts
+2. `supabase/seed.sql` — brands, categories (incl. shampoos, conditioners, mother care), skin types, sample products, 12 Ghana shipping zones, banners, 3 blog posts
 
 Both files are idempotent, so you can re-run them after pulling updates.
 
@@ -34,7 +34,7 @@ Tables created:
 | Area | Tables |
 | --- | --- |
 | Accounts | `profiles` (with `role = customer \| admin`), auto-created on signup |
-| Catalogue | `categories`, `skin_types`, `products`, `product_variants` |
+| Catalogue | `categories`, `brands`, `skin_types`, `products`, `product_variants` |
 | Inventory | `inventory_movements` (+ `low_stock_products` view, `adjust_stock()` RPC) |
 | Merchandising | `banners`, `showrooms`, `showroom_products` |
 | Cart & orders | `carts`, `cart_items`, `orders`, `order_items` |
@@ -43,6 +43,11 @@ Tables created:
 
 `products.skin_types` is a `text[]` of slugs from `skin_types` (`normal`, `dry`, `oily`,
 `combination`, `sensitive`, `acne-prone`, plus anything you add in the admin).
+
+`products.brand_id` points at `brands` (Nivea, Vaseline, Johnson's Baby, Dove…) and
+`products.brand` keeps the display name for quick reads. Upgrading an existing
+project? Re-running `schema.sql` adds the `brands` table and the `brand_id` column
+in place — no data is dropped, and `seed.sql` links existing products by name.
 
 ## 2b. If you connected Supabase but see "Could not find the table … in the schema cache"
 
@@ -180,6 +185,8 @@ CLOUDFLARE_R2_ACCESS_KEY_ID=
 CLOUDFLARE_R2_SECRET_ACCESS_KEY=
 CLOUDFLARE_R2_BUCKET_NAME=
 CLOUDFLARE_R2_PUBLIC_URL=
+# Public origin — canonical URLs, JSON-LD, auth redirects
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
@@ -192,6 +199,7 @@ Restart `npm run dev` after editing.
 | Dashboard | `/admin/dashboard` | Revenue, orders, low stock, recent activity |
 | Products | `/admin/products` | Search/filter by category, skin type, stock, status; add/edit/archive |
 | Product form | `/admin/products/new`, `/admin/products/[id]/edit` | Name, brand, category, tagline, description, price/compare-at, SKU, stock + low-stock alert, sizes, skin types, concerns, ingredients, how-to-use, benefits, gallery upload to R2, SEO, visibility, featured |
+| Brands | `/admin/brands` | Create/rename/hide/delete brands (Nivea, Vaseline, Johnson's Baby…), logo + website, see how many products use each |
 | Skin types | `/admin/skin-types` | Create/rename/hide/delete skin types, see how many products use each |
 | Stock | `/admin/stock` | Units, low/out-of-stock counts, stock value, quick ±1, bulk adjust with reason + note, recent movement log |
 | Orders | `/admin/orders`, `/admin/orders/[id]` | Filter, view line items, move status (stock is restored on cancel) |
@@ -202,6 +210,8 @@ Restart `npm run dev` after editing.
 ## 7. Storefront surfaces backed by the new tables
 
 - `/products?skin=dry` and the **Skin type** filter chips read `skin_types`
+- `/products?brand=nivea` and the **Brand** chips read `brands` (linked by
+  `products.brand_id`, falling back to the `brand` text for older rows)
 - `/blog` and `/blog/[slug]` read published `blog_posts`
 - `/api/shipping/zones` + checkout read `shipping_zones` (free delivery over GH₵300)
 - Every checkout writes `orders`, `order_items`, decrements stock and logs an
@@ -213,6 +223,7 @@ Restart `npm run dev` after editing.
 | --- | --- | --- |
 | GET/POST/PATCH/DELETE | `/api/admin/products` | List, create, update (`{id, …}`), archive (`?id=`) |
 | GET/PUT/PATCH/DELETE | `/api/admin/products/[id]` | Single product, full update, archive/hard delete (`?hard=1`) |
+| GET/POST/PATCH/DELETE | `/api/admin/brands` | Brand vocabulary (typing a new brand in the product form creates it here) |
 | GET/POST/PATCH/DELETE | `/api/admin/skin-types` | Skin type vocabulary |
 | GET/POST | `/api/admin/stock` | Stock overview / adjust (`{product_id, quantity, mode: add\|remove\|set, reason, note}`) |
 | GET/POST | `/api/admin/blog` · GET/PUT/PATCH/DELETE `/api/admin/blog/[id]` | Articles |
@@ -252,7 +263,7 @@ every admin route returns `503` with `{ demo: true }`.
 ## 11. Deploying
 
 - Vercel (or any Node host): add the same env vars to the project.
-- Set `NEXT_PUBLIC_APP_URL` to the production origin.
+- Set `NEXT_PUBLIC_SITE_URL` (canonical/JSON-LD origin) and `NEXT_PUBLIC_APP_URL` to the production origin.
 - Supabase → **Authentication → URL configuration**: add the production URL and
   `/api/auth/callback` to the redirect allow-list.
 - Keep `SUPABASE_SERVICE_ROLE_KEY` server-side only (it bypasses RLS).

@@ -29,7 +29,7 @@ falls back to **demo mode** so every screen still works:
 
 | Area | Behaviour in demo mode |
 | --- | --- |
-| Catalogue | 19 bundled skin care products + 8 categories (`lib/demo/catalog.ts`) |
+| Catalogue | 19 bundled skin care products + 11 categories (`lib/demo/catalog.ts`) |
 | Images | Local generated packshots in `public/images/` |
 | Cart | Persisted in `localStorage` (`lib/demo/cart.ts`) |
 | Sign in / sign up | Local demo session (any email + 6-char password) |
@@ -70,6 +70,8 @@ CLOUDFLARE_R2_SECRET_ACCESS_KEY=
 CLOUDFLARE_R2_BUCKET_NAME=glow-up
 CLOUDFLARE_R2_PUBLIC_URL=          # https://pub-xxxx.r2.dev or your CDN domain
 
+# Public origin — canonical URLs, JSON-LD, auth redirects
+NEXT_PUBLIC_SITE_URL=https://your-domain.com
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
@@ -91,7 +93,7 @@ fine but `supabase/schema.sql` has not been run. Sign in and open **`/admin/setu
 | Table(s) | Purpose |
 | --- | --- |
 | `profiles` | Accounts + `role` (`customer` / `admin`), auto-created on signup |
-| `categories`, `skin_types`, `products`, `product_variants` | Catalogue, with `products.skin_types text[]` |
+| `categories`, `brands`, `skin_types`, `products`, `product_variants` | Catalogue: categories, product brands (Nivea, Vaseline…), skin types and `products.skin_types text[]` |
 | `inventory_movements`, `low_stock_products` view, `adjust_stock()` | Stock audit trail and low-stock alerts |
 | `carts`, `cart_items`, `orders`, `order_items` | Shopping + checkout |
 | `shipping_zones`, `shipping_discount_codes` | Ghana delivery fees, ETAs, free-over thresholds, promo codes |
@@ -114,8 +116,8 @@ app/
   login/ register/          auth pages
   about/ contact/ terms/ privacy/
   blog/                     public journal index + article pages
-  (admin)/admin/…           dashboard, products, categories, skin-types, stock,
-                            orders, shipping, blog, showrooms, banners, users
+  (admin)/admin/…           dashboard, products, categories, brands, skin-types,
+                            stock, orders, shipping, blog, showrooms, banners, users
   api/…                     cart, checkout, orders, search, shipping, admin
 components/
   layout/                   Navbar, Footer, AppShell, newsletter, demo banner
@@ -141,10 +143,22 @@ public/images/              generated hero + product photography
 
 ## Catalogue content
 
-Categories: Body Lotions, Face Care, Hair Care, Shower Gels, Baby Care,
-Serums & Oils, Face Wash, Sun Care. Each product carries brand, price, compare-at
-price, stock + low-stock threshold, pack sizes, skin types, concerns, ingredients,
-how-to-use, benefits and gallery images — all editable from `/admin/products`.
+Categories: Body Lotions, Face Care, Hair Care, Shampoos, Conditioners, Shower Gels,
+Baby Care, Mother Care, Serums & Oils, Face Wash, Sun Care. Each product carries a
+brand, price, compare-at price, stock + low-stock threshold, pack sizes, skin types,
+concerns, ingredients, how-to-use, benefits and gallery images — all editable from
+`/admin/products`.
+
+Brands (Nivea, Vaseline, Johnson's Baby, Dove, Shea Moisture…) are a managed
+vocabulary like categories: add, rename, hide or delete them at `/admin/brands`, or
+just type a new brand in the product form and it is created automatically. Customers
+filter by brand at `/products?brand=nivea`, and each product page emits
+`Product` + `Brand` + `Offer` JSON-LD for Google Shopping.
+
+Structured data (JSON-LD) is emitted on every page type — `OnlineStore` + `WebSite`
+in the root layout, `Product` + `AggregateRating` + `Offer` on product pages,
+`CollectionPage`/`ItemList` on shop and category pages, `BlogPosting` on articles,
+`ContactPage`/`AboutPage` elsewhere, plus `BreadcrumbList` throughout.
 
 Skin types (`normal`, `dry`, `oily`, `combination`, `sensitive`, `acne-prone`) are
 managed at `/admin/skin-types` and power the storefront filter chips

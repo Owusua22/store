@@ -1,8 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { usePathname } from 'next/navigation';
 import { toast } from 'react-toastify';
 import {
   LayoutDashboard,
@@ -19,12 +18,15 @@ import {
   Boxes,
   Newspaper,
   Wrench,
+  Tag,
 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 const navItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/products', label: 'Products', icon: Package },
   { href: '/admin/categories', label: 'Categories', icon: FolderTree },
+  { href: '/admin/brands', label: 'Brands', icon: Tag },
   { href: '/admin/skin-types', label: 'Skin Types', icon: Sparkles },
   { href: '/admin/stock', label: 'Stock', icon: Boxes },
   { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
@@ -44,26 +46,17 @@ export default function Sidebar({
   email: string;
 }) {
   const pathname = usePathname();
-  const router = useRouter();
-  const supabase = createClient();
+  const { signOut } = useAuth();
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   const handleLogout = async () => {
     if (!confirm('Are you sure you want to sign out?')) return;
 
-    if (!supabase) {
-      toast.error('Authentication is not configured');
-      return;
-    }
-
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      toast.error('Failed to logout');
-    } else {
-      toast.success('Logged out successfully');
-      router.push('/');
-      router.refresh();
+    try {
+      await signOut();
+    } catch {
+      toast.error('Failed to sign out. Please try again.');
     }
   };
 
@@ -76,7 +69,7 @@ export default function Sidebar({
             <span className="text-white font-bold text-3xl tracking-tighter">S</span>
           </div>
           <div>
-            <p className="text-3xl font-semibold text-white tracking-tighter">Sally&apos;s</p>
+            <p className="text-2xl font-semibold text-white tracking-tighter">Glow-Up</p>
             <p className="text-[10px] text-red-400 font-medium -mt-1 tracking-[2px]">ADMINISTRATOR</p>
           </div>
         </Link>

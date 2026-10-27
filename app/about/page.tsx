@@ -1,9 +1,28 @@
 // app/about/page.tsx
+import type { Metadata } from 'next';
 import { Sparkles, ShieldCheck, Truck, HeartHandshake } from 'lucide-react';
+import { site } from '@/lib/site';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { aboutPageSchema, breadcrumbSchema } from '@/lib/seo/jsonld';
+
+export const metadata: Metadata = {
+  title: `About ${site.nameFull}`,
+  description: `Who we are: authentic skincare, hair care and mother care, delivered across Ghana by ${site.nameFull}.`,
+};
 
 export default function AboutPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-rose-50">
+      <JsonLd
+        id="about"
+        data={[
+          aboutPageSchema(),
+          breadcrumbSchema([
+            { name: 'Home', href: '/' },
+            { name: 'About', href: '/about' },
+          ]),
+        ]}
+      />
       <section className="relative overflow-hidden">
         {/* Decorative blobs */}
         <div className="absolute top-0 -left-40 w-96 h-96 bg-red-100/40 rounded-full blur-3xl pointer-events-none" />
@@ -41,7 +60,7 @@ export default function AboutPage() {
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Story</h2>
               <div className="space-y-4 text-gray-600 leading-relaxed">
                 <p>
-                  Sally started with a simple frustration: finding genuine skin care in
+                  Glow-Up started with a simple frustration: finding genuine skin care in
                   Ghana was harder than it should be. Products were either overpriced,
                   expired or impossible to verify. So we built a store that only sells
                   what we would use ourselves.

@@ -59,7 +59,7 @@ export async function POST(request: Request) {
       category: input.category ?? null,
       tags: input.tags,
       skin_types: input.skin_types,
-      author_name: input.author_name || 'Sally Skin Care',
+      author_name: input.author_name || 'Glow-Up Skincare',
       status: input.status,
       is_featured: input.is_featured ?? false,
       read_minutes: readingMinutes(input.content),

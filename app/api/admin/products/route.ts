@@ -8,6 +8,7 @@ import {
   slugify,
   uniqueSlug,
 } from '@/lib/admin/guard';
+import { resolveBrand } from '@/lib/admin/brands';
 
 
 function derivedFromVariants(input: ProductInput) {
@@ -88,7 +89,17 @@ export async function POST(request: Request) {
 
   const input = validated.data;
   const derived = derivedFromVariants(input);
-  const payload = { ...cleanPayload(input), ...(derived ?? {}) };
+
+  // Typing a brand that is not in /admin/brands yet creates it, so brands stay a
+  // managed vocabulary without blocking product entry.
+  const brand = await resolveBrand(guard.db, input.brand);
+
+  const payload = {
+    ...cleanPayload(input),
+    ...(derived ?? {}),
+    brand: brand.brand,
+    ...(brand.brand_id ? { brand_id: brand.brand_id } : {}),
+  };
 
   const slug = await uniqueSlug(
     guard.db,

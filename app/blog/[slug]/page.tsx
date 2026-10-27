@@ -6,6 +6,8 @@ import Image from 'next/image';
 import { ArrowLeft, Clock, Share2 } from 'lucide-react';
 import { getBlogPostBySlug, getRelatedBlogPosts } from '@/lib/data/blog';
 import { renderBlogHtml, skinTypeLabel } from '@/lib/skin-types';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { blogPostingSchema, breadcrumbSchema } from '@/lib/seo/jsonld';
 
 export const dynamic = 'force-dynamic';
 
@@ -48,6 +50,18 @@ export default async function BlogPostPage({ params }: Props) {
   const related = await getRelatedBlogPosts(post, 3);
 
   return (
+    <>
+      <JsonLd
+        id="article"
+        data={[
+          blogPostingSchema(post),
+          breadcrumbSchema([
+            { name: 'Home', href: '/' },
+            { name: 'Journal', href: '/blog' },
+            { name: post.title, href: `/blog/${post.slug}` },
+          ]),
+        ]}
+      />
     <main className="min-h-screen bg-white">
       <div className="container-page pt-6">
         <Link
@@ -179,5 +193,6 @@ export default async function BlogPostPage({ params }: Props) {
         </section>
       ) : null}
     </main>
+    </>
   );
 }

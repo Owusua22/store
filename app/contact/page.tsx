@@ -10,11 +10,13 @@ import {
 } from 'lucide-react';
 import { ContactForm } from '@/components/contact/ContactForm';
 import { site } from '@/lib/site';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { breadcrumbSchema, contactPageSchema } from '@/lib/seo/jsonld';
 
 export const metadata: Metadata = {
   title: 'Contact us',
   description:
-    'Talk to the Sally team about orders, delivery, products or returns. Call, WhatsApp or send a message.',
+    'Talk to the Glow-Up team about orders, delivery, products or returns. Call, WhatsApp or send a message.',
 };
 
 export default function ContactPage() {
@@ -48,6 +50,16 @@ export default function ContactPage() {
 
   return (
     <div className="container-page py-6 sm:py-8">
+      <JsonLd
+        id="contact"
+        data={[
+          contactPageSchema(),
+          breadcrumbSchema([
+            { name: 'Home', href: '/' },
+            { name: 'Contact', href: '/contact' },
+          ]),
+        ]}
+      />
       <div className="rounded-xl border border-line bg-brand-soft p-5 sm:p-6">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-brand">
           <Mail className="h-3 w-3" /> Help Center

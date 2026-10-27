@@ -61,7 +61,10 @@ export interface Product {
   stock_quantity: number;
   low_stock_threshold?: number;
   category_id: string | null;
+  /** Brand name as typed / resolved from the brands table */
   brand?: string | null;
+  /** FK to public.brands (null when the product has no brand) */
+  brand_id?: string | null;
   /** Skin types this product is formulated for (empty = all skin types) */
   skin_types: string[];
   /** Concerns this product targets, e.g. dark-spots, dryness */
@@ -179,6 +182,21 @@ export interface Category {
   is_active: boolean;
   archived: boolean;
   sort_order: number;
+  created_at: string;
+  updated_at: string | null;
+}
+
+/** A product brand (Nivea, Vaseline, Johnson's Baby …) managed from /admin/brands. */
+export interface Brand {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  logo_url: string | null;
+  website_url: string | null;
+  country: string | null;
+  sort_order: number;
+  is_active: boolean;
   created_at: string;
   updated_at: string | null;
 }

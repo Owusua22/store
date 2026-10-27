@@ -6,7 +6,7 @@ import { ShieldCheck, Truck, Wallet } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Sign in',
-  description: 'Sign in to your Sally account to track orders and check out faster.',
+  description: 'Sign in to your Glow-Up account to track orders and check out faster.',
 };
 
 export default function LoginPage() {
@@ -40,7 +40,7 @@ export default function LoginPage() {
       </div>
 
       <div className="mx-auto w-full max-w-md rounded-xl border border-line bg-white p-6 sm:p-8">
-        <h2 className="text-[20px] font-extrabold text-ink">Sign in to Sally</h2>
+        <h2 className="text-[20px] font-extrabold text-ink">Sign in to Glow-Up</h2>
         <p className="mt-1 text-[12.5px] text-muted">
           New here?{' '}
           <Link href="/register" className="font-bold text-brand hover:underline">

@@ -95,6 +95,9 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    // /api/auth/signout is excluded on purpose: the proxy refreshes the session
+    // on every request, which would write the auth cookies straight back after
+    // the sign-out route cleared them.
+    '/((?!_next/static|_next/image|favicon.ico|api/auth/signout|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

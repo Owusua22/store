@@ -49,9 +49,14 @@ interface CategoryOption {
   name: string;
 }
 
+interface BrandOption {
+  id: string;
+  name: string;
+}
+
 export const emptyProductValues: ProductFormValues = {
   name: '',
-  brand: 'Sally Skin',
+  brand: 'Glow-Up',
   category_id: '',
   short_description: '',
   description: '',
@@ -96,6 +101,7 @@ export default function ProductForm({
   productId,
   initialValues,
   categories,
+  brands = [],
   skinTypes,
   demoMode,
 }: {
@@ -103,6 +109,7 @@ export default function ProductForm({
   productId?: string;
   initialValues?: Partial<ProductFormValues>;
   categories: CategoryOption[];
+  brands?: BrandOption[];
   skinTypes: SkinTypeRow[];
   demoMode: boolean;
 }) {
@@ -255,8 +262,21 @@ export default function ProductForm({
               </Field>
 
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label="Brand">
-                  <Input {...register('brand')} placeholder="Sally Skin" />
+                <Field
+                  label="Brand"
+                  hint="Pick a stockist brand or type a new one — it is added to /admin/brands automatically."
+                >
+                  <Input
+                    {...register('brand')}
+                    list="product-brand-options"
+                    placeholder="Nivea, Vaseline, Johnson's Baby…"
+                    autoComplete="off"
+                  />
+                  <datalist id="product-brand-options">
+                    {brands.map((brand) => (
+                      <option key={brand.id} value={brand.name} />
+                    ))}
+                  </datalist>
                 </Field>
                 <Field label="Category">
                   <Select {...register('category_id')}>
@@ -459,7 +479,7 @@ export default function ProductForm({
             <h2 className="mb-4 text-[15px] font-extrabold text-gray-900">SEO</h2>
             <div className="grid gap-4">
               <Field label="SEO title">
-                <Input {...register('seo_title')} placeholder="Shea Butter Body Lotion | Sally" />
+                <Input {...register('seo_title')} placeholder="Shea Butter Body Lotion | Glow-Up" />
               </Field>
               <Field label="SEO description">
                 <Textarea {...register('seo_description')} rows={2} />

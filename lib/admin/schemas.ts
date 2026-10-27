@@ -29,6 +29,7 @@ export const productSchema = z.object({
   compare_at_price: z.coerce.number().nonnegative().nullable().optional(),
   category_id: z.string().uuid().nullable().optional(),
   brand: optionalText,
+  brand_id: z.string().uuid().nullable().optional(),
 
   // Skin care attributes
   skin_types: z.array(z.string()).default([]),
@@ -77,6 +78,17 @@ export const skinTypeSchema = z.object({
   slug: z.string().trim().max(60).optional(),
   emoji: z.string().trim().max(8).optional().nullable(),
   description: z.string().trim().max(1000).optional().nullable(),
+  sort_order: z.coerce.number().int().optional(),
+  is_active: z.boolean().optional(),
+});
+
+export const brandSchema = z.object({
+  name: z.string().trim().min(2, 'Brand name is required').max(80),
+  slug: z.string().trim().max(80).optional(),
+  description: z.string().trim().max(1000).optional().nullable(),
+  logo_url: z.string().trim().max(500).optional().nullable(),
+  website_url: z.string().trim().max(500).optional().nullable(),
+  country: z.string().trim().max(80).optional().nullable(),
   sort_order: z.coerce.number().int().optional(),
   is_active: z.boolean().optional(),
 });

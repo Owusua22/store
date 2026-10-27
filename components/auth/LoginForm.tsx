@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'react-toastify';
+import { CheckCircle2, MailCheck } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -26,9 +27,20 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
 
-  const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>({
+  const justRegistered = searchParams.get('registered') === '1';
+  const needsConfirmation = searchParams.get('confirm') === '1';
+  const prefillEmail = searchParams.get('email') ?? '';
+
+  const { register, handleSubmit, setValue, formState: { errors } } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
+    defaultValues: { email: prefillEmail, password: '' },
   });
+
+  // The register form redirects here with ?email=… — keep the field in sync if
+  // the query string changes without a remount.
+  useEffect(() => {
+    if (prefillEmail) setValue('email', prefillEmail);
+  }, [prefillEmail, setValue]);
 
   const onSubmit = async (data: LoginFormData) => {
     try {
@@ -58,6 +70,21 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
           </button>
         </p>
       </div>
+
+      {justRegistered ? (
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+          <p className="flex items-center gap-2 font-semibold">
+            <CheckCircle2 className="h-4 w-4" />
+            Account created — sign in to continue.
+          </p>
+          {needsConfirmation ? (
+            <p className="mt-1 flex items-start gap-2 text-[12.5px] text-emerald-800">
+              <MailCheck className="mt-0.5 h-4 w-4 shrink-0" />
+              We emailed you a confirmation link. Click it, then sign in below.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         {/* Email */}

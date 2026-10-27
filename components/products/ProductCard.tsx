@@ -123,9 +123,9 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
       </div>
 
       <div className="flex flex-1 flex-col p-2.5">
-        {categoryName && (
+        {(product.brand || categoryName) && (
           <p className="mb-1 truncate text-[10px] font-semibold uppercase tracking-wide text-gray-400">
-            {categoryName}
+            {product.brand ?? categoryName}
           </p>
         )}
 

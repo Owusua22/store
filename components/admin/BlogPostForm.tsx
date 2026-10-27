@@ -44,7 +44,7 @@ export const emptyBlogValues: BlogFormValues = {
   category: BLOG_CATEGORIES[0],
   tags: '',
   skin_types: [],
-  author_name: 'Sally Skin Care',
+  author_name: 'Glow-Up Skincare',
   status: 'draft',
   is_featured: false,
   seo_title: '',
@@ -126,7 +126,7 @@ export default function BlogPostForm({
           .map((tag) => tag.trim())
           .filter(Boolean),
         skin_types: values.skin_types,
-        author_name: values.author_name || 'Sally Skin Care',
+        author_name: values.author_name || 'Glow-Up Skincare',
         status: status ?? values.status,
         is_featured: values.is_featured,
         seo_title: values.seo_title || null,

@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server';
 import { formatZodError } from '@/lib/validation';
 import { readJson, requireAdmin, slugify } from '@/lib/admin/guard';
+import { resolveBrand } from '@/lib/admin/brands';
 import { productSchema } from '@/lib/admin/schemas';
 
 interface RouteContext {
@@ -101,13 +102,19 @@ export async function PUT(request: Request, { params }: RouteContext) {
     if (value !== undefined) update[key] = value;
   };
 
+  // Brand: resolve the typed name to a brands row (creating it when new).
+  if (brand !== undefined) {
+    const resolved = await resolveBrand(guard.db, brand);
+    update.brand = resolved.brand;
+    update.brand_id = resolved.brand_id;
+  }
+
   assign('name', name);
   assign('description', description);
   assign('short_description', short_description);
   assign('price', price);
   assign('compare_at_price', compare_at_price);
   assign('category_id', category_id);
-  assign('brand', brand);
   assign('skin_types', skin_types);
   assign('concerns', concerns);
   assign('ingredients', ingredients);

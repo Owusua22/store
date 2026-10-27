@@ -14,6 +14,7 @@ export type {
   Order,
   OrderItem,
   SkinType,
+  Brand,
   BlogPost,
   BlogStatus,
 } from './database';

@@ -119,6 +119,30 @@ create trigger skin_types_updated_at
   before update on public.skin_types
   for each row execute function public.set_updated_at();
 
+-- Brand vocabulary managed from /admin/brands (Nivea, Vaseline, Johnson's Baby…).
+-- products.brand_id points here; products.brand keeps the display name.
+create table if not exists public.brands (
+  id          uuid primary key default gen_random_uuid(),
+  name        text not null,
+  slug        text not null unique,
+  description text,
+  logo_url    text,
+  website_url text,
+  country     text,
+  sort_order  integer not null default 0,
+  is_active   boolean not null default true,
+  created_at  timestamptz not null default timezone('utc', now()),
+  updated_at  timestamptz not null default timezone('utc', now())
+);
+
+-- One brand per name (case-insensitive), so "Nivea" and "nivea" cannot duplicate.
+create unique index if not exists brands_name_unique_idx on public.brands (lower(name));
+
+drop trigger if exists brands_updated_at on public.brands;
+create trigger brands_updated_at
+  before update on public.brands
+  for each row execute function public.set_updated_at();
+
 create table if not exists public.products (
   id               uuid primary key default gen_random_uuid(),
   name             text not null,
@@ -131,6 +155,7 @@ create table if not exists public.products (
 
   category_id      uuid references public.categories (id) on delete set null,
   brand            text,
+  brand_id         uuid references public.brands (id) on delete set null,
 
   -- Skin care specifics
   skin_types       text[] not null default '{}',   -- normal, dry, oily, combination, sensitive, acne-prone
@@ -168,12 +193,18 @@ create table if not exists public.products (
   updated_at       timestamptz not null default timezone('utc', now())
 );
 
+-- Older projects created before brands existed get the column added in place.
+alter table public.products
+  add column if not exists brand_id uuid references public.brands (id) on delete set null;
+
 drop trigger if exists products_updated_at on public.products;
 create trigger products_updated_at
   before update on public.products
   for each row execute function public.set_updated_at();
 
 create index if not exists products_category_idx on public.products (category_id);
+create index if not exists products_brand_idx on public.products (brand_id);
+create index if not exists products_brand_name_idx on public.products (lower(brand));
 create index if not exists products_active_idx on public.products (is_active, archived);
 create index if not exists products_created_idx on public.products (created_at desc);
 create index if not exists products_name_trgm_idx on public.products using gin (to_tsvector('simple', name || ' ' || coalesce(description, '')));
@@ -478,7 +509,7 @@ begin
     from pg_policies
     where schemaname = 'public'
       and tablename in (
-        'profiles','categories','skin_types','products','product_variants','inventory_movements',
+        'profiles','categories','skin_types','brands','products','product_variants','inventory_movements',
         'banners','showrooms','showroom_products','carts','cart_items','orders',
         'order_items','shipping_zones','shipping_discount_codes','shipping_code_uses',
         'blog_posts','newsletter_subscribers'
@@ -505,6 +536,11 @@ create policy "categories: admin write" on public.categories
 create policy "skin types: public read active" on public.skin_types
   for select using (is_active or public.is_admin());
 create policy "skin types: admin write" on public.skin_types
+  for all using (public.is_admin()) with check (public.is_admin());
+
+create policy "brands: public read active" on public.brands
+  for select using (is_active or public.is_admin());
+create policy "brands: admin write" on public.brands
   for all using (public.is_admin()) with check (public.is_admin());
 
 create policy "products: public read active" on public.products

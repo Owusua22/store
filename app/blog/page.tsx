@@ -5,11 +5,13 @@ import Image from 'next/image';
 import { ArrowRight, Clock, Sparkles } from 'lucide-react';
 import { getBlogPosts } from '@/lib/data/blog';
 import { BLOG_CATEGORIES, SKIN_TYPES } from '@/lib/skin-types';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { blogSchema, breadcrumbSchema } from '@/lib/seo/jsonld';
 
 export const metadata: Metadata = {
   title: 'Journal — skin care tips & routines',
   description:
-    'Routines, ingredient guides and baby skin advice from the Sally Skin Care team in Ghana.',
+    'Routines, ingredient guides and baby skin advice from the Glow-Up Skincare team in Ghana.',
 };
 
 export const dynamic = 'force-dynamic';
@@ -37,11 +39,21 @@ export default async function BlogIndexPage({ searchParams }: Props) {
 
   return (
     <main className="min-h-screen bg-white">
+      <JsonLd
+        id="blog"
+        data={[
+          blogSchema(posts),
+          breadcrumbSchema([
+            { name: 'Home', href: '/' },
+            { name: 'Journal', href: '/blog' },
+          ]),
+        ]}
+      />
       <section className="border-b border-line bg-surface-soft">
         <div className="container-page py-10 sm:py-14">
           <div className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand-soft px-3 py-1 text-[11px] font-extrabold uppercase tracking-[0.14em] text-brand">
             <Sparkles className="h-3.5 w-3.5" />
-            The Sally Journal
+            The Glow-Up Journal
           </div>
           <h1 className="mt-4 text-3xl font-black tracking-tight text-ink sm:text-[42px]">
             Skin care advice that actually applies to Ghana

@@ -20,8 +20,9 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useCart } from '@/hooks/useCart';
-import { formatCedis, metaNumber, metaString } from '@/lib/utils';
+import { formatCedis, metaNumber } from '@/lib/utils';
 import { skinTypeLabel } from '@/lib/skin-types';
+import { brandHref } from '@/lib/brands';
 import { ProductCard } from '@/components/products/ProductCard';
 import type { Product, ProductVariant } from '@/types';
 
@@ -94,7 +95,8 @@ export function ProductDetails({ product, relatedProducts }: ProductDetailsProps
   const rating = metaNumber(product.metadata, 'rating', 4.8);
   const reviews = metaNumber(product.metadata, 'reviews', 0);
   const sold = metaNumber(product.metadata, 'sold', 0);
-  const brand = metaString(product.metadata, 'brand') ?? 'Sally Skin';
+  const brand = product.brand ?? 'Glow-Up';
+  const brandLink = brandHref(product.brand);
 
   const isOutOfStock = stock <= 0;
   const isLowStock = stock > 0 && stock <= 5;
@@ -238,9 +240,18 @@ export function ProductDetails({ product, relatedProducts }: ProductDetailsProps
                   {product.category.name}
                 </Link>
               )}
-              <span className="rounded-full bg-surface-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-gray-500">
-                {brand}
-              </span>
+              {brandLink ? (
+                <Link
+                  href={brandLink}
+                  className="rounded-full bg-surface-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-gray-500 transition-colors hover:bg-brand-soft hover:text-brand"
+                >
+                  {brand}
+                </Link>
+              ) : (
+                <span className="rounded-full bg-surface-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-gray-500">
+                  {brand}
+                </span>
+              )}
               {isLowStock && (
                 <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-amber-600">
                   Only {stock} left

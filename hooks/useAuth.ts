@@ -12,7 +12,10 @@ import type { Session, AuthChangeEvent, User } from '@supabase/supabase-js';
 // ✅ Singleton supabase client - null when running in demo mode
 const supabase = createClient();
 
-const DEMO_USER_KEY = 'sally-demo-user';
+const DEMO_USER_KEY = 'glowup-demo-user';
+const DEMO_ACCOUNT_KEY = 'glowup-demo-account';
+// Legacy key from the previous brand name — cleared on sign out.
+const LEGACY_DEMO_KEYS = ['sally-demo-user'];
 
 interface DemoUserRecord {
   id: string;
@@ -43,6 +46,30 @@ function writeDemoUser(user: DemoUserRecord | null) {
     } else {
       window.localStorage.removeItem(DEMO_USER_KEY);
     }
+  } catch {
+    /* ignore storage errors */
+  }
+}
+
+function writeDemoAccount(user: DemoUserRecord | null) {
+  if (typeof window === 'undefined') return;
+  try {
+    if (user) {
+      window.localStorage.setItem(DEMO_ACCOUNT_KEY, JSON.stringify(user));
+    } else {
+      window.localStorage.removeItem(DEMO_ACCOUNT_KEY);
+    }
+  } catch {
+    /* ignore storage errors */
+  }
+}
+
+/** Remove every trace of a signed-in demo session. */
+function clearDemoAuth() {
+  if (typeof window === 'undefined') return;
+  try {
+    window.localStorage.removeItem(DEMO_USER_KEY);
+    for (const key of LEGACY_DEMO_KEYS) window.localStorage.removeItem(key);
   } catch {
     /* ignore storage errors */
   }
@@ -181,11 +208,22 @@ export function useAuth() {
         throw new Error('Password must be at least 6 characters.');
       }
 
+      let account: DemoUserRecord | null = null;
+      try {
+        const raw = window.localStorage.getItem(DEMO_ACCOUNT_KEY);
+        account = raw ? (JSON.parse(raw) as DemoUserRecord) : null;
+      } catch {
+        account = null;
+      }
+
       const record: DemoUserRecord = {
         id: demoId(email),
         email,
-        full_name: email.split('@')[0].replace(/[._-]+/g, ' '),
-        phone: null,
+        full_name:
+          account && account.email === email
+            ? account.full_name
+            : email.split('@')[0].replace(/[._-]+/g, ' '),
+        phone: account && account.email === email ? account.phone : null,
         created_at: new Date().toISOString(),
       };
 
@@ -206,7 +244,19 @@ export function useAuth() {
     return data;
   };
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  /**
+   * Create an account. Registration never leaves the user signed in: they are
+   * always sent to /login to sign in on purpose (and we clear any session
+   * Supabase created when email confirmation is disabled).
+   */
+  const signUp = async (
+    email: string,
+    password: string,
+    fullName: string,
+    phone?: string
+  ): Promise<{ user: User | null; needsEmailConfirmation: boolean }> => {
+    const contact = (phone ?? '').trim();
+
     if (!isSupabaseConfigured || !supabase) {
       if (!email.includes('@')) {
         throw new Error('Please enter a valid email address.');
@@ -214,54 +264,81 @@ export function useAuth() {
       if (password.length < 6) {
         throw new Error('Password must be at least 6 characters.');
       }
+      if (contact.replace(/\D/g, '').length < 9) {
+        throw new Error('Please enter a valid contact number.');
+      }
 
+      // Demo mode has no backend to confirm emails, so store the account and let
+      // the user sign in with it from /login.
       const record: DemoUserRecord = {
         id: demoId(email),
         email,
         full_name: fullName.trim() || email.split('@')[0],
-        phone: null,
+        phone: contact,
         created_at: new Date().toISOString(),
       };
 
-      writeDemoUser(record);
-      setSession(toSupabaseSession(record));
-      setUser(toSupabaseUser(record));
-      setProfile(toProfile(record));
-      setLoading(false);
+      writeDemoAccount(record);
 
-      return { user: toSupabaseUser(record), session: toSupabaseSession(record) };
+      return { user: toSupabaseUser(record), needsEmailConfirmation: false };
     }
 
     const origin =
       typeof window !== 'undefined'
         ? window.location.origin
-        : process.env.NEXT_PUBLIC_APP_URL ?? '';
+        : process.env.NEXT_PUBLIC_SITE_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? '';
 
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { full_name: fullName },
-        emailRedirectTo: `${origin}/api/auth/callback`,
+        // `phone` is read by the handle_new_user() trigger in supabase/schema.sql,
+        // so the contact number lands on the profile automatically.
+        data: { full_name: fullName, phone: contact || null },
+        emailRedirectTo: `${origin}/api/auth/callback?next=/login?registered=1`,
       },
     });
     if (error) throw error;
-    return data;
-  };
 
-  const signOut = async () => {
-    if (!isSupabaseConfigured || !supabase) {
-      writeDemoUser(null);
+    // Email confirmation disabled → Supabase signs the user in immediately.
+    // Registration must still end on the sign-in screen, so drop that session.
+    if (data.session) {
+      await supabase.auth.signOut({ scope: 'local' }).catch(() => null);
       reset();
-      router.push('/');
-      router.refresh();
-      return;
     }
 
-    await supabase.auth.signOut();
-    reset();
-    router.push('/');
-    router.refresh();
+    return { user: data.user, needsEmailConfirmation: !data.session };
+  };
+
+  /**
+   * Sign out everywhere: revoke the session server-side (which clears the httpOnly
+   * auth cookies the proxy reads), wipe the local session, then hard-navigate so
+   * no cached server render can show the previous user.
+   */
+  const signOut = async () => {
+    clearDemoAuth();
+
+    try {
+      await Promise.all([
+        fetch('/api/auth/signout', { method: 'POST', credentials: 'same-origin' }).catch(
+          () => null
+        ),
+        supabase
+          ? supabase.auth.signOut({ scope: 'local' }).catch(() => null)
+          : Promise.resolve(null),
+      ]);
+    } catch {
+      // A failed network call must never keep the user signed in locally.
+    } finally {
+      reset();
+
+      if (typeof window !== 'undefined') {
+        window.location.assign('/');
+      } else {
+        router.push('/');
+        router.refresh();
+      }
+    }
   };
 
   return {

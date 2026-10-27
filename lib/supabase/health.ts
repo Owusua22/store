@@ -15,6 +15,7 @@ export const CORE_TABLES = [
   'profiles',
   'categories',
   'skin_types',
+  'brands',
   'products',
   'product_variants',
   'inventory_movements',
@@ -110,7 +111,7 @@ export async function checkDatabaseHealth(force = false): Promise<DatabaseHealth
     const client = await createServerSupabaseClient();
 
     // Fast path: two sentinel tables. A healthy project answers in 2 queries
-    // instead of 14; only a broken/partial schema triggers the full scan so the
+    // instead of 15; only a broken/partial schema triggers the full scan so the
     // setup screen can list exactly what is missing.
     const [hasProducts, hasProfiles] = await Promise.all([
       tableExists(client, 'products'),

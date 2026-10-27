@@ -18,6 +18,8 @@ import {
   findDemoProduct,
   type DemoCategory,
 } from '@/lib/demo/catalog';
+import { brandSlug } from '@/lib/brands';
+import { getBrandBySlug } from '@/lib/data/brands';
 import type { Product } from '@/types';
 
 export type SortKey = 'newest' | 'price_asc' | 'price_desc' | 'name';
@@ -33,6 +35,8 @@ export interface ProductQuery {
   excludeId?: string;
   /** e.g. 'dry' | 'oily' | 'sensitive' — matches products flagged for that skin type */
   skinType?: string;
+  /** Brand slug, e.g. 'nivea' — matches products linked to that brand */
+  brandSlug?: string;
   featuredOnly?: boolean;
   inStockOnly?: boolean;
 }
@@ -141,6 +145,12 @@ function filterDemoProducts(query: ProductQuery): Product[] {
       (p) =>
         (p.skin_types ?? []).length === 0 ||
         (p.skin_types ?? []).includes(query.skinType as string)
+    );
+  }
+
+  if (query.brandSlug) {
+    products = products.filter(
+      (product) => product.brand && brandSlug(product.brand) === query.brandSlug
     );
   }
 
@@ -293,6 +303,20 @@ export async function getProducts(query: ProductQuery = {}): Promise<Product[]> 
     if (query.featuredOnly) request = request.eq('is_featured', true);
     if (query.inStockOnly) request = request.gt('stock_quantity', 0);
     if (query.skinType) request = request.contains('skin_types', [query.skinType]);
+
+    if (query.brandSlug) {
+      const brand = await getBrandBySlug(query.brandSlug);
+      if (!brand) return [];
+
+      // Products created before brands existed only carry the text name, so match
+      // either the FK or the name. Fallback (demo) brand ids are not UUIDs.
+      const nameFilter = brand.name.replace(/[,()*]/g, ' ').trim();
+      request = request.or(
+        brand.id.startsWith('brand-')
+          ? `brand.ilike.${nameFilter}`
+          : `brand_id.eq.${brand.id},brand.ilike.${nameFilter}`
+      );
+    }
 
     const term = escapeFilter(query.search?.trim() ?? '');
     if (term.length >= 2) {

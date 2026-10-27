@@ -8,11 +8,14 @@ import { ShopFilters, SortSelect } from '@/components/products/ShopFilters';
 import { getCategories, getProducts, type SortKey } from '@/lib/data/store';
 import { metaNumber } from '@/lib/utils';
 import { getSkinTypes } from '@/lib/data/skin-types';
+import { getBrands } from '@/lib/data/brands';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { breadcrumbSchema, collectionPageSchema } from '@/lib/seo/jsonld';
 
 export const metadata: Metadata = {
   title: 'Shop skin care products',
   description:
-    'Browse body lotions, face creams, serums, shampoos, shower gels, baby care and more at Sally.',
+    'Browse body lotions, face creams, serums, shampoos, shower gels, baby care and more at Glow-Up.',
 };
 
 interface ProductsPageProps {
@@ -31,6 +34,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const query = first(params.q)?.trim() ?? '';
   const categorySlug = first(params.category) ?? undefined;
   const skinType = first(params.skin) ?? undefined;
+  const brandFilter = first(params.brand) ?? undefined;
   const deals = first(params.deals) === '1';
   const rawSort = first(params.sort) ?? 'newest';
   const sort: SortKey = SORT_VALUES.includes(rawSort as SortKey)
@@ -42,14 +46,20 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const activeMin = Number.isFinite(min) ? min : undefined;
   const activeMax = Number.isFinite(max) ? max : undefined;
 
-  const [categories, skinTypes] = await Promise.all([getCategories(), getSkinTypes()]);
+  const [categories, skinTypes, brands] = await Promise.all([
+    getCategories(),
+    getSkinTypes(),
+    getBrands(),
+  ]);
   const activeSkinType = skinTypes.find((type) => type.slug === skinType);
+  const activeBrand = brands.find((brand) => brand.slug === brandFilter);
 
   const allProducts = await getProducts({
     categorySlug,
     search: query || undefined,
     dealsOnly: deals,
     skinType,
+    brandSlug: brandFilter,
     sort: rawSort === 'popular' ? 'newest' : sort,
   });
 
@@ -69,10 +79,30 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   }
 
   const activeCategory = categories.find((c) => c.slug === categorySlug);
-  const heading = activeCategory?.name ?? (deals ? 'Deals & offers' : 'All products');
+  const heading =
+    activeBrand?.name ?? activeCategory?.name ?? (deals ? 'Deals & offers' : 'All products');
+
+  const listingUrl = `/products${categorySlug ? `?category=${categorySlug}` : ''}`;
 
   return (
     <div className="container-page pb-10 pt-3 sm:pt-4">
+      <JsonLd
+        id="products"
+        data={[
+          collectionPageSchema({
+            name: heading,
+            description: activeCategory?.description ?? `${heading} — delivered across Ghana.`,
+            url: listingUrl,
+            products,
+          }),
+          breadcrumbSchema([
+            { name: 'Home', href: '/' },
+            { name: 'Shop', href: '/products' },
+            ...(activeCategory ? [{ name: activeCategory.name, href: `/categories/${activeCategory.slug}` }] : []),
+          ]),
+        ]}
+      />
+
       {/* Breadcrumb */}
       <nav className="hide-scrollbar flex items-center gap-1 overflow-x-auto py-2 text-[11.5px] text-muted">
         <Link href="/" className="hover:text-brand">
@@ -100,7 +130,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             <p className="mt-1 text-[12px] text-muted">
               {products.length} product{products.length === 1 ? '' : 's'} available
               {activeCategory ? ` in ${activeCategory.name}` : ''}
-              {activeSkinType ? ` for ${activeSkinType.label.toLowerCase()} skin` : ''} ·
+              {activeSkinType ? ` for ${activeSkinType.label.toLowerCase()} skin` : ''}
+              {activeBrand ? ` from ${activeBrand.name}` : ''} ·
               authentic products, nationwide delivery
             </p>
 
@@ -137,6 +168,43 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 );
               })}
             </div>
+
+            {/* Brand quick filters */}
+            {brands.length > 0 ? (
+              <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                <span className="mr-0.5 text-[10.5px] font-bold uppercase tracking-[0.12em] text-muted">
+                  Brand
+                </span>
+                {brands.slice(0, 10).map((brand) => {
+                  const search = new URLSearchParams();
+                  if (categorySlug) search.set('category', categorySlug);
+                  if (deals) search.set('deals', '1');
+                  if (skinType) search.set('skin', skinType);
+                  search.set('brand', brand.slug);
+                  return (
+                    <Link
+                      key={brand.id}
+                      href={`/products?${search.toString()}`}
+                      className={`rounded-full border px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                        brandFilter === brand.slug
+                          ? 'border-brand bg-brand text-white'
+                          : 'border-line bg-white text-gray-600 hover:border-brand/60'
+                      }`}
+                    >
+                      {brand.name}
+                    </Link>
+                  );
+                })}
+                {brandFilter ? (
+                  <Link
+                    href={`/products${categorySlug ? `?category=${categorySlug}` : ''}`}
+                    className="rounded-full border border-line bg-white px-2.5 py-1 text-[11px] font-bold text-gray-600 hover:border-brand/60"
+                  >
+                    Clear brand
+                  </Link>
+                ) : null}
+              </div>
+            ) : null}
           </div>
 
           <form action="/products" className="flex h-10 w-full max-w-sm items-center rounded-lg border border-line bg-white pl-3">

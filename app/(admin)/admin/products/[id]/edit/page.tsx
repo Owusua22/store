@@ -7,6 +7,7 @@ import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { demoProducts, demoCategories } from '@/lib/demo/catalog';
 import { getCategories } from '@/lib/data/store';
 import { getSkinTypes } from '@/lib/data/skin-types';
+import { getBrands } from '@/lib/data/brands';
 import ProductForm, { type ProductFormValues } from '@/components/admin/ProductForm';
 import type { Product } from '@/types';
 
@@ -28,10 +29,11 @@ async function loadProduct(id: string): Promise<Product | null> {
 
 export default async function EditProductPage({ params }: Props) {
   const { id } = await params;
-  const [product, categories, skinTypes] = await Promise.all([
+  const [product, categories, skinTypes, brands] = await Promise.all([
     loadProduct(id),
     getCategories(),
     getSkinTypes(),
+    getBrands(),
   ]);
 
   if (!product) notFound();
@@ -78,6 +80,7 @@ export default async function EditProductPage({ params }: Props) {
           id: category.id,
           name: category.name,
         }))}
+        brands={brands.map((brand) => ({ id: brand.id, name: brand.name }))}
         skinTypes={skinTypes}
         demoMode={!isSupabaseConfigured}
       />

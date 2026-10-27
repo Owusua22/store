@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'react-toastify';
 
@@ -25,11 +26,15 @@ const registerSchema = z
   .object({
     full_name: z.string().min(2, 'Name must be at least 2 characters'),
     email: z.string().email('Invalid email address'),
+    // Contact number is required: we call/WhatsApp customers about deliveries.
     phone: z
       .string()
-      .optional()
-      .refine((val) => !val || /^[+]?[\d\s().-]{7,20}$/.test(val), {
-        message: 'Enter a valid phone number (e.g., +233 50 123 4567)',
+      .min(1, 'Contact number is required')
+      .refine((val) => /^[+]?[\d\s().-]{7,20}$/.test(val.trim()), {
+        message: 'Enter a valid phone number (e.g., 054 945 5367)',
+      })
+      .refine((val) => val.replace(/\D/g, '').length >= 9, {
+        message: 'Enter a valid phone number (e.g., 054 945 5367)',
       }),
     password: z
       .string()
@@ -52,6 +57,7 @@ interface RegisterFormProps {
 
 export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) {
   const { signUp } = useAuth();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
   // Password visibility toggles
@@ -73,27 +79,25 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
     try {
       setIsLoading(true);
 
-      // Call signUp — your hook should handle email confirmation vs immediate session
-      const result = await signUp(data.email, data.password, data.full_name);
+      const { needsEmailConfirmation } = await signUp(
+        data.email,
+        data.password,
+        data.full_name,
+        data.phone
+      );
 
-      // If your hook returns a `needsEmailConfirmation` flag (recommended), you can branch here:
-      if (
-        (result as unknown as { needsEmailConfirmation?: boolean })
-          ?.needsEmailConfirmation
-      ) {
-        toast.info('Please check your email and click the confirmation link before signing in.');
-        setTimeout(() => {
-          onSwitchToLogin?.();
-        }, 1200);
-        onSuccess?.();
-        return;
-      }
+      // Registration always ends on the sign-in screen — never auto-signed-in.
+      toast.success(
+        needsEmailConfirmation
+          ? 'Account created! Confirm your email, then sign in.'
+          : 'Account created successfully! Please sign in.'
+      );
 
-      toast.success('Account created successfully! Please sign in.');
-      setTimeout(() => {
-        onSwitchToLogin?.();
-      }, 1500);
       onSuccess?.();
+
+      const params = new URLSearchParams({ registered: '1', email: data.email });
+      if (needsEmailConfirmation) params.set('confirm', '1');
+      router.push(`/login?${params.toString()}`);
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : 'Failed to register. Please try again.';
@@ -105,19 +109,21 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
 
   return (
     <div className="space-y-4">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900">Create account</h2>
-        <p className="mt-2 text-sm text-gray-600">
-          Already have an account?{' '}
-          <button
-            type="button"
-            onClick={onSwitchToLogin}
-            className="text-red-600 hover:text-red-500 font-medium"
-          >
-            Sign in
-          </button>
-        </p>
-      </div>
+      {onSwitchToLogin ? (
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900">Create account</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Already have an account?{' '}
+            <button
+              type="button"
+              onClick={onSwitchToLogin}
+              className="font-medium text-red-600 hover:text-red-500"
+            >
+              Sign in
+            </button>
+          </p>
+        </div>
+      ) : null}
 
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         {/* Full Name */}
@@ -156,21 +162,28 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
           )}
         </div>
 
-        {/* Phone (optional) */}
+        {/* Contact number */}
         <div>
           <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-            Phone number <span className="text-gray-400 font-normal">(optional)</span>
+            Contact number
           </label>
           <input
             {...register('phone')}
             id="phone"
             type="tel"
+            inputMode="tel"
             autoComplete="tel"
+            required
+            aria-describedby="phone-hint"
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-            placeholder="+233 50 123 4567"
+            placeholder="054 945 5367"
           />
-          {errors.phone && (
+          {errors.phone ? (
             <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
+          ) : (
+            <p id="phone-hint" className="mt-1 text-xs text-gray-500">
+              We&apos;ll call or WhatsApp you about delivery.
+            </p>
           )}
         </div>
 
@@ -243,6 +256,18 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
           {isLoading ? 'Creating account...' : 'Create account'}
         </button>
       </form>
+
+      <p className="text-center text-[12px] text-gray-500">
+        By creating an account you agree to our{' '}
+        <a href="/terms" className="font-medium text-red-600 hover:underline">
+          terms
+        </a>{' '}
+        and{' '}
+        <a href="/privacy" className="font-medium text-red-600 hover:underline">
+          privacy policy
+        </a>
+        .
+      </p>
     </div>
   );
 }
