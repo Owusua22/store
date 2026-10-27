@@ -32,7 +32,7 @@ falls back to **demo mode** so every screen still works:
 | Catalogue | 19 bundled skin care products + 11 categories (`lib/demo/catalog.ts`) |
 | Images | Local generated packshots in `public/images/` |
 | Cart | Persisted in `localStorage` (`lib/demo/cart.ts`) |
-| Sign in / sign up | Local demo session (any email + 6-char password) |
+| Sign in / sign up | One auth dialog (`stores/authModalStore`) — email + password + contact number, no separate page |
 | Checkout | Validates the form and returns a demo order number |
 | Shipping | 12 Ghana zones in `lib/demo/shipping.ts` |
 | Admin | Shell + all pages render with the bundled catalogue; writes show a demo notice |
@@ -56,7 +56,7 @@ Short version:
    Secret Access Key, enable public access, and set `CLOUDFLARE_R2_PUBLIC_URL`.
    Verify at `/api/test-r2`.
 4. Copy `.env.example` → `.env.local`, fill in the values, restart the dev server.
-5. Sign in at `/login` and open `/admin/dashboard`.
+5. Click **Sign in** in the navbar (the auth dialog — there is no `/login` page) and open `/admin/dashboard`.
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=
@@ -113,13 +113,14 @@ app/
   categories/[slug]/        category listing
   cart/ checkout/           cart page and checkout flow
   account/ profile/ orders/ customer area
-  login/ register/          auth pages
+  login/ register/          redirect stubs → open the auth dialog on /
   about/ contact/ terms/ privacy/
   blog/                     public journal index + article pages
   (admin)/admin/…           dashboard, products, categories, brands, skin-types,
                             stock, orders, shipping, blog, showrooms, banners, users
   api/…                     cart, checkout, orders, search, shipping, admin
 components/
+  auth/                     AuthModal (the only sign-in/registration UI), forms
   layout/                   Navbar, Footer, AppShell, newsletter, demo banner
   home/                     HeroBanner, CategoryStrip, ProductSection, rail, promos
   products/                 ProductCard, ProductDetails, filters

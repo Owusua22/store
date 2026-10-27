@@ -9,7 +9,20 @@ import {
 
 const PROTECTED_ROUTES = ['/orders', '/checkout', '/profile'];
 const ADMIN_ROUTES = ['/admin'];
-const AUTH_ROUTES = ['/login', '/register'];
+// Auth lives in the global dialog, so there are no auth pages to bounce signed-in
+// users away from — /login and /register are redirect stubs only.
+const AUTH_ROUTE_STUBS = ['/login', '/register'];
+
+/**
+ * The storefront has no /login page: send the shopper home with the sign-in
+ * dialog open, remembering where they were headed.
+ */
+function authDialogUrl(request: NextRequest, redirectTo: string) {
+  const url = new URL('/', request.url);
+  url.searchParams.set('auth', 'login');
+  if (redirectTo && redirectTo !== '/') url.searchParams.set('redirect', redirectTo);
+  return url;
+}
 
 // ✅ Renamed from `middleware` → `proxy`
 export async function proxy(request: NextRequest) {
@@ -50,21 +63,17 @@ export async function proxy(request: NextRequest) {
 
   const pathname = request.nextUrl.pathname;
 
-  if (session && AUTH_ROUTES.some((route) => pathname.startsWith(route))) {
+  if (session && AUTH_ROUTE_STUBS.some((route) => pathname.startsWith(route))) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
   if (!session && PROTECTED_ROUTES.some((route) => pathname.startsWith(route))) {
-    const redirectUrl = new URL('/login', request.url);
-    redirectUrl.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(redirectUrl);
+    return NextResponse.redirect(authDialogUrl(request, pathname));
   }
 
   if (ADMIN_ROUTES.some((route) => pathname.startsWith(route))) {
     if (!session) {
-      const redirectUrl = new URL('/login', request.url);
-      redirectUrl.searchParams.set('redirect', pathname);
-      return NextResponse.redirect(redirectUrl);
+      return NextResponse.redirect(authDialogUrl(request, pathname));
     }
 
     // The setup screen must stay reachable even when the database has not been

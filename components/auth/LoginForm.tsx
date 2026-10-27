@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'react-toastify';
-import { CheckCircle2, MailCheck } from 'lucide-react';
+import { Loader2, MailCheck } from 'lucide-react';
+
+import { useAuth } from '@/hooks/useAuth';
+import { describeAuthError } from '@/lib/auth-errors';
+import { site } from '@/lib/site';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -19,96 +21,155 @@ type LoginFormData = z.infer<typeof loginSchema>;
 interface LoginFormProps {
   onSuccess?: () => void;
   onSwitchToRegister?: () => void;
+  /** Pre-filled from a registration or an auth redirect. */
+  defaultEmail?: string;
 }
 
-export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
-  const { signIn } = useAuth();
-  const router = useRouter();
-  const searchParams = useSearchParams();
+export function LoginForm({ onSuccess, onSwitchToRegister, defaultEmail = '' }: LoginFormProps) {
+  const { signIn, resendConfirmation } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [needsConfirmation, setNeedsConfirmation] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
-  const justRegistered = searchParams.get('registered') === '1';
-  const needsConfirmation = searchParams.get('confirm') === '1';
-  const prefillEmail = searchParams.get('email') ?? '';
-
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<LoginFormData>({
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    getValues,
+    formState: { errors },
+  } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: prefillEmail, password: '' },
+    defaultValues: { email: defaultEmail, password: '' },
   });
 
-  // The register form redirects here with ?email=… — keep the field in sync if
-  // the query string changes without a remount.
   useEffect(() => {
-    if (prefillEmail) setValue('email', prefillEmail);
-  }, [prefillEmail, setValue]);
+    if (defaultEmail) setValue('email', defaultEmail);
+  }, [defaultEmail, setValue]);
 
   const onSubmit = async (data: LoginFormData) => {
     try {
       setIsLoading(true);
-      await signIn(data.email, data.password);
-      const redirect = searchParams.get('redirect') || '/';
-      router.push(redirect);
-      router.refresh();
-      toast.success('Welcome back! You have successfully signed in.');
+      setNeedsConfirmation(false);
+      setFormError(null);
+      await signIn(data.email.toLowerCase().trim(), data.password);
+      toast.success('Welcome back!');
       onSuccess?.();
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to sign in. Please check your credentials.';
-      toast.error(message);
+      const info = describeAuthError(err);
+      setNeedsConfirmation(Boolean(info.needsConfirmation));
+      // Inline as well as a toast: the dialog is the only place a shopper can
+      // find out why a sign-in failed.
+      setFormError(info.message);
+      toast.error(info.message, { autoClose: 8000 });
     } finally {
       setIsLoading(false);
     }
   };
 
+  const resend = async () => {
+    const target = (getValues('email') || defaultEmail).toLowerCase().trim();
+    if (!target) {
+      toast.error('Enter your email address first.');
+      return;
+    }
+    setResending(true);
+    try {
+      await resendConfirmation(target);
+      toast.success(`Confirmation email sent to ${target}.`, { autoClose: 8000 });
+    } catch (err: unknown) {
+      toast.error(describeAuthError(err).message, { autoClose: 8000 });
+    } finally {
+      setResending(false);
+    }
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-gray-900">Sign in</h2>
         <p className="mt-2 text-sm text-gray-600">
-          Don&apos;t have an account?{' '}
-          <button type="button" onClick={onSwitchToRegister} className="text-red-600 hover:text-red-500 font-medium">
-            Register
+          New to {site.name}?{' '}
+          <button
+            type="button"
+            onClick={onSwitchToRegister}
+            className="font-medium text-red-600 hover:text-red-500"
+          >
+            Create an account
           </button>
         </p>
       </div>
 
-      {justRegistered ? (
-        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-          <p className="flex items-center gap-2 font-semibold">
-            <CheckCircle2 className="h-4 w-4" />
-            Account created — sign in to continue.
-          </p>
-          {needsConfirmation ? (
-            <p className="mt-1 flex items-start gap-2 text-[12.5px] text-emerald-800">
-              <MailCheck className="mt-0.5 h-4 w-4 shrink-0" />
-              We emailed you a confirmation link. Click it, then sign in below.
-            </p>
-          ) : null}
-        </div>
+      {formError ? (
+        <p
+          role="alert"
+          className="rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-[12.5px] leading-relaxed text-red-800"
+        >
+          {formError}
+        </p>
       ) : null}
 
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
-        {/* Email */}
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email address</label>
-          <input {...register('email')} id="email" type="email" autoComplete="email"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-            placeholder="you@example.com" />
+          <label htmlFor="auth-email" className="mb-1 block text-sm font-medium text-gray-700">
+            Email address
+          </label>
+          <input
+            {...register('email')}
+            id="auth-email"
+            type="email"
+            autoComplete="email"
+            autoFocus
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+            placeholder="you@example.com"
+          />
           {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>}
         </div>
-        {/* Password */}
+
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-          <input {...register('password')} id="password" type="password" autoComplete="current-password"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-            placeholder="••••••••" />
-          {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
+          <label htmlFor="auth-password" className="mb-1 block text-sm font-medium text-gray-700">
+            Password
+          </label>
+          <input
+            {...register('password')}
+            id="auth-password"
+            type="password"
+            autoComplete="current-password"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+            placeholder="••••••••"
+          />
+          {errors.password && (
+            <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+          )}
         </div>
 
-        <button type="submit" disabled={isLoading}
-          className="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 transition-colors">
-          {isLoading ? 'Signing in...' : 'Sign in'}
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+        >
+          {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+          {isLoading ? 'Signing in…' : 'Sign in'}
         </button>
       </form>
+
+      {needsConfirmation ? (
+        <button
+          type="button"
+          onClick={resend}
+          disabled={resending}
+          className="flex w-full items-center justify-center gap-2 rounded-lg border border-gray-300 px-4 py-2.5 text-[12.5px] font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+        >
+          {resending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <MailCheck className="h-4 w-4" />
+          )}
+          Resend confirmation email
+        </button>
+      ) : null}
     </div>
   );
 }
+
+export default LoginForm;

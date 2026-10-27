@@ -245,9 +245,9 @@ export function useAuth() {
   };
 
   /**
-   * Create an account. Registration never leaves the user signed in: they are
-   * always sent to /login to sign in on purpose (and we clear any session
-   * Supabase created when email confirmation is disabled).
+   * Create an account. Registration never leaves the user signed in: the auth
+   * dialog switches to its sign-in view afterwards, and we clear any session
+   * Supabase created when email confirmation is disabled.
    */
   const signUp = async (
     email: string,
@@ -295,7 +295,11 @@ export function useAuth() {
         // `phone` is read by the handle_new_user() trigger in supabase/schema.sql,
         // so the contact number lands on the profile automatically.
         data: { full_name: fullName, phone: contact || null },
-        emailRedirectTo: `${origin}/api/auth/callback?next=/login?registered=1`,
+        // After confirming, land back on the storefront with the sign-in dialog
+        // already open (there is no /login page any more).
+        emailRedirectTo: `${origin}/api/auth/callback?next=${encodeURIComponent(
+          '/?auth=login&registered=1'
+        )}`,
       },
     });
     if (error) throw error;
@@ -308,6 +312,29 @@ export function useAuth() {
     }
 
     return { user: data.user, needsEmailConfirmation: !data.session };
+  };
+
+  /** Re-send the "confirm your email" message from the sign-in dialog. */
+  const resendConfirmation = async (email: string) => {
+    if (!isSupabaseConfigured || !supabase) {
+      throw new Error('Demo mode: no confirmation email is needed — just sign in.');
+    }
+
+    const origin =
+      typeof window !== 'undefined'
+        ? window.location.origin
+        : process.env.NEXT_PUBLIC_SITE_URL ?? '';
+
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
+      email,
+      options: {
+        emailRedirectTo: `${origin}/api/auth/callback?next=${encodeURIComponent(
+          '/?auth=login&registered=1'
+        )}`,
+      },
+    });
+    if (error) throw error;
   };
 
   /**
@@ -351,5 +378,6 @@ export function useAuth() {
     signIn,
     signUp,
     signOut,
+    resendConfirmation,
   };
 }

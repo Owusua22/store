@@ -1,31 +1,23 @@
-import { Suspense } from 'react';
-import Link from 'next/link';
-import type { Metadata } from 'next';
-import { RegisterForm } from '@/components/auth/RegisterForm';
+// app/register/page.tsx
+// No standalone registration page either — the global auth dialog handles both
+// sign-in and account creation. Kept as a redirect for old links.
 
-export const metadata: Metadata = {
-  title: 'Create an account',
-  description: 'Create a Glow-Up account for faster checkout and order tracking.',
-};
+import { redirect } from 'next/navigation';
 
-export default function RegisterPage() {
-  return (
-    <div className="container-page py-8 lg:py-12">
-      <div className="mx-auto w-full max-w-md rounded-xl border border-line bg-white p-6 sm:p-8">
-        <h1 className="text-[20px] font-extrabold text-ink">Create your account</h1>
-        <p className="mt-1 text-[12.5px] text-muted">
-          Already have an account?{' '}
-          <Link href="/login" className="font-bold text-brand hover:underline">
-            Sign in
-          </Link>
-        </p>
+interface Props {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-        <div className="mt-5">
-          <Suspense fallback={<p className="text-[12.5px] text-muted">Loading…</p>}>
-            <RegisterForm />
-          </Suspense>
-        </div>
-      </div>
-    </div>
-  );
+function first(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function RegisterRedirect({ searchParams }: Props) {
+  const params = await searchParams;
+  const query = new URLSearchParams({ auth: 'register' });
+
+  const redirectTo = first(params.redirect);
+  if (redirectTo && redirectTo.startsWith('/')) query.set('redirect', redirectTo);
+
+  redirect(`/?${query.toString()}`);
 }

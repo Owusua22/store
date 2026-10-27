@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthModal } from '@/stores/authModalStore';
+import { describeAuthError } from '@/lib/auth-errors';
 import { toast } from 'react-toastify';
 
 // Simple eye icons (inline SVG) for accessibility
@@ -57,8 +58,9 @@ interface RegisterFormProps {
 
 export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) {
   const { signUp } = useAuth();
-  const router = useRouter();
+  const { openAuth } = useAuthModal();
   const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   // Password visibility toggles
   const [showPassword, setShowPassword] = useState(false);
@@ -78,15 +80,16 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
   const onSubmit = async (data: RegisterFormData) => {
     try {
       setIsLoading(true);
+      setFormError(null);
 
+      const email = data.email.toLowerCase().trim();
       const { needsEmailConfirmation } = await signUp(
-        data.email,
+        email,
         data.password,
         data.full_name,
         data.phone
       );
 
-      // Registration always ends on the sign-in screen — never auto-signed-in.
       toast.success(
         needsEmailConfirmation
           ? 'Account created! Confirm your email, then sign in.'
@@ -95,13 +98,17 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
 
       onSuccess?.();
 
-      const params = new URLSearchParams({ registered: '1', email: data.email });
-      if (needsEmailConfirmation) params.set('confirm', '1');
-      router.push(`/login?${params.toString()}`);
+      // Never auto-signed-in: swap this dialog to the sign-in view, with the email
+      // already filled in and a note about confirming the address when required.
+      openAuth({
+        view: 'login',
+        notice: needsEmailConfirmation ? 'confirm' : 'registered',
+        email,
+      });
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to register. Please try again.';
-      toast.error(message);
+      const info = describeAuthError(err);
+      setFormError(info.message);
+      toast.error(info.message, { autoClose: 8000 });
     } finally {
       setIsLoading(false);
     }
@@ -111,7 +118,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
     <div className="space-y-4">
       {onSwitchToLogin ? (
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900">Create account</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Create your account</h2>
           <p className="mt-2 text-sm text-gray-600">
             Already have an account?{' '}
             <button
@@ -123,6 +130,15 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
             </button>
           </p>
         </div>
+      ) : null}
+
+      {formError ? (
+        <p
+          role="alert"
+          className="rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-[12.5px] leading-relaxed text-red-800"
+        >
+          {formError}
+        </p>
       ) : null}
 
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
@@ -257,17 +273,6 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
         </button>
       </form>
 
-      <p className="text-center text-[12px] text-gray-500">
-        By creating an account you agree to our{' '}
-        <a href="/terms" className="font-medium text-red-600 hover:underline">
-          terms
-        </a>{' '}
-        and{' '}
-        <a href="/privacy" className="font-medium text-red-600 hover:underline">
-          privacy policy
-        </a>
-        .
-      </p>
     </div>
   );
 }

@@ -79,7 +79,8 @@ set role = 'admin', full_name = 'Store Admin'
 where id = 'PASTE-USER-UUID-HERE';
 ```
 
-3. Sign in at `/login`, then open `/admin/dashboard`.
+3. Sign in with the **Sign in** button in the navbar (auth is a dialog — `/login` just redirects
+   to it), then open `/admin/dashboard`.
 
 New signups get `role = 'customer'` automatically via the `handle_new_user` trigger.
 

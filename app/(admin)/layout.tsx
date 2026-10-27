@@ -53,7 +53,7 @@ export default async function AdminDashboardLayout({
         </AdminDashboardShell>
       );
     }
-    redirect('/login?redirect=/admin/setup');
+    redirect('/?auth=login&redirect=/admin/setup');
   }
 
   const { data: profile, error: profileError } = await supabase
@@ -64,7 +64,7 @@ export default async function AdminDashboardLayout({
 
   if (profileError && !setupRequired) {
     console.error('[admin] profile lookup failed:', profileError.message);
-    redirect('/login?redirect=/admin/setup');
+    redirect('/?auth=login&redirect=/admin/setup');
   }
 
   if (!profile) {

@@ -149,7 +149,7 @@ export default async function OrdersPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/login?redirect=/orders');
+    redirect('/?auth=login&redirect=/orders');
   }
 
   const { data: orders, error } = await supabase

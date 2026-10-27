@@ -27,7 +27,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
 import { cn, formatCedis } from '@/lib/utils';
-import { AuthModal } from '@/components/auth/AuthModal';
+import { useAuthModal } from '@/stores/authModalStore';
 import { NAV_CATEGORIES, POPULAR_SEARCHES, site } from '@/lib/site';
 
 interface SearchResult {
@@ -77,8 +77,7 @@ export function Navbar() {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [authOpen, setAuthOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const openAuthModal = useAuthModal((state) => state.openAuth);
 
   const accountRef = useRef<HTMLDivElement>(null);
   const categoryRef = useRef<HTMLDivElement>(null);
@@ -117,11 +116,14 @@ export function Navbar() {
     return () => document.removeEventListener('mousedown', onClick);
   }, []);
 
-  const openAuth = useCallback((mode: 'login' | 'register') => {
-    setAuthMode(mode);
-    setAuthOpen(true);
-    setMobileOpen(false);
-  }, []);
+  const openAuth = useCallback(
+    (mode: 'login' | 'register') => {
+      // Signing in from the navbar always returns the shopper to where they were.
+      openAuthModal({ view: mode, redirectTo: pathname || '/' });
+      setMobileOpen(false);
+    },
+    [openAuthModal, pathname]
+  );
 
   const handleSignOut = async () => {
     setAccountOpen(false);
@@ -521,12 +523,6 @@ export function Navbar() {
       {searchOpen && (
         <SearchOverlay key="search" open onClose={() => setSearchOpen(false)} />
       )}
-
-      <AuthModal
-        isOpen={authOpen}
-        onClose={() => setAuthOpen(false)}
-        defaultView={authMode}
-      />
 
       {/* ── Mobile bottom nav ─────────────────────────────────── */}
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
