@@ -195,7 +195,7 @@ export function Footer() {
         <div className="container-page flex flex-col gap-3 py-4 md:flex-row md:items-center md:justify-between">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[11px] font-semibold text-muted">We accept:</span>
-            {['MTN MoMo', 'Telecel Cash', 'Visa', 'Mastercard', 'Cash on delivery'].map(
+            {['MTN MoMo Pay', 'Cash on pickup', 'Cash on delivery', '48-hour exchange'].map(
               (label) => (
                 <span
                   key={label}

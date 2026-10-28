@@ -37,14 +37,29 @@ export function organizationSchema() {
     telephone: `+${site.whatsapp}`,
     email: site.email,
     currenciesAccepted: CURRENCY,
-    paymentAccepted: 'Cash on delivery, Mobile Money, Bank transfer',
+    paymentAccepted: 'Cash on pickup or delivery, MTN Mobile Money (MoMo Pay)',
     areaServed: { '@type': 'Country', name: site.areaServed },
     address: {
       '@type': 'PostalAddress',
-      addressLocality: 'Accra',
-      addressRegion: 'Greater Accra',
+      streetAddress: `${site.town}, beside ${site.landmark}`,
+      addressLocality: 'Nsawam',
+      addressRegion: 'Eastern Region',
       addressCountry: 'GH',
     },
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        opens: '08:00',
+        closes: '20:00',
+      },
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Sunday'],
+        opens: '13:00',
+        closes: '19:00',
+      },
+    ],
     contactPoint: [
       {
         '@type': 'ContactPoint',

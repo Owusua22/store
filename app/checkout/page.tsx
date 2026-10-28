@@ -37,8 +37,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { cn, formatCedis } from '@/lib/utils';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { clearDemoLines } from '@/lib/demo/cart';
+import { site } from '@/lib/site';
 
-type PaymentMethod = 'cod' | 'card' | 'mpesa';
+type PaymentMethod = 'cod' | 'momo';
 type DeliveryMethod = 'delivery' | 'pickup';
 type LocationStep = 'region' | 'town' | 'address';
 
@@ -390,21 +391,14 @@ export default function CheckoutPage() {
   const paymentCopy = useMemo(() => {
     if (paymentMethod === 'cod') {
       return {
-        title: 'Cash on Delivery',
-        subtitle: 'Pay when your order arrives.',
-      };
-    }
-
-    if (paymentMethod === 'mpesa') {
-      return {
-        title: 'Mobile Money',
-        subtitle: 'We will contact you with payment instructions.',
+        title: 'Cash on pickup or delivery',
+        subtitle: 'Pay the rider or the shop when you collect your order.',
       };
     }
 
     return {
-      title: 'Card Payment',
-      subtitle: 'Card payment instructions will be provided after placing order.',
+      title: 'MTN MoMo Pay',
+      subtitle: `Send the amount to MoMo Pay till ${site.momo.payTill}, then send the screenshot on WhatsApp so we can confirm it.`,
     };
   }, [paymentMethod]);
 
@@ -1151,24 +1145,17 @@ export default function CheckoutPage() {
                 {[
                   {
                     id: 'cod' as PaymentMethod,
-                    label: 'Cash on Delivery',
-                    desc: 'Pay when you receive your order.',
+                    label: 'Cash on pickup or delivery',
+                    desc: 'Pay cash at the shop in East Doboro, or to the rider.',
                     icon: Banknote,
                     color: 'bg-green-600',
                   },
                   {
-                    id: 'mpesa' as PaymentMethod,
-                    label: 'Mobile Money',
-                    desc: 'We will contact you with payment instructions.',
+                    id: 'momo' as PaymentMethod,
+                    label: 'MTN MoMo Pay',
+                    desc: `Till ${site.momo.payTill} — send the screenshot on WhatsApp to confirm.`,
                     icon: Smartphone,
-                    color: 'bg-emerald-600',
-                  },
-                  {
-                    id: 'card' as PaymentMethod,
-                    label: 'Credit / Debit Card',
-                    desc: 'Card instructions will be shared after placing order.',
-                    icon: CreditCard,
-                    color: 'bg-red-600',
+                    color: 'bg-amber-500',
                   },
                 ].map(({ id, label, desc, icon: Icon, color }) => {
                   const selected = paymentMethod === id;

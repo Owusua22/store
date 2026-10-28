@@ -80,9 +80,10 @@ const STATUS_STEPS = [
 ];
 
 const PAYMENT_LABELS: Record<string, string> = {
-  cod: '💵 Cash on Delivery',
-  mpesa: '📱 M-Pesa',
-  card: '💳 Credit / Debit Card',
+  cod: '💵 Cash on pickup / delivery',
+  momo: '📱 MTN MoMo Pay',
+  mpesa: '📱 Mobile money',
+  card: '💳 Card',
 };
 
 export default function AdminOrderDetailPage() {

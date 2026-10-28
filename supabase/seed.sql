@@ -357,7 +357,7 @@ values
   ('Nsawam Wholesale Cosmetics', 'Mr. Boateng', '0244123456', 'orders@nsawamwholesale.example', 'Nsawam Market, Eastern Region', 'Cash on delivery', 'Main supplier for Nivea, Vaseline and Dove.'),
   ('Accra Beauty Distributors',  'Auntie Efua', '0201987654', 'sales@accrabeauty.example',     'Circle, Accra',                 '14 days',          'Johnson''s Baby and Cetaphil; delivers on Tuesdays.'),
   ('Glow-Up Imports',            'Kofi Mensah', '0555551234', 'imports@glowup.example',        'Tema Harbour',                  '50% deposit',      'Own-brand Glow-Up range, sea freight.')
-on conflict do nothing;
+on conflict (lower(name)) do nothing;
 
 insert into public.stock_purchases (supplier_id, product_id, quantity, unit_cost, amount_paid, payment_method, reference, purchased_at, note)
 select s.id, p.id, v.quantity, v.unit_cost, v.amount_paid, v.payment_method, v.reference, current_date - v.days_ago, v.note
@@ -376,13 +376,17 @@ where not exists (
 );
 
 insert into public.expenses (category, description, amount, payment_method, reference, spent_at)
-values
-  ('rent',      'Shop rent — East Doboro (monthly)',        800.00, 'momo', 'RENT-01',  current_date - 20),
-  ('transport', 'Tricycle delivery runs around Nsawam',     120.00, 'cash', 'TRIP-014', current_date - 12),
-  ('internet',  'MTN data bundle for orders & WhatsApp',     80.00, 'momo', 'DATA-09',  current_date - 10),
-  ('packaging', 'Branded paper bags and tissue',            150.00, 'cash', 'PACK-02',  current_date - 6),
-  ('utilities', 'ECG prepaid top-up',                        90.00, 'momo', 'ECG-77',   current_date - 3)
-on conflict do nothing;
+select v.category, v.description, v.amount, v.payment_method, v.reference, current_date - v.days_ago
+from (values
+  ('rent',      'Shop rent — East Doboro (monthly)',      800.00, 'momo', 'RENT-01',  20),
+  ('transport', 'Tricycle delivery runs around Nsawam',   120.00, 'cash', 'TRIP-014', 12),
+  ('internet',  'MTN data bundle for orders & WhatsApp',   80.00, 'momo', 'DATA-09',  10),
+  ('packaging', 'Branded paper bags and tissue',          150.00, 'cash', 'PACK-02',   6),
+  ('utilities', 'ECG prepaid top-up',                      90.00, 'momo', 'ECG-77',    3)
+) as v(category, description, amount, payment_method, reference, days_ago)
+where not exists (
+  select 1 from public.expenses e where e.reference = v.reference
+);
 
 -- ---------------------------------------------------------------------------
 -- Shipping zones (Ghana)

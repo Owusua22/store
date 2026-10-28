@@ -548,6 +548,9 @@ create table if not exists public.expenses (
 
 create index if not exists expenses_spent_idx on public.expenses (spent_at desc);
 
+-- One row per supplier name, so the seed and the admin form cannot create twins.
+create unique index if not exists suppliers_name_unique_idx on public.suppliers (lower(name));
+
 -- ---------------------------------------------------------------------------
 -- 10. Accounting views (used by /admin/accounting)
 -- ---------------------------------------------------------------------------
@@ -569,7 +572,7 @@ create or replace view public.monthly_pnl as
 with revenue as (
   select
     to_char(date_trunc('month', o.created_at), 'YYYY-MM') as month,
-    sum(o.total)                                          as revenue,
+    sum(o.total_amount)                                   as revenue,
     sum(i.cost)                                           as cogs
   from public.orders o
   left join (
@@ -577,7 +580,7 @@ with revenue as (
     from public.order_items
     group by order_id
   ) i on i.order_id = o.id
-  where o.status <> 'cancelled'
+  where o.status not in ('cancelled', 'refunded')
   group by 1
 ),
 spend as (
@@ -625,6 +628,7 @@ group by s.id, s.name, s.phone, s.is_active;
 alter table public.profiles                  enable row level security;
 alter table public.categories                enable row level security;
 alter table public.skin_types               enable row level security;
+alter table public.brands                   enable row level security;
 alter table public.products                  enable row level security;
 alter table public.product_variants          enable row level security;
 alter table public.inventory_movements       enable row level security;
@@ -787,7 +791,7 @@ create policy "newsletter: admin read" on public.newsletter_subscribers
   for select using (public.is_admin());
 
 -- ---------------------------------------------------------------------------
--- 10. Stock helper: adjust stock and log the movement atomically
+-- 12. Stock helper: adjust stock and log the movement atomically
 -- ---------------------------------------------------------------------------
 create or replace function public.adjust_stock(
   p_product_id uuid,
@@ -824,7 +828,7 @@ end;
 $$;
 
 -- ---------------------------------------------------------------------------
--- 11. Low stock view for the admin dashboard
+-- 13. Low stock view for the admin dashboard
 -- ---------------------------------------------------------------------------
 create or replace view public.low_stock_products as
 select id, name, slug, stock_quantity, low_stock_threshold, thumbnail
@@ -834,7 +838,7 @@ where not archived
 order by stock_quantity asc;
 
 -- ---------------------------------------------------------------------------
--- 12. Idempotent upgrades
+-- 14. Idempotent upgrades
 -- Adds columns introduced after an earlier run of this file, so re-running it
 -- against an existing project is always safe.
 -- ---------------------------------------------------------------------------

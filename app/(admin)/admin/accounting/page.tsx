@@ -180,9 +180,9 @@ export default async function AccountingPage() {
           )}
 
           <p className="mt-4 text-[11.5px] leading-relaxed text-gray-400">
-            Revenue counts paid orders. Cost of goods sold uses the cost price captured on each
-            product at the moment of the sale, so changing today&apos;s cost price never rewrites an
-            old month.
+            Revenue counts every order except cancelled or refunded ones. Cost of goods sold uses
+            the cost price captured on each product at the moment of the sale, so changing
+            today&apos;s cost price never rewrites an old month.
           </p>
         </AdminCard>
 
