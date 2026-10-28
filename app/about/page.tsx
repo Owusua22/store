@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-red-50 via-white to-rose-50">
+    <main className="min-h-screen bg-gradient-to-br from-brand-soft via-white to-accent-soft">
       <JsonLd
         id="about"
         data={[
@@ -25,15 +25,15 @@ export default function AboutPage() {
       />
       <section className="relative overflow-hidden">
         {/* Decorative blobs */}
-        <div className="absolute top-0 -left-40 w-96 h-96 bg-red-100/40 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 -right-40 w-96 h-96 bg-red-100/40 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 -left-40 w-96 h-96 bg-brand-soft/40 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 -right-40 w-96 h-96 bg-brand-soft/40 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24">
           {/* Header */}
           <div className="text-center max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-100 border border-red-100/60 mb-6">
-              <Sparkles className="w-3.5 h-3.5 text-red-600" />
-              <span className="text-xs font-semibold text-red-700 uppercase tracking-wide">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-soft border border-brand-soft/60 mb-6">
+              <Sparkles className="w-3.5 h-3.5 text-brand" />
+              <span className="text-xs font-semibold text-brand-dark uppercase tracking-wide">
                 About Us
               </span>
             </div>
@@ -41,7 +41,7 @@ export default function AboutPage() {
             <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-gray-900">
               Healthy Skin,
               <br />
-              <span className="bg-gradient-to-r from-red-600 via-red-700 to-rose-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-brand via-brand-dark to-accent bg-clip-text text-transparent">
                 Everyday Confidence
               </span>
             </h1>
@@ -56,7 +56,7 @@ export default function AboutPage() {
 
           {/* Story section */}
           <div className="mt-16 grid lg:grid-cols-2 gap-10 items-center">
-            <div className="bg-white rounded-3xl shadow-xl shadow-red-100/30 border border-gray-100 p-8 sm:p-10">
+            <div className="bg-white rounded-3xl shadow-xl shadow-brand-soft/30 border border-gray-100 p-8 sm:p-10">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Story</h2>
               <div className="space-y-4 text-gray-600 leading-relaxed">
                 <p>
@@ -105,10 +105,10 @@ export default function AboutPage() {
               ].map(({ icon: Icon, title, desc }) => (
                 <div
                   key={title}
-                  className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-lg hover:shadow-red-100/20 transition-all"
+                  className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-lg hover:shadow-brand-soft/20 transition-all"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center mb-4">
-                    <Icon className="w-6 h-6 text-red-600" />
+                  <div className="w-12 h-12 rounded-xl bg-brand-soft flex items-center justify-center mb-4">
+                    <Icon className="w-6 h-6 text-brand" />
                   </div>
                   <h3 className="font-semibold text-gray-900 mb-2">{title}</h3>
                   <p className="text-sm text-gray-600">{desc}</p>

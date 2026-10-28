@@ -428,11 +428,23 @@ on conflict (code) do nothing;
 insert into public.banners (title, subtitle, description, image_url, link_url, link_text, sort_order, is_active)
 select * from (
   values
-    ('Glow season starts here.', 'Up to 40% off skin care', 'Authentic body lotions, serums, face creams and baby care — delivered nationwide across Ghana.', '/images/hero-skincare.webp', '/products', 'Shop the sale', 1, true),
-    ('Soft skin, all harmattan.', 'Body care edit', 'Shea-rich lotions and shower creams that keep ash away for 24 hours. Free delivery over GH₵300.', '/images/hero-skincare.webp', '/categories/body-lotions', 'Shop body care', 2, true),
-    ('Gentle care for little ones.', 'Baby care bundle', 'Paediatrician-tested lotions, washes and jumbo diaper packs — now at bundle prices.', '/images/hero-skincare.webp', '/categories/baby-care', 'Shop baby care', 3, true)
+    ('Authentic skincare, right here in East Doboro.', 'Beside St. George''s Height', 'Original Nivea, Vaseline, Johnson''s, Dove and Cetaphil — no fakes, no expired stock. Walk in, or order on WhatsApp.', '/images/banners/hero-teal.webp', '/products', 'Shop all products', 1, true),
+    ('Soft skin, all harmattan.', 'Bath & body edit', 'Shea-rich lotions, body oils and shower creams that keep ash away for 24 hours.', '/images/banners/hero-body.webp', '/categories/bath-body-care', 'Shop bath & body', 2, true),
+    ('Care for mum, care for baby.', 'Mothercare & baby essentials', 'Stretch-mark creams, baby washes and jumbo diaper packs — or the whole hospital bag in one bundle.', '/images/banners/hero-baby.webp', '/categories/mothercare-pregnancy', 'Shop mothercare', 3, true)
 ) as t(title, subtitle, description, image_url, link_url, link_text, sort_order, is_active)
 where not exists (select 1 from public.banners);
+
+-- Older projects: point existing banners at the new brand artwork and the live
+-- category slugs (re-running seed.sql should not leave stale links behind).
+update public.banners
+   set image_url = '/images/banners/hero-teal.webp'
+ where image_url = '/images/hero-skincare.webp';
+update public.banners
+   set link_url = '/categories/bath-body-care'
+ where link_url = '/categories/body-lotions';
+update public.banners
+   set link_url = '/categories/baby-care-essentials'
+ where link_url = '/categories/baby-care';
 
 -- ---------------------------------------------------------------------------
 -- Blog: starter articles

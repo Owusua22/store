@@ -12,17 +12,17 @@ export const dynamic = 'force-dynamic';
 const ORDER_STATUS: Record<string, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
   pending:    { label: 'Pending',    color: 'text-amber-700',   bg: 'bg-amber-50 border-amber-200',   icon: <Clock className="w-3 h-3" /> },
   confirmed:  { label: 'Confirmed',  color: 'text-sky-700',     bg: 'bg-sky-50 border-sky-200',       icon: <CheckCircle2 className="w-3 h-3" /> },
-  processing: { label: 'Processing', color: 'text-rose-700',    bg: 'bg-rose-50 border-rose-200', icon: <Loader2 className="w-3 h-3" /> },
+  processing: { label: 'Processing', color: 'text-accent-dark',    bg: 'bg-accent-soft border-accent/30', icon: <Loader2 className="w-3 h-3" /> },
   shipped:    { label: 'Shipped',    color: 'text-blue-700',    bg: 'bg-blue-50 border-blue-200',     icon: <Truck className="w-3 h-3" /> },
   delivered:  { label: 'Delivered',  color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200', icon: <CheckCircle2 className="w-3 h-3" /> },
-  cancelled:  { label: 'Cancelled',  color: 'text-rose-700',    bg: 'bg-rose-50 border-rose-200',     icon: <XCircle className="w-3 h-3" /> },
+  cancelled:  { label: 'Cancelled',  color: 'text-accent-dark',    bg: 'bg-accent-soft border-accent/30',     icon: <XCircle className="w-3 h-3" /> },
   refunded:   { label: 'Refunded',   color: 'text-slate-600',   bg: 'bg-slate-50 border-slate-200',   icon: <RefreshCcw className="w-3 h-3" /> },
 };
 
 const PAYMENT_STATUS: Record<string, { label: string; dot: string }> = {
   pending:  { label: 'Payment pending', dot: 'bg-amber-400' },
   paid:     { label: 'Paid',            dot: 'bg-emerald-500' },
-  failed:   { label: 'Payment failed',  dot: 'bg-rose-500' },
+  failed:   { label: 'Payment failed',  dot: 'bg-accent' },
   refunded: { label: 'Refunded',        dot: 'bg-slate-400' },
 };
 
@@ -77,7 +77,7 @@ function OrderCard({ order }: { order: OrderListItem }) {
       className="group block bg-white rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-300 overflow-hidden"
     >
       {/* Top accent bar — thin gradient line */}
-      <div className="h-0.5 w-full bg-gradient-to-r from-red-500 via-rose-400 to-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="h-0.5 w-full bg-gradient-to-r from-brand via-accent to-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
       <div className="p-5 sm:p-6">
         {/* Row 1 – order number + status */}

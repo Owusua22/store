@@ -124,7 +124,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
             <button
               type="button"
               onClick={onSwitchToLogin}
-              className="font-medium text-red-600 hover:text-red-500"
+              className="font-medium text-brand hover:text-brand"
             >
               Sign in
             </button>
@@ -135,7 +135,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
       {formError ? (
         <p
           role="alert"
-          className="rounded-lg border border-red-200 bg-red-50 px-3.5 py-2.5 text-[12.5px] leading-relaxed text-red-800"
+          className="rounded-lg border border-brand/25 bg-brand-soft px-3.5 py-2.5 text-[12.5px] leading-relaxed text-brand-dark"
         >
           {formError}
         </p>
@@ -152,7 +152,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
             id="full_name"
             type="text"
             autoComplete="name"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
             placeholder="Jane Doe"
           />
           {errors.full_name && (
@@ -170,7 +170,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
             id="email"
             type="email"
             autoComplete="email"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
             placeholder="you@example.com"
           />
           {errors.email && (
@@ -191,7 +191,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
             autoComplete="tel"
             required
             aria-describedby="phone-hint"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
             placeholder="054 945 5367"
           />
           {errors.phone ? (
@@ -214,7 +214,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
               id="password"
               type={showPassword ? 'text' : 'password'}
               autoComplete="new-password"
-              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
               placeholder="Create a strong password"
             />
             <button
@@ -246,7 +246,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
               id="confirm_password"
               type={showConfirmPassword ? 'text' : 'password'}
               autoComplete="new-password"
-              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
               placeholder="Re-enter your password"
             />
             <button
@@ -267,7 +267,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full py-3 px-4 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 transition-colors"
+          className="w-full py-3 px-4 bg-brand text-white rounded-lg font-medium hover:bg-brand-dark disabled:opacity-50 transition-colors"
         >
           {isLoading ? 'Creating account...' : 'Create account'}
         </button>

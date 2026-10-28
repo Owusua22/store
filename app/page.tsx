@@ -1,6 +1,7 @@
 // app/page.tsx
 import type { Metadata } from 'next';
-import { HomeValueHero } from '@/components/home/HomeValueHero';
+import { HeroBanner } from '@/components/home/HeroBanner';
+import { HomeBrandBand } from '@/components/home/HomeBrandBand';
 import { CategoryStrip } from '@/components/home/CategoryStrip';
 import { ProductSection } from '@/components/home/ProductSection';
 import { ProductRail } from '@/components/home/ProductRail';
@@ -30,7 +31,7 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const { categories, hotArrivals, topPicks, hotSellers, showrooms } = await getHomeData();
+  const { banners, categories, hotArrivals, topPicks, hotSellers, showrooms } = await getHomeData();
 
   const deals = showrooms[0]?.products ?? [];
 
@@ -52,7 +53,8 @@ export default async function HomePage() {
         ]}
       />
       {awaitingCatalogue ? <StoreSetupNotice /> : null}
-      <HomeValueHero />
+      <HeroBanner banners={banners} />
+      <HomeBrandBand />
       <CategoryStrip categories={categories} />
       <ValueStrip />
 

@@ -29,8 +29,8 @@ falls back to **demo mode** so every screen still works:
 
 | Area | Behaviour in demo mode |
 | --- | --- |
-| Catalogue | 19 bundled skin care products + 11 categories (`lib/demo/catalog.ts`) |
-| Images | Local generated packshots in `public/images/` |
+| Catalogue | 14 bundled products across 6 categories (`lib/demo/catalog.ts`) |
+| Images | Local WebP artwork in `public/images/` (banners in `public/images/banners/`) |
 | Cart | Persisted in `localStorage` (`lib/demo/cart.ts`) |
 | Sign in / sign up | One auth dialog (`stores/authModalStore`) — email + password + contact number, no separate page |
 | Checkout | Validates the form and returns a demo order number |
@@ -139,13 +139,37 @@ supabase/
   schema.sql                tables, RLS policies, triggers, stock RPC
   seed.sql                  categories, skin types, products, zones, blog posts
 docs/backend-setup.md       step-by-step Supabase + Cloudflare R2 guide
-public/images/              generated hero + product photography
+public/images/              WebP artwork — banners/ (carousel) + products/ (packshots)
 ```
+
+## Brand palette
+
+The whole storefront is driven by three CSS variables in `app/globals.css`, so a
+recolour never means hunting through components:
+
+| Token | Hex | Used for |
+| --- | --- | --- |
+| `--brand` | `#1B4D3E` Deep Botanical Teal | header strip, headings, buttons, footer, links |
+| `--accent` | `#C86D51` Warm Terracotta | promo bands, hairline rules, carousel progress, hot offers |
+| `--cream` | `#FDF8F5` Crisp Cream | page ground, hero copy on dark panels, cards |
+
+`--accent-dark` / `--accent-ink` are deeper shades of the terracotta used where white
+button text or small uppercase labels need to clear WCAG AA contrast.
+
+## Home page anatomy
+
+1. `components/home/HeroBanner.tsx` — auto-playing banner carousel (6.5 s, swipe,
+   arrow keys, pause on hover). Slides come from `/admin/banners`; without any rows
+   three built-in brand slides are used.
+2. `components/home/HomeBrandBand.tsx` — compact cream band carrying the H1
+   ("100% Authentic Skincare … in East Doboro — Beside St. George's Height"), the
+   tagline, the trust points and the three primary calls to action.
+3. Category strip, value strip, product rails, promo bands and the reviews block.
 
 ## Catalogue content
 
-Categories: Body Lotions, Face Care, Hair Care, Shampoos, Conditioners, Shower Gels,
-Baby Care, Mother Care, Serums & Oils, Face Wash, Sun Care. Each product carries a
+Categories: Facial Skincare, Bath & Body Care, Mothercare & Pregnancy, Baby Care
+Essentials, Haircare, Bundles & Offers. Each product carries a
 brand, price, compare-at price, stock + low-stock threshold, pack sizes, skin types,
 concerns, ingredients, how-to-use, benefits and gallery images — all editable from
 `/admin/products`.

@@ -127,7 +127,7 @@ export default function ProfilePage() {
             onClick={async () => {
               await signOut();
             }}
-            className="px-3 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+            className="px-3 py-2 rounded-lg bg-brand text-white hover:bg-brand-dark"
           >
             Sign out
           </button>
@@ -144,10 +144,10 @@ export default function ProfilePage() {
               <img
                 src={profile.avatar_url}
                 alt={profile.full_name ?? 'User avatar'}
-                className="w-24 h-24 rounded-full object-cover border-2 border-red-100"
+                className="w-24 h-24 rounded-full object-cover border-2 border-brand-soft"
               />
             ) : (
-              <div className="w-24 h-24 rounded-full bg-red-100 flex items-center justify-center text-red-700 text-2xl font-bold">
+              <div className="w-24 h-24 rounded-full bg-brand-soft flex items-center justify-center text-brand-dark text-2xl font-bold">
                 {(profile?.full_name?.[0] ?? user?.email?.[0] ?? 'U').toUpperCase()}
               </div>
             )}
@@ -159,7 +159,7 @@ export default function ProfilePage() {
               <h2 className="text-2xl font-semibold text-gray-900">
                 {profile?.full_name ?? 'Unnamed user'}
               </h2>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-soft text-brand-dark">
                 {profile?.role ?? 'customer'}
               </span>
             </div>
@@ -195,7 +195,7 @@ export default function ProfilePage() {
                   setForm(getProfileForm(profile));
                   setIsEditing(true);
                 }}
-                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700"
+                className="px-4 py-2 rounded-lg bg-brand text-white hover:bg-brand-dark"
               >
                 {isEditing ? 'Cancel edit' : 'Edit profile'}
               </button>
@@ -218,7 +218,7 @@ export default function ProfilePage() {
             </p>
 
             {error && (
-              <div className="mb-4 rounded-lg border border-red-300 bg-red-50 px-3 py-2 text-sm text-red-800">
+              <div className="mb-4 rounded-lg border border-brand/30 bg-brand-soft px-3 py-2 text-sm text-brand-dark">
                 {error}
               </div>
             )}
@@ -234,7 +234,7 @@ export default function ProfilePage() {
                   value={form.full_name}
                   onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))}
                   placeholder="Jane Doe"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
                 />
               </div>
 
@@ -248,7 +248,7 @@ export default function ProfilePage() {
                   value={form.phone}
                   onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
                   placeholder="+233 50 123 4567"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
                 />
               </div>
 
@@ -262,7 +262,7 @@ export default function ProfilePage() {
                   value={form.avatar_url}
                   onChange={(e) => setForm((f) => ({ ...f, avatar_url: e.target.value }))}
                   placeholder="https://.../avatar.png"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
                 />
                 <p className="mt-1 text-xs text-gray-500">
                   Paste a direct image URL (https). You can use Gravatar, Cloudinary, Supabase Storage, etc.
@@ -274,7 +274,7 @@ export default function ProfilePage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="px-5 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
+                className="px-5 py-2 rounded-lg bg-brand text-white hover:bg-brand-dark disabled:opacity-50"
               >
                 {saving ? 'Saving...' : 'Save changes'}
               </button>

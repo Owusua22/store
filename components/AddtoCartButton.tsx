@@ -45,7 +45,7 @@ export function AddToCartButton({
           ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
           : status === 'done'
           ? 'bg-green-600 text-white'
-          : 'bg-red-600 text-white hover:bg-red-700 active:scale-95'
+          : 'bg-brand text-white hover:bg-brand-dark active:scale-95'
         } ${className}`}
     >
       {status === 'loading' ? (

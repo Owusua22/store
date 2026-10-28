@@ -60,7 +60,7 @@ export default function CartPage() {
               <button
                 type="button"
                 onClick={() => void clearCart()}
-                className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-gray-500 hover:text-red-500"
+                className="inline-flex items-center gap-1 text-[11.5px] font-semibold text-gray-500 hover:text-brand"
               >
                 <Trash2 className="h-3.5 w-3.5" /> Clear cart
               </button>

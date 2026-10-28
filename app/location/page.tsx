@@ -54,7 +54,7 @@ export default async function LocationPage() {
             '@type': 'Store',
             '@id': `${site.url}/location#store`,
             name: site.nameFull,
-            image: `${site.url}/images/hero-skincare.webp`,
+            image: `${site.url}/images/banners/hero-teal.webp`,
             url: `${site.url}/location`,
             telephone: `+${site.whatsapp}`,
             priceRange: 'GH₵10 – GH₵400',

@@ -34,10 +34,10 @@ interface ShowroomsProps {
 }
 
 const TYPE_GRADIENTS: Record<string, string> = {
-  manual: 'from-red-600 via-red-700 to-rose-600',
+  manual: 'from-brand via-brand-dark to-accent',
   auto_new: 'from-emerald-500 via-teal-500 to-cyan-500',
-  auto_deals: 'from-red-500 via-orange-500 to-amber-500',
-  auto_bestselling: 'from-violet-500 via-red-600 to-fuchsia-500',
+  auto_deals: 'from-brand via-orange-500 to-amber-500',
+  auto_bestselling: 'from-violet-500 via-brand to-fuchsia-500',
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -132,7 +132,7 @@ function ShowroomSection({
             </button>
             <Link
               href={`/showrooms/${showroom.slug}`}
-              className="group ml-1 inline-flex items-center gap-1 rounded-lg bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 active:bg-red-100 sm:ml-2 sm:gap-1.5 sm:px-4 sm:py-2 sm:text-sm"
+              className="group ml-1 inline-flex items-center gap-1 rounded-lg bg-brand-soft px-3 py-1.5 text-xs font-semibold text-brand transition-colors hover:bg-brand-soft active:bg-brand-soft sm:ml-2 sm:gap-1.5 sm:px-4 sm:py-2 sm:text-sm"
             >
               <span className="hidden sm:inline">View All</span>
               <span className="sm:hidden">All</span>
@@ -209,7 +209,7 @@ function ShowroomProductCard({
           {/* Badges */}
           <div className="absolute left-1.5 top-1.5 flex flex-col gap-1 sm:left-3 sm:top-3">
             {discount && showroomType === 'auto_deals' && (
-              <span className="rounded-full bg-red-500 px-1.5 py-0.5 text-[9px] font-bold text-white shadow sm:px-2 sm:text-[10px]">
+              <span className="rounded-full bg-brand px-1.5 py-0.5 text-[9px] font-bold text-white shadow sm:px-2 sm:text-[10px]">
                 -{discount}%
               </span>
             )}
@@ -240,7 +240,7 @@ function ShowroomProductCard({
 
         {/* Content */}
         <div className="p-2 sm:p-3 lg:p-4">
-          <h3 className="line-clamp-1 text-[11px] font-semibold text-gray-900 transition-colors group-hover:text-red-600 sm:text-sm">
+          <h3 className="line-clamp-1 text-[11px] font-semibold text-gray-900 transition-colors group-hover:text-brand sm:text-sm">
             {product.name}
           </h3>
 

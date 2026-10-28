@@ -234,7 +234,7 @@ export function CartSidebar() {
               type="button"
               onClick={() => void clearCart()}
               disabled={isLoading || isSyncing}
-              className="w-full text-[11.5px] font-semibold text-gray-500 hover:text-red-500 disabled:opacity-50"
+              className="w-full text-[11.5px] font-semibold text-gray-500 hover:text-brand disabled:opacity-50"
             >
               Clear cart
             </button>

@@ -34,7 +34,7 @@ export function PromoBands() {
     <section className="container-page grid gap-3 pt-7 sm:grid-cols-2 sm:pt-9" aria-label="Promotions">
       <Link
         href="/categories/bath-body-care"
-        className="group relative flex min-h-[150px] overflow-hidden rounded-xl bg-[#a01118] sm:min-h-[190px]"
+        className="group relative flex min-h-[150px] overflow-hidden rounded-xl bg-brand sm:min-h-[190px]"
       >
         <Image
           src="/images/products/body-lotion.webp"
@@ -44,18 +44,18 @@ export function PromoBands() {
           className="object-cover opacity-70 transition-transform duration-500 group-hover:scale-105"
           style={{ objectPosition: 'right center' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#7c0b11] via-[#a01118]/90 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0f3226] via-brand/90 to-transparent" />
         <div className="relative z-10 flex flex-col justify-center p-5">
-          <span className="w-fit rounded bg-white/15 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.16em] text-white">
+          <span className="w-fit rounded bg-cream/15 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.16em] text-cream">
             Save up to 35%
           </span>
-          <h3 className="mt-2 max-w-[16ch] text-[20px] font-extrabold leading-tight text-white sm:text-[24px]">
+          <h3 className="mt-2 max-w-[16ch] text-[20px] font-extrabold leading-tight text-cream sm:text-[24px]">
             Body care for soft, glowing skin
           </h3>
-          <p className="mt-1 hidden text-[12px] text-white/75 sm:block">
+          <p className="mt-1 hidden text-[12px] text-cream/80 sm:block">
             Shea lotions, body oils & shower creams
           </p>
-          <span className="mt-3 inline-flex w-fit items-center gap-1.5 rounded-md bg-white px-3.5 py-2 text-[11.5px] font-extrabold text-[#a01118]">
+          <span className="mt-3 inline-flex w-fit items-center gap-1.5 rounded-md bg-cream px-3.5 py-2 text-[11.5px] font-extrabold text-brand">
             Shop body care <ArrowRight className="h-3.5 w-3.5" />
           </span>
         </div>
@@ -63,7 +63,7 @@ export function PromoBands() {
 
       <Link
         href="/categories/baby-care-essentials"
-        className="group relative flex min-h-[150px] overflow-hidden rounded-xl bg-[#115e59] sm:min-h-[190px]"
+        className="group relative flex min-h-[150px] overflow-hidden rounded-xl bg-accent sm:min-h-[190px]"
       >
         <Image
           src="/images/products/baby-diapers.webp"
@@ -73,18 +73,18 @@ export function PromoBands() {
           className="object-cover opacity-70 transition-transform duration-500 group-hover:scale-105"
           style={{ objectPosition: 'right center' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0d4d49] via-[#115e59]/90 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#5f2c1d] via-accent/90 to-transparent" />
         <div className="relative z-10 flex flex-col justify-center p-5">
-          <span className="w-fit rounded bg-white/15 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.16em] text-white">
+          <span className="w-fit rounded bg-cream/15 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.16em] text-cream">
             Mum favourites
           </span>
-          <h3 className="mt-2 max-w-[16ch] text-[20px] font-extrabold leading-tight text-white sm:text-[24px]">
+          <h3 className="mt-2 max-w-[16ch] text-[20px] font-extrabold leading-tight text-cream sm:text-[24px]">
             Gentle care for little ones
           </h3>
-          <p className="mt-1 hidden text-[12px] text-white/75 sm:block">
+          <p className="mt-1 hidden text-[12px] text-cream/80 sm:block">
             Jumbo diapers, lotions & tear-free washes
           </p>
-          <span className="mt-3 inline-flex w-fit items-center gap-1.5 rounded-md bg-white px-3.5 py-2 text-[11.5px] font-extrabold text-[#0d4d49]">
+          <span className="mt-3 inline-flex w-fit items-center gap-1.5 rounded-md bg-cream px-3.5 py-2 text-[11.5px] font-extrabold text-accent-dark">
             Shop baby care <ArrowRight className="h-3.5 w-3.5" />
           </span>
         </div>
@@ -98,23 +98,23 @@ export function DealBanner() {
     <section className="container-page pt-7 sm:pt-9">
       <div className="relative overflow-hidden rounded-xl bg-ink">
         <Image
-          src="/images/hero-skincare.webp"
+          src="/images/banners/hero-teal.webp"
           alt="Mega deals"
           fill
           sizes="100vw"
           className="object-cover opacity-40"
           style={{ objectPosition: 'center 60%' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#16060a]/95 via-[#16060a]/75 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#0d2a21]/96 via-[#123a2e]/80 to-transparent" />
         <div className="relative z-10 flex flex-col items-start gap-3 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-7">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-amber-300">
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-[#f0bda9]">
               Mega deals · this week only
             </p>
-            <h2 className="mt-1.5 text-[22px] font-extrabold leading-tight text-white sm:text-[28px]">
+            <h2 className="mt-1.5 text-[22px] font-extrabold leading-tight text-cream sm:text-[28px]">
               Up to 40% off skin care essentials
             </h2>
-            <p className="mt-1 text-[12px] text-white/70">
+            <p className="mt-1 text-[12px] text-cream/75">
               Stock up on lotions, serums and baby care before the offer ends.
             </p>
           </div>

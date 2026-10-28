@@ -143,29 +143,29 @@ export function Navbar() {
   return (
     <>
       {/* ── Utility strip ─────────────────────────────────────── */}
-      <div className="hidden bg-[#f6f6f7] text-[11.5px] text-gray-600 md:block">
+      <div className="hidden bg-brand text-cream/85 text-[11.5px] md:block">
         <div className="container-page flex h-9 items-center justify-between">
           <div className="flex items-center gap-4">
             <span className="inline-flex items-center gap-1.5">
-              <Truck className="h-3.5 w-3.5 text-brand" />
+              <Truck className="h-3.5 w-3.5 text-accent-soft" />
               Delivering across Ghana · Free over {formatCedis(site.freeDeliveryThreshold)}
             </span>
-            <span className="h-3 w-px bg-gray-300" />
+            <span className="h-3 w-px bg-cream/25" />
             <span className="inline-flex items-center gap-1.5">
-              <Phone className="h-3.5 w-3.5 text-brand" />
+              <Phone className="h-3.5 w-3.5 text-accent-soft" />
               {site.phoneDisplay}
             </span>
           </div>
 
           <div className="flex items-center gap-5">
-            <Link href="/orders" className="hover:text-brand">
+            <Link href="/orders" className="hover:text-cream">
               Track order
             </Link>
-            <Link href="/contact" className="inline-flex items-center gap-1 hover:text-brand">
+            <Link href="/contact" className="inline-flex items-center gap-1 hover:text-cream">
               <HelpCircle className="h-3.5 w-3.5" />
               Help Center
             </Link>
-            <Link href="/about" className="hover:text-brand">
+            <Link href="/about" className="hover:text-cream">
               About us
             </Link>
           </div>
@@ -273,7 +273,7 @@ export function Navbar() {
                           <button
                             type="button"
                             onClick={handleSignOut}
-                            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] font-semibold text-red-600 hover:bg-red-50"
+                            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] font-semibold text-brand hover:bg-brand-soft"
                           >
                             <LogOut className="h-4 w-4" /> Sign out
                           </button>

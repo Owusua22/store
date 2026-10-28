@@ -106,7 +106,7 @@ function SectionTitle({
 }) {
   return (
     <div className="mb-5 flex items-start gap-3">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-600">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand">
         {icon}
       </div>
 
@@ -716,7 +716,7 @@ export default function CheckoutPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
         <div className="text-center">
-          <Loader2 className="mx-auto h-10 w-10 animate-spin text-red-600" />
+          <Loader2 className="mx-auto h-10 w-10 animate-spin text-brand" />
           <p className="mt-4 text-sm font-medium text-gray-500">
             Preparing your checkout...
           </p>
@@ -737,9 +737,9 @@ export default function CheckoutPage() {
 
   if (orderSuccess) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-red-50 via-white to-rose-50 px-4 py-12">
-        <div className="w-full max-w-md rounded-3xl border border-gray-100 bg-white p-6 text-center shadow-xl shadow-red-100/60 sm:p-8">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-red-600 to-red-700 text-white shadow-lg">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-soft via-white to-accent-soft px-4 py-12">
+        <div className="w-full max-w-md rounded-3xl border border-gray-100 bg-white p-6 text-center shadow-xl shadow-brand-soft/60 sm:p-8">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-dark text-white shadow-lg">
             <CheckCircle className="h-10 w-10" />
           </div>
 
@@ -752,18 +752,18 @@ export default function CheckoutPage() {
             confirmation details.
           </p>
 
-          <div className="mt-6 rounded-2xl border border-red-100 bg-red-50 p-4">
-            <p className="text-xs font-bold uppercase tracking-wider text-red-500">
+          <div className="mt-6 rounded-2xl border border-brand-soft bg-brand-soft p-4">
+            <p className="text-xs font-bold uppercase tracking-wider text-brand">
               Order number
             </p>
-            <p className="mt-1 text-xl font-black text-red-950">
+            <p className="mt-1 text-xl font-black text-brand-dark">
               {orderNumber}
             </p>
           </div>
 
           {activeShippingZone && (
             <div className="mt-4 flex items-center justify-center gap-2 rounded-2xl bg-gray-50 px-4 py-3 text-sm font-medium text-gray-600">
-              <Clock className="h-4 w-4 text-red-600" />
+              <Clock className="h-4 w-4 text-brand" />
               Estimated delivery:{' '}
               {activeShippingZone.estimated_days_min}–
               {activeShippingZone.estimated_days_max} business days
@@ -773,7 +773,7 @@ export default function CheckoutPage() {
           <div className="mt-8 grid gap-3">
             <Link
               href="/orders"
-              className="rounded-2xl bg-gradient-to-r from-red-600 to-red-700 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-red-100 transition hover:opacity-95"
+              className="rounded-2xl bg-gradient-to-r from-brand to-brand-dark px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-soft transition hover:opacity-95"
             >
               View my orders
             </Link>
@@ -826,7 +826,7 @@ export default function CheckoutPage() {
 
             <Link
               href="/products"
-              className="mt-6 inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-red-600 to-red-700 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-red-100"
+              className="mt-6 inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-brand to-brand-dark px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-soft"
             >
               Shop products
             </Link>
@@ -861,7 +861,7 @@ export default function CheckoutPage() {
           {/* Main form */}
           <div className="space-y-5">
             <div>
-              <p className="text-sm font-bold uppercase tracking-wider text-red-600">
+              <p className="text-sm font-bold uppercase tracking-wider text-brand">
                 Checkout
               </p>
               <h1 className="mt-1 text-3xl font-black tracking-tight text-gray-950 sm:text-4xl">
@@ -875,22 +875,22 @@ export default function CheckoutPage() {
 
             {/* Cart issues */}
             {hasCheckoutIssues && (
-              <div className="rounded-3xl border border-red-200 bg-red-50 p-4">
+              <div className="rounded-3xl border border-brand/25 bg-brand-soft p-4">
                 <div className="flex gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand">
                     <AlertTriangle className="h-5 w-5" />
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <h2 className="font-bold text-red-900">
+                    <h2 className="font-bold text-brand-dark">
                       Your cart needs attention
                     </h2>
-                    <p className="mt-1 text-sm text-red-700">
+                    <p className="mt-1 text-sm text-brand-dark">
                       Remove unavailable or out-of-stock items before placing
                       your order.
                     </p>
 
-                    <ul className="mt-3 space-y-1 text-sm text-red-700">
+                    <ul className="mt-3 space-y-1 text-sm text-brand-dark">
                       {checkoutIssues.map((issue) => (
                         <li key={issue.itemId}>
                           <span className="font-bold">{issue.productName}</span>
@@ -902,7 +902,7 @@ export default function CheckoutPage() {
                     <button
                       type="button"
                       onClick={toggleCart}
-                      className="mt-4 rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-red-700"
+                      className="mt-4 rounded-xl bg-brand px-4 py-2 text-sm font-bold text-white transition hover:bg-brand-dark"
                     >
                       Open cart to fix
                     </button>
@@ -933,9 +933,9 @@ export default function CheckoutPage() {
                     onChange={handleShippingChange}
                     placeholder="Enter your full name"
                     className={cn(
-                      'w-full rounded-2xl border bg-gray-50 px-4 py-3 text-sm text-gray-950 outline-none transition focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-100',
+                      'w-full rounded-2xl border bg-gray-50 px-4 py-3 text-sm text-gray-950 outline-none transition focus:border-brand focus:bg-white focus:ring-4 focus:ring-brand-soft',
                       fieldErrors.full_name
-                        ? 'border-red-300'
+                        ? 'border-brand/30'
                         : 'border-gray-200'
                     )}
                   />
@@ -953,7 +953,7 @@ export default function CheckoutPage() {
                     onChange={handleShippingChange}
                     placeholder="you@example.com"
                     className={cn(
-                      'w-full rounded-2xl border bg-gray-50 px-4 py-3 text-sm text-gray-950 outline-none transition focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-100',
+                      'w-full rounded-2xl border bg-gray-50 px-4 py-3 text-sm text-gray-950 outline-none transition focus:border-brand focus:bg-white focus:ring-4 focus:ring-brand-soft',
                       fieldErrors.email ? 'border-red-300' : 'border-gray-200'
                     )}
                   />
@@ -971,7 +971,7 @@ export default function CheckoutPage() {
                     onChange={handleShippingChange}
                     placeholder="+233 20 123 4567"
                     className={cn(
-                      'w-full rounded-2xl border bg-gray-50 px-4 py-3 text-sm text-gray-950 outline-none transition focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-100',
+                      'w-full rounded-2xl border bg-gray-50 px-4 py-3 text-sm text-gray-950 outline-none transition focus:border-brand focus:bg-white focus:ring-4 focus:ring-brand-soft',
                       fieldErrors.phone ? 'border-red-300' : 'border-gray-200'
                     )}
                   />
@@ -1022,15 +1022,15 @@ export default function CheckoutPage() {
                       className={cn(
                         'flex items-center gap-3 rounded-2xl border p-4 text-left transition',
                         selected
-                          ? 'border-red-500 bg-red-50 ring-4 ring-red-100'
-                          : 'border-gray-200 bg-white hover:border-red-100 hover:bg-gray-50'
+                          ? 'border-brand bg-brand-soft ring-4 ring-brand-soft'
+                          : 'border-gray-200 bg-white hover:border-brand-soft hover:bg-gray-50'
                       )}
                     >
                       <div
                         className={cn(
                           'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl',
                           selected
-                            ? 'bg-red-600 text-white'
+                            ? 'bg-brand text-white'
                             : 'bg-gray-100 text-gray-500'
                         )}
                       >
@@ -1054,9 +1054,9 @@ export default function CheckoutPage() {
                     className={cn(
                       'flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition',
                       fieldErrors.location
-                        ? 'border-red-300 bg-red-50'
+                        ? 'border-brand/30 bg-brand-soft'
                         : shipping.region && shipping.town
-                          ? 'border-red-100 bg-red-50'
+                          ? 'border-brand-soft bg-brand-soft'
                           : 'border-dashed border-gray-300 bg-gray-50 hover:bg-white'
                     )}
                   >
@@ -1064,7 +1064,7 @@ export default function CheckoutPage() {
                       className={cn(
                         'flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl',
                         shipping.region && shipping.town
-                          ? 'bg-red-600 text-white'
+                          ? 'bg-brand text-white'
                           : 'bg-white text-gray-400'
                       )}
                     >
@@ -1082,7 +1082,7 @@ export default function CheckoutPage() {
                           </p>
 
                           {activeShippingZone && (
-                            <p className="mt-1 flex flex-wrap items-center gap-2 text-xs font-semibold text-red-700">
+                            <p className="mt-1 flex flex-wrap items-center gap-2 text-xs font-semibold text-brand-dark">
                               <span className="inline-flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
                                 {activeShippingZone.estimated_days_min}–
@@ -1168,8 +1168,8 @@ export default function CheckoutPage() {
                       className={cn(
                         'flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition',
                         selected
-                          ? 'border-red-500 bg-red-50 ring-4 ring-red-100'
-                          : 'border-gray-200 bg-white hover:border-red-100 hover:bg-gray-50'
+                          ? 'border-brand bg-brand-soft ring-4 ring-brand-soft'
+                          : 'border-gray-200 bg-white hover:border-brand-soft hover:bg-gray-50'
                       )}
                     >
                       <div
@@ -1189,11 +1189,11 @@ export default function CheckoutPage() {
                       <div
                         className={cn(
                           'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2',
-                          selected ? 'border-red-600' : 'border-gray-300'
+                          selected ? 'border-brand' : 'border-gray-300'
                         )}
                       >
                         {selected && (
-                          <span className="h-2.5 w-2.5 rounded-full bg-red-600" />
+                          <span className="h-2.5 w-2.5 rounded-full bg-brand" />
                         )}
                       </div>
                     </button>
@@ -1219,7 +1219,7 @@ export default function CheckoutPage() {
                   onChange={(e) => setNotes(e.target.value)}
                   rows={4}
                   placeholder="Any delivery instructions or special requests..."
-                  className="w-full resize-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-950 outline-none transition focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-100"
+                  className="w-full resize-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-950 outline-none transition focus:border-brand focus:bg-white focus:ring-4 focus:ring-brand-soft"
                 />
               </div>
             </section>
@@ -1240,14 +1240,14 @@ export default function CheckoutPage() {
                     setTermsAccepted(e.target.checked);
                     if (e.target.checked) setTermsError(false);
                   }}
-                  className="mt-1 h-4 w-4 rounded border-gray-300 text-red-600 focus:ring-red-500"
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand"
                 />
 
                 <span className="text-sm leading-6 text-gray-600">
                   I have read and agree to the{' '}
                   <Link
                     href="/terms"
-                    className="font-semibold text-red-600 underline underline-offset-2"
+                    className="font-semibold text-brand underline underline-offset-2"
                   >
                     Terms and Conditions
                   </Link>
@@ -1256,7 +1256,7 @@ export default function CheckoutPage() {
               </label>
 
               {termsError && (
-                <p className="mt-2 text-sm font-medium text-red-600">
+                <p className="mt-2 text-sm font-medium text-brand">
                   Please accept the terms before placing your order.
                 </p>
               )}
@@ -1279,7 +1279,7 @@ export default function CheckoutPage() {
                   </div>
 
                   {isSyncing && (
-                    <Loader2 className="h-5 w-5 animate-spin text-red-600" />
+                    <Loader2 className="h-5 w-5 animate-spin text-brand" />
                   )}
                 </div>
               </div>
@@ -1297,7 +1297,7 @@ export default function CheckoutPage() {
                         className={cn(
                           'flex gap-3 rounded-2xl border p-3',
                           issue
-                            ? 'border-red-200 bg-red-50'
+                            ? 'border-brand/25 bg-brand-soft'
                             : 'border-gray-100 bg-gray-50'
                         )}
                       >
@@ -1342,7 +1342,7 @@ export default function CheckoutPage() {
                           </div>
 
                           {issue && (
-                            <p className="mt-1 text-xs font-semibold text-red-600">
+                            <p className="mt-1 text-xs font-semibold text-brand">
                               {issue.reason}
                             </p>
                           )}
@@ -1400,7 +1400,7 @@ export default function CheckoutPage() {
                           }
                         }}
                         placeholder="Discount code"
-                        className="min-w-0 flex-1 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold uppercase outline-none transition focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-100"
+                        className="min-w-0 flex-1 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold uppercase outline-none transition focus:border-brand focus:bg-white focus:ring-4 focus:ring-brand-soft"
                       />
 
                       <button
@@ -1467,7 +1467,7 @@ export default function CheckoutPage() {
                   )}
 
                   {activeShippingZone && deliveryMethod === 'delivery' && (
-                    <div className="rounded-2xl bg-red-50 px-4 py-3 text-xs font-semibold text-red-700">
+                    <div className="rounded-2xl bg-brand-soft px-4 py-3 text-xs font-semibold text-brand-dark">
                       <Clock className="mr-1 inline h-3.5 w-3.5" />
                       Estimated delivery:{' '}
                       {activeShippingZone.estimated_days_min}–
@@ -1488,7 +1488,7 @@ export default function CheckoutPage() {
                   type="button"
                   onClick={() => void handlePlaceOrder()}
                   disabled={placeOrderDisabled}
-                  className="mt-5 hidden w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 via-red-700 to-rose-600 px-5 py-4 text-base font-black text-white shadow-lg shadow-red-100 transition hover:opacity-95 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:bg-none disabled:text-gray-500 disabled:shadow-none lg:flex"
+                  className="mt-5 hidden w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand via-brand-dark to-accent px-5 py-4 text-base font-black text-white shadow-lg shadow-brand-soft transition hover:opacity-95 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:bg-none disabled:text-gray-500 disabled:shadow-none lg:flex"
                 >
                   {isSubmitting ? (
                     <>
@@ -1510,11 +1510,11 @@ export default function CheckoutPage() {
 
                 <div className="mt-4 grid gap-2 border-t border-gray-100 pt-4 text-xs font-medium text-gray-500">
                   <p className="inline-flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4 text-red-600" />
+                    <ShieldCheck className="h-4 w-4 text-brand" />
                     Secure checkout
                   </p>
                   <p className="inline-flex items-center gap-2">
-                    <Truck className="h-4 w-4 text-red-600" />
+                    <Truck className="h-4 w-4 text-brand" />
                     Delivery updates after confirmation
                   </p>
                 </div>
@@ -1548,7 +1548,7 @@ export default function CheckoutPage() {
             type="button"
             onClick={() => void handlePlaceOrder()}
             disabled={placeOrderDisabled}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 via-red-700 to-rose-600 px-5 py-4 text-base font-black text-white shadow-lg shadow-red-100 transition disabled:cursor-not-allowed disabled:bg-gray-300 disabled:bg-none disabled:text-gray-500 disabled:shadow-none"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand via-brand-dark to-accent px-5 py-4 text-base font-black text-white shadow-lg shadow-brand-soft transition disabled:cursor-not-allowed disabled:bg-gray-300 disabled:bg-none disabled:text-gray-500 disabled:shadow-none"
           >
             {isSubmitting ? (
               <>
@@ -1624,7 +1624,7 @@ export default function CheckoutPage() {
               <div className="mt-4 flex items-center gap-2 text-xs font-bold text-gray-400">
                 <span
                   className={cn(
-                    tempRegion && 'text-red-600',
+                    tempRegion && 'text-brand',
                     modalStep === 'region' && 'text-gray-950'
                   )}
                 >
@@ -1633,7 +1633,7 @@ export default function CheckoutPage() {
                 <ChevronRight className="h-3 w-3" />
                 <span
                   className={cn(
-                    tempTown && 'text-red-600',
+                    tempTown && 'text-brand',
                     modalStep === 'town' && 'text-gray-950'
                   )}
                 >
@@ -1658,7 +1658,7 @@ export default function CheckoutPage() {
                         ? 'Search regions...'
                         : 'Search towns...'
                     }
-                    className="w-full rounded-2xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-100"
+                    className="w-full rounded-2xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-brand focus:bg-white focus:ring-4 focus:ring-brand-soft"
                   />
                 </div>
               )}
@@ -1667,7 +1667,7 @@ export default function CheckoutPage() {
             <div className="flex-1 overflow-y-auto p-5">
               {zonesLoading ? (
                 <div className="flex min-h-56 items-center justify-center">
-                  <Loader2 className="h-8 w-8 animate-spin text-red-600" />
+                  <Loader2 className="h-8 w-8 animate-spin text-brand" />
                 </div>
               ) : (
                 <>
@@ -1690,9 +1690,9 @@ export default function CheckoutPage() {
                               key={region}
                               type="button"
                               onClick={() => handleSelectRegion(region)}
-                              className="flex w-full items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-4 text-left transition hover:border-red-100 hover:bg-red-50"
+                              className="flex w-full items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-4 text-left transition hover:border-brand-soft hover:bg-brand-soft"
                             >
-                              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-red-600">
+                              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-brand">
                                 <MapPin className="h-5 w-5" />
                               </div>
 
@@ -1740,9 +1740,9 @@ export default function CheckoutPage() {
                               key={town}
                               type="button"
                               onClick={() => handleSelectTown(town)}
-                              className="flex w-full items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-4 text-left transition hover:border-red-100 hover:bg-red-50"
+                              className="flex w-full items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-4 text-left transition hover:border-brand-soft hover:bg-brand-soft"
                             >
-                              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-red-600">
+                              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-brand">
                                 <MapPin className="h-5 w-5" />
                               </div>
 
@@ -1786,9 +1786,9 @@ export default function CheckoutPage() {
 
                   {modalStep === 'address' && (
                     <div className="space-y-5">
-                      <div className="rounded-2xl border border-red-100 bg-red-50 p-4">
+                      <div className="rounded-2xl border border-brand-soft bg-brand-soft p-4">
                         <div className="flex gap-3">
-                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-600 text-white">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand text-white">
                             <MapPin className="h-5 w-5" />
                           </div>
 
@@ -1806,7 +1806,7 @@ export default function CheckoutPage() {
                                 totalPrice >= zone.free_shipping_threshold;
 
                               return (
-                                <p className="mt-1 text-sm font-semibold text-red-700">
+                                <p className="mt-1 text-sm font-semibold text-brand-dark">
                                   {zone.estimated_days_min}–
                                   {zone.estimated_days_max} days ·{' '}
                                   {qualifiesFree
@@ -1829,7 +1829,7 @@ export default function CheckoutPage() {
                             setTempAddressLine1(e.target.value)
                           }
                           placeholder="House number, street name, area"
-                          className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-100"
+                          className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-brand focus:bg-white focus:ring-4 focus:ring-brand-soft"
                         />
                       </div>
 
@@ -1843,7 +1843,7 @@ export default function CheckoutPage() {
                             setTempAddressLine2(e.target.value)
                           }
                           placeholder="Near landmark, apartment, suite, etc."
-                          className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-red-500 focus:bg-white focus:ring-4 focus:ring-red-100"
+                          className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-brand focus:bg-white focus:ring-4 focus:ring-brand-soft"
                         />
                       </div>
                     </div>
@@ -1857,7 +1857,7 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={handleConfirmLocation}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-red-700 px-5 py-4 text-sm font-black text-white shadow-lg shadow-red-100 transition hover:opacity-95"
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand to-brand-dark px-5 py-4 text-sm font-black text-white shadow-lg shadow-brand-soft transition hover:opacity-95"
                 >
                   <CheckCircle className="h-5 w-5" />
                   Confirm address
