@@ -124,7 +124,7 @@ export default function ProductsClient({
               { value: 'all', label: 'All skin types' },
               ...skinTypes.map((item) => ({
                 value: item.slug,
-                label: `${item.emoji ?? ''} ${item.label}`.trim(),
+                label: item.label,
               })),
             ],
           },
@@ -233,7 +233,7 @@ export default function ProductsClient({
                               key={slug}
                               className="rounded-full bg-gray-100 px-2 py-0.5 text-[10.5px] font-semibold text-gray-700"
                             >
-                              {type?.emoji ?? '✨'} {type?.label ?? slug}
+                              {type?.label ?? slug}
                             </span>
                           );
                         })}

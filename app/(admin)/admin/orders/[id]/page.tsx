@@ -80,10 +80,10 @@ const STATUS_STEPS = [
 ];
 
 const PAYMENT_LABELS: Record<string, string> = {
-  cod: '💵 Cash on pickup / delivery',
-  momo: '📱 MTN MoMo Pay',
-  mpesa: '📱 Mobile money',
-  card: '💳 Card',
+  cod: 'Cash on pickup / delivery',
+  momo: 'MTN MoMo Pay',
+  mpesa: 'Mobile money',
+  card: 'Card',
 };
 
 export default function AdminOrderDetailPage() {
@@ -283,7 +283,7 @@ export default function AdminOrderDetailPage() {
           {item.product_image ? (
             <Image src={item.product_image} alt={item.product_name} fill className="object-cover" sizes="64px" />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-300">📷</div>
+            <div className="w-full h-full flex items-center justify-center text-gray-300">No photo</div>
           )}
         </div>
         <div className="flex-1 min-w-0">

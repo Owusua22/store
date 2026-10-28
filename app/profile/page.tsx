@@ -81,7 +81,7 @@ export default function ProfilePage() {
         throw updateError;
       }
 
-      toast.success('Profile updated successfully ✅');
+      toast.success('Profile saved');
       setIsEditing(false);
       // Optionally trigger a refetch in your auth store / revalidate cache if you have it
     } catch (err: unknown) {
@@ -111,7 +111,7 @@ export default function ProfilePage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Profile</h1>
+          <h1 className="font-serif text-3xl text-gray-900">My Profile</h1>
           <p className="text-gray-600 mt-1">
             Manage your account information and preferences.
           </p>

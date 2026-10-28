@@ -98,9 +98,9 @@ export function CategoryContent({
         <div className="relative overflow-hidden rounded-xl border border-line bg-brand-soft p-5 sm:p-6">
           <div className="relative z-10 max-w-xl">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-brand">
-              {category.icon ?? '🧴'} Category
+              Category
             </span>
-            <h1 className="mt-2 text-[24px] font-extrabold tracking-tight text-ink sm:text-[30px]">
+            <h1 className="font-serif mt-2 text-[36px] text-ink">
               {category.name}
             </h1>
             <p className="mt-1 max-w-lg text-[12.5px] leading-relaxed text-gray-600">

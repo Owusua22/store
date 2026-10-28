@@ -2,43 +2,95 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* ─────────────────────────────────────────────────────────────
+   Glow-Up — sage & paper
+   Three greens, one warm paper ground, one ink. Nothing else.
+   #69A297 · #84B59F · #A3C9A8
+   ───────────────────────────────────────────────────────────── */
+
 :root {
-  /* Brand palette — Deep Botanical Teal, Warm Terracotta, Crisp Cream */
-  --brand: #1b4d3e;
-  --brand-dark: #123a2e;
-  --brand-soft: #e9f2ed;
+  /* The three colours, used as surfaces */
+  --sage: #69a297;
+  --sage-mid: #84b59f;
+  --sage-pale: #a3c9a8;
 
-  --accent: #c86d51;
-  --accent-dark: #a9533b;
-  --accent-ink: #8f4331;
-  --accent-soft: #f9e7df;
+  /* Darkened for text and buttons — #69a297 with white is only 2.9:1 */
+  --sage-deep: #42746a;
+  --sage-ink: #375f57;
+  --sage-wash: #eef4f0;
 
-  --cream: #fdf8f5;
-  --ink: #13251f;
-  --muted: #5f6f68;
-  --line: #e9e1da;
+  --paper: #fbf8f2;
+  --paper-deep: #f3ede2;
+  --ink: #22302b;
+  --muted: #5f6b65;
+  --line: #e2ddd0;
+  --line-soft: #eeeadf;
+
+  /* Legacy aliases so older markup keeps working */
+  --brand: var(--sage-deep);
+  --brand-dark: var(--sage-ink);
+  --brand-soft: var(--sage-wash);
+  --accent: var(--sage-mid);
+  --accent-dark: var(--sage-deep);
+  --accent-ink: var(--sage-ink);
+  --accent-soft: var(--sage-pale);
+  --cream: var(--paper);
+  --gold: var(--sage-mid);
   --surface: #ffffff;
-  --surface-soft: #fdf8f5;
-  --gold: #c86d51;
+  --surface-soft: var(--paper);
 }
 
-@theme inline {
-  --color-brand: var(--brand);
-  --color-brand-dark: var(--brand-dark);
-  --color-brand-soft: var(--brand-soft);
-  --color-accent: var(--accent);
-  --color-accent-dark: var(--accent-dark);
-  --color-accent-ink: var(--accent-ink);
-  --color-accent-soft: var(--accent-soft);
-  --color-cream: var(--cream);
+@theme {
+  --color-sage: var(--sage);
+  --color-sage-mid: var(--sage-mid);
+  --color-sage-pale: var(--sage-pale);
+  --color-sage-deep: var(--sage-deep);
+  --color-sage-ink: var(--sage-ink);
+  --color-sage-wash: var(--sage-wash);
+
+  --color-brand: var(--sage-deep);
+  --color-brand-dark: var(--sage-ink);
+  --color-brand-soft: var(--sage-wash);
+  --color-accent: var(--sage-mid);
+  --color-accent-dark: var(--sage-deep);
+  --color-accent-ink: var(--sage-ink);
+  --color-accent-soft: var(--sage-pale);
+
+  --color-paper: var(--paper);
+  --color-paper-deep: var(--paper-deep);
+  --color-cream: var(--paper);
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-line: var(--line);
-  --color-surface: var(--surface);
-  --color-surface-soft: var(--surface-soft);
-  --color-gold: var(--gold);
+  --color-line-soft: var(--line-soft);
+  --color-surface: #ffffff;
+  --color-surface-soft: var(--paper);
+  --color-gold: var(--sage-mid);
+
+  /* Warm neutrals: the whole site's greys retint to paper */
+  --color-gray-50: #faf7f1;
+  --color-gray-100: #f4efe5;
+  --color-gray-200: #e6e0d3;
+  --color-gray-300: #d3ccbd;
+  --color-gray-400: #a49c8d;
+  --color-gray-500: #7a7466;
+  --color-gray-600: #5f6b65;
+  --color-gray-700: #47524c;
+  --color-gray-800: #2f3833;
+  --color-gray-900: #22302b;
+
+  /* Near-square corners everywhere — the single biggest "not generic" lever */
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 4px;
+  --radius-xl: 4px;
+  --radius-2xl: 6px;
+  --radius-3xl: 8px;
+
   --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino,
+    "Book Antiqua", Georgia, "Times New Roman", serif;
 }
 
 * {
@@ -51,35 +103,44 @@ html {
 }
 
 body {
-  background: var(--surface);
+  background: var(--paper);
   color: var(--ink);
   font-family: var(--font-sans);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background: var(--brand);
-  color: var(--cream);
+  background: var(--sage-pale);
+  color: var(--ink);
 }
 
-/* ── Layout helpers ─────────────────────────────────────────── */
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* ── Layout ─────────────────────────────────────────────────── */
 .container-page {
   width: 100%;
-  max-width: 1280px;
+  max-width: 1240px;
   margin-inline: auto;
-  padding-inline: 14px;
+  padding-inline: 16px;
 }
 
 @media (min-width: 640px) {
   .container-page {
-    padding-inline: 24px;
+    padding-inline: 28px;
   }
 }
 
 @media (min-width: 1024px) {
   .container-page {
-    padding-inline: 32px;
+    padding-inline: 40px;
   }
 }
 
@@ -92,172 +153,229 @@ body {
   display: none;
 }
 
-/* ── Product card ───────────────────────────────────────────── */
+/* ── The shop's card ────────────────────────────────────────── */
 .product-card {
   position: relative;
   display: flex;
   flex-direction: column;
   background: #fff;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 3px;
   overflow: hidden;
-  transition: box-shadow 0.2s ease, transform 0.2s ease,
-    border-color 0.2s ease;
+  transition: border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
 .product-card:hover {
-  border-color: #bfd6ca;
-  box-shadow: 0 10px 28px rgba(19, 37, 31, 0.1);
-  transform: translateY(-2px);
+  border-color: var(--sage);
+  box-shadow: 0 1px 0 var(--line), 0 12px 26px -18px rgba(34, 48, 43, 0.45);
 }
 
 .product-card__media {
   position: relative;
   aspect-ratio: 1 / 1;
-  background: var(--surface-soft);
+  background: var(--paper-deep);
   overflow: hidden;
 }
 
 .product-card__media img {
-  transition: transform 0.4s ease;
+  transition: transform 0.5s cubic-bezier(0.2, 0.7, 0.3, 1);
 }
 
 .product-card:hover .product-card__media img {
-  transform: scale(1.045);
+  transform: scale(1.03);
 }
 
-/* ── Section headings (ishtari style) ───────────────────────── */
+/* ── Section heads: editorial, left-aligned, ruled ──────────── */
 .section-head {
   display: flex;
-  align-items: flex-end;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 14px;
+  gap: 16px;
+  padding-bottom: 10px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.section-kicker {
+  display: block;
+  margin-bottom: 4px;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--sage-deep);
 }
 
 .section-title {
-  font-size: 20px;
-  line-height: 1.2;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-family: var(--font-serif);
+  font-size: 25px;
+  line-height: 1.1;
+  font-weight: 400;
+  letter-spacing: -0.015em;
   color: var(--ink);
 }
 
 @media (min-width: 768px) {
   .section-title {
-    font-size: 24px;
+    font-size: 32px;
   }
 }
 
 .section-subtitle {
-  margin-top: 3px;
-  font-size: 12px;
+  margin-top: 5px;
+  font-size: 12.5px;
+  line-height: 1.5;
   color: var(--muted);
 }
 
 .section-link {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-size: 12.5px;
+  gap: 5px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid currentColor;
+  font-size: 11.5px;
   font-weight: 700;
-  color: var(--brand);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sage-deep);
   white-space: nowrap;
 }
 
 .section-link:hover {
-  color: var(--brand-dark);
-  text-decoration: underline;
+  color: var(--sage-ink);
 }
 
-/* ── Buttons ────────────────────────────────────────────────── */
-.btn-brand {
+/* ── Buttons: flat, tight, no glow ──────────────────────────── */
+.btn-brand,
+.btn-accent,
+.btn-ink,
+.btn-quiet {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: var(--brand);
-  color: #fff;
+  border-radius: 3px;
   font-weight: 700;
-  border-radius: 8px;
-  transition: background 0.18s ease, transform 0.18s ease,
-    box-shadow 0.18s ease;
+  letter-spacing: 0.01em;
+  transition: background 0.16s ease, color 0.16s ease, border-color 0.16s ease;
+}
+
+.btn-brand {
+  background: var(--sage-deep);
+  color: var(--paper);
 }
 
 .btn-brand:hover {
-  background: var(--brand-dark);
-  box-shadow: 0 8px 20px rgba(27, 77, 62, 0.26);
+  background: var(--sage-ink);
 }
 
-.btn-brand:active {
-  transform: scale(0.98);
-}
-
-/* Terracotta accent button — used for warm, promotional actions */
 .btn-accent {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  /* Deep burnt-sienna: #c86d51 itself only reaches 3.6:1 with white text */
-  background: var(--accent-dark);
-  color: #fff;
-  font-weight: 700;
-  border-radius: 8px;
-  transition: background 0.18s ease, transform 0.18s ease,
-    box-shadow 0.18s ease;
+  background: var(--sage-pale);
+  color: var(--ink);
 }
 
 .btn-accent:hover {
-  background: var(--accent-ink);
-  box-shadow: 0 8px 20px rgba(169, 83, 59, 0.28);
+  background: var(--sage-mid);
 }
 
-.btn-accent:active {
-  transform: scale(0.98);
+.btn-ink {
+  background: var(--ink);
+  color: var(--paper);
 }
 
-/* Small uppercase label above a section or on a coloured panel */
+.btn-ink:hover {
+  background: #17211d;
+}
+
+.btn-quiet {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+}
+
+.btn-quiet:hover {
+  border-color: var(--sage);
+  background: #fff;
+}
+
+.btn-brand:active,
+.btn-accent:active,
+.btn-ink:active {
+  transform: translateY(1px);
+}
+
+/* ── Small caps label ───────────────────────────────────────── */
 .eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.16em;
+  font-weight: 700;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
-/* Thin terracotta rule used to separate brand panels */
+/* A hairline that stands in for decoration */
 .rule-accent {
-  height: 3px;
-  width: 64px;
-  border-radius: 999px;
-  background: var(--accent);
+  height: 1px;
+  width: 56px;
+  background: var(--sage);
 }
 
-/* ── Content sections ────────────────────────────────────────── */
 .panel {
   background: #fff;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 3px;
+}
+
+/* ── Forms ──────────────────────────────────────────────────── */
+.field-label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.field-input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  background: #fff;
+  padding: 9px 11px;
+  font-size: 13.5px;
+  color: var(--ink);
+  outline: none;
+}
+
+.field-input:focus {
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(105, 162, 151, 0.16);
+}
+
+.field-input::placeholder {
+  color: #a49c8d;
 }
 
 /* ── Rich text ──────────────────────────────────────────────── */
 .prose-soft p {
   margin-bottom: 0.75rem;
-  line-height: 1.7;
+  line-height: 1.75;
 }
 
 .prose-soft p:last-child {
   margin-bottom: 0;
 }
 
-/* ── Animations ─────────────────────────────────────────────── */
+/* ── Motion ─────────────────────────────────────────────────── */
 @keyframes fadeUp {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -266,7 +384,7 @@ body {
 }
 
 .fade-up {
-  animation: fadeUp 0.5s ease both;
+  animation: fadeUp 0.45s ease both;
 }
 
 @keyframes marquee {
@@ -281,12 +399,22 @@ body {
 .marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee 26s linear infinite;
+  animation: marquee 32s linear infinite;
 }
 
-/* react-toastify tweaks */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .fade-up {
+    animation: none;
+  }
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* react-toastify */
 .Toastify__toast {
-  border-radius: 10px;
+  border-radius: 3px;
   font-size: 13px;
   font-weight: 600;
 }

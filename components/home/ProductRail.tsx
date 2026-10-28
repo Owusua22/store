@@ -8,6 +8,7 @@ import type { Product } from '@/types';
 
 interface ProductRailProps {
   title: string;
+  kicker?: string;
   subtitle?: string;
   href?: string;
   products: Product[];
@@ -15,6 +16,7 @@ interface ProductRailProps {
 
 export function ProductRail({
   title,
+  kicker,
   subtitle,
   href = '/products',
   products,
@@ -30,9 +32,10 @@ export function ProductRail({
   };
 
   return (
-    <section className="container-page pt-7 sm:pt-9" aria-label={title}>
+    <section className="container-page pt-10 sm:pt-14" aria-label={title}>
       <div className="section-head">
         <div>
+          {kicker && <span className="section-kicker">{kicker}</span>}
           <h2 className="section-title">{title}</h2>
           {subtitle && <p className="section-subtitle">{subtitle}</p>}
         </div>
@@ -42,7 +45,7 @@ export function ProductRail({
               type="button"
               onClick={() => scrollBy(-1)}
               aria-label="Scroll left"
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-line bg-white text-gray-600 hover:border-brand hover:text-brand"
+              className="flex h-7 w-7 items-center justify-center border border-line text-muted transition-colors hover:border-sage-deep hover:text-sage-deep"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
@@ -50,13 +53,13 @@ export function ProductRail({
               type="button"
               onClick={() => scrollBy(1)}
               aria-label="Scroll right"
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-line bg-white text-gray-600 hover:border-brand hover:text-brand"
+              className="flex h-7 w-7 items-center justify-center border border-line text-muted transition-colors hover:border-sage-deep hover:text-sage-deep"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
           </div>
           <Link href={href} className="section-link">
-            View more <ChevronRight className="h-3.5 w-3.5" />
+            See all
           </Link>
         </div>
       </div>

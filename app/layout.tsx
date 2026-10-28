@@ -53,7 +53,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#1b4d3e',
+  themeColor: '#69a297',
   width: 'device-width',
   initialScale: 1,
 };
@@ -65,7 +65,7 @@ interface RootLayoutProps {
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <html lang="en" data-scroll-behavior="smooth">
-      <body className="antialiased bg-white text-ink font-sans">
+      <body className="antialiased bg-paper text-ink font-sans">
         <JsonLd id="site" data={[organizationSchema(), websiteSchema()]} />
         <AppShell>{children}</AppShell>
         <Analytics />

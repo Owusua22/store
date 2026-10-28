@@ -5,25 +5,6 @@ import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from '
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import {
-  ChevronDown,
-  ChevronRight,
-  Grid2X2,
-  Heart,
-  HelpCircle,
-  Home,
-  LayoutDashboard,
-  LogOut,
-  Menu,
-  Package,
-  Phone,
-  Search,
-  ShoppingBag,
-  Sparkles,
-  Truck,
-  User,
-  X,
-} from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCart } from '@/hooks/useCart';
 import { cn, formatCedis } from '@/lib/utils';
@@ -40,28 +21,29 @@ interface SearchResult {
 }
 
 const PRIMARY_LINKS = [
-  { href: '/products?sort=newest', label: 'New Arrivals' },
-  { href: '/products?sort=popular', label: 'Best Sellers' },
-  { href: '/categories/facial-skincare', label: 'Facial Skincare' },
-  { href: '/categories/bath-body-care', label: 'Bath & Body' },
-  { href: '/categories/mothercare-pregnancy', label: 'Mothercare' },
-  { href: '/categories/baby-care-essentials', label: 'Baby Care' },
+  { href: '/products?sort=newest', label: 'New in' },
+  { href: '/products?sort=popular', label: 'Bestsellers' },
+  { href: '/products?deals=1', label: 'Reduced' },
   { href: '/blog', label: 'Journal' },
 ] as const;
 
-function Logo() {
+function Wordmark({ compact = false }: { compact?: boolean }) {
   return (
-    <Link href="/" className="flex items-center gap-2 shrink-0" aria-label={`${site.name} home`}>
-      <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-brand text-white shadow-sm sm:h-10 sm:w-10">
-        <ShoppingBag className="h-5 w-5" strokeWidth={2.2} />
-        <Sparkles className="absolute -top-1 -right-1 h-3.5 w-3.5 text-gold" />
+    <Link href="/" className="group flex shrink-0 items-baseline gap-2" aria-label={site.nameFull}>
+      <span
+        className={cn(
+          'font-serif leading-none tracking-[-0.02em] text-ink transition-colors group-hover:text-sage-deep',
+          compact ? 'text-[23px]' : 'text-[25px] sm:text-[30px]'
+        )}
+      >
+        Glow<span className="text-sage-deep">-</span>Up
       </span>
-      <span className="leading-none">
-        <span className="block text-[22px] font-extrabold tracking-tight text-brand sm:text-[26px]">
-          {site.name.toLowerCase()}
+      <span className="hidden flex-col leading-none sm:flex">
+        <span className="text-[8px] font-bold uppercase tracking-[0.28em] text-muted">
+          Skincare
         </span>
-        <span className="mt-0.5 block text-[9px] font-semibold uppercase tracking-[0.22em] text-muted sm:text-[10px]">
-          {site.tagline}
+        <span className="mt-1 text-[8px] font-bold uppercase tracking-[0.28em] text-muted">
+          Mother care
         </span>
       </span>
     </Link>
@@ -83,8 +65,6 @@ export function Navbar() {
   const accountRef = useRef<HTMLDivElement>(null);
   const categoryRef = useRef<HTMLDivElement>(null);
 
-  // Track the previous pathname so client-side navigation closes every menu.
-  // (React's documented "adjust state when props change" pattern.)
   const [lastPath, setLastPath] = useState(pathname);
   if (lastPath !== pathname) {
     setLastPath(pathname);
@@ -94,8 +74,6 @@ export function Navbar() {
     setAccountOpen(false);
   }
 
-  // Hydration-safe "mounted" flag: false while server-rendering and during the
-  // first client render, true afterwards. Avoids auth/cart hydration mismatches.
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -105,23 +83,18 @@ export function Navbar() {
   useEffect(() => {
     const onClick = (event: MouseEvent) => {
       const target = event.target as Node;
-      if (accountRef.current && !accountRef.current.contains(target)) {
-        setAccountOpen(false);
-      }
-      if (categoryRef.current && !categoryRef.current.contains(target)) {
-        setCategoriesOpen(false);
-      }
+      if (accountRef.current && !accountRef.current.contains(target)) setAccountOpen(false);
+      if (categoryRef.current && !categoryRef.current.contains(target)) setCategoriesOpen(false);
     };
-
     document.addEventListener('mousedown', onClick);
     return () => document.removeEventListener('mousedown', onClick);
   }, []);
 
   const openAuth = useCallback(
     (mode: 'login' | 'register') => {
-      // Signing in from the navbar always returns the shopper to where they were.
       openAuthModal({ view: mode, redirectTo: pathname || '/' });
       setMobileOpen(false);
+      setAccountOpen(false);
     },
     [openAuthModal, pathname]
   );
@@ -133,174 +106,143 @@ export function Navbar() {
   };
 
   const displayName =
-    profile?.full_name?.split(' ')[0] ||
-    profile?.email?.split('@')[0] ||
-    'Account';
-  const initial = (profile?.full_name || profile?.email || 'U')
-    .charAt(0)
-    .toUpperCase();
+    profile?.full_name?.split(' ')[0] || profile?.email?.split('@')[0] || 'Account';
 
   return (
     <>
-      {/* ── Utility strip ─────────────────────────────────────── */}
-      <div className="hidden bg-brand text-cream/85 text-[11.5px] md:block">
-        <div className="container-page flex h-9 items-center justify-between">
-          <div className="flex items-center gap-4">
-            <span className="inline-flex items-center gap-1.5">
-              <Truck className="h-3.5 w-3.5 text-accent-soft" />
-              Delivering across Ghana · Free over {formatCedis(site.freeDeliveryThreshold)}
-            </span>
-            <span className="h-3 w-px bg-cream/25" />
-            <span className="inline-flex items-center gap-1.5">
-              <Phone className="h-3.5 w-3.5 text-accent-soft" />
+      {/* ── Thin notice line ──────────────────────────────────── */}
+      <div className="border-b border-line bg-paper-deep">
+        <div className="container-page flex h-8 items-center justify-between gap-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">
+          <p className="truncate">
+            Free delivery over {formatCedis(site.freeDeliveryThreshold)}
+            <span className="mx-2 hidden text-line sm:inline">/</span>
+            <span className="hidden sm:inline">{site.hoursSummary}</span>
+          </p>
+          <div className="flex shrink-0 items-center gap-4">
+            <a href={`tel:${site.phone}`} className="hover:text-sage-deep">
               {site.phoneDisplay}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-5">
-            <Link href="/orders" className="hover:text-cream">
-              Track order
+            </a>
+            <Link href="/orders" className="hidden hover:text-sage-deep sm:inline">
+              Track an order
             </Link>
-            <Link href="/contact" className="inline-flex items-center gap-1 hover:text-cream">
-              <HelpCircle className="h-3.5 w-3.5" />
-              Help Center
-            </Link>
-            <Link href="/about" className="hover:text-cream">
-              About us
+            <Link href="/contact" className="hidden hover:text-sage-deep md:inline">
+              Help
             </Link>
           </div>
         </div>
       </div>
 
-      {/* ── Main header ───────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 border-b border-line bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/85">
+      {/* ── Masthead ──────────────────────────────────────────── */}
+      <header className="sticky top-0 z-50 border-b border-line bg-paper/95 backdrop-blur supports-[backdrop-filter]:bg-paper/85">
         <div className="container-page">
-          <div className="flex h-16 items-center gap-3 sm:h-[72px] sm:gap-6">
+          <div className="flex h-16 items-center gap-3 sm:h-[74px] sm:gap-7">
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              className="-ml-1 flex h-9 w-9 items-center justify-center rounded-lg text-ink hover:bg-surface-soft lg:hidden"
+              className="-ml-1.5 flex h-9 w-9 items-center justify-center text-ink lg:hidden"
               aria-label="Open menu"
             >
-              <Menu className="h-5 w-5" />
+              <span className="flex flex-col gap-[5px]" aria-hidden="true">
+                <span className="block h-px w-5 bg-current" />
+                <span className="block h-px w-5 bg-current" />
+                <span className="block h-px w-3 bg-current" />
+              </span>
             </button>
 
-            <Logo />
+            <Wordmark />
 
-            {/* Desktop search */}
+            {/* Desktop search — a ruled line, not a box */}
             <form
               action="/products"
-              className="hidden flex-1 items-center md:flex"
               role="search"
+              className="ml-2 hidden flex-1 items-center border-b border-line pb-1 focus-within:border-sage-deep md:flex"
             >
-              <div className="flex h-11 w-full items-center rounded-lg border-2 border-brand/15 bg-surface-soft pl-3 focus-within:border-brand focus-within:bg-white">
-                <Search className="h-4 w-4 shrink-0 text-gray-400" />
-                <input
-                  name="q"
-                  type="search"
-                  placeholder="Search lotions, serums, shampoo, diapers…"
-                  className="h-full w-full bg-transparent px-2.5 text-[13.5px] outline-none placeholder:text-gray-400"
-                  aria-label="Search products"
-                />
-                <button
-                  type="submit"
-                  className="m-1 flex h-9 shrink-0 items-center gap-1.5 rounded-md bg-brand px-5 text-[13px] font-bold text-white transition-colors hover:bg-brand-dark"
-                >
-                  <Search className="h-3.5 w-3.5" />
-                  Search
-                </button>
-              </div>
+              <input
+                name="q"
+                type="search"
+                placeholder="Bodyspray, shea, diapers, shampoo…"
+                aria-label="Search products"
+                className="h-8 w-full bg-transparent text-[13px] text-ink outline-none placeholder:text-gray-400"
+              />
+              <button
+                type="submit"
+                className="shrink-0 pl-3 text-[10px] font-bold uppercase tracking-[0.14em] text-sage-deep hover:text-sage-ink"
+              >
+                Search
+              </button>
             </form>
 
-            <div className="ml-auto flex items-center gap-1 sm:gap-2">
+            <div className="ml-auto flex items-center gap-4 sm:gap-6">
               <button
                 type="button"
                 onClick={() => setSearchOpen(true)}
-                className="flex h-10 w-10 items-center justify-center rounded-lg text-ink hover:bg-surface-soft md:hidden"
+                className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink md:hidden"
                 aria-label="Search"
               >
-                <Search className="h-5 w-5" />
+                Search
               </button>
 
               {/* Account */}
               <div ref={accountRef} className="relative hidden sm:block">
                 <button
                   type="button"
-                  onClick={() => setAccountOpen((v) => !v)}
-                  className="flex h-10 items-center gap-2 rounded-lg px-2 text-left hover:bg-surface-soft"
+                  onClick={() => setAccountOpen((value) => !value)}
+                  className="text-[10px] font-bold uppercase tracking-[0.14em] text-ink hover:text-sage-deep"
+                  aria-expanded={accountOpen}
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-soft text-ink">
-                    {mounted && isAuthenticated ? (
-                      <span className="text-xs font-extrabold text-brand">{initial}</span>
-                    ) : (
-                      <User className="h-[18px] w-[18px]" />
-                    )}
-                  </span>
-                  <span className="hidden leading-tight lg:block">
-                    <span className="block text-[10px] font-medium uppercase tracking-wide text-muted">
-                      {mounted && isAuthenticated ? 'Welcome back' : 'Account'}
-                    </span>
-                    <span className="flex items-center gap-1 text-[13px] font-bold text-ink">
-                      {mounted && isAuthenticated ? displayName : 'Sign in'}
-                      <ChevronDown className="h-3.5 w-3.5 text-gray-400" />
-                    </span>
-                  </span>
+                  {mounted && isAuthenticated ? displayName : 'Sign in'}
                 </button>
 
                 {accountOpen && (
-                  <div className="absolute right-0 top-[calc(100%+8px)] w-60 overflow-hidden rounded-xl border border-line bg-white shadow-xl">
+                  <div className="absolute right-0 top-[calc(100%+14px)] w-56 border border-line bg-white">
                     {!authLoading && isAuthenticated ? (
                       <>
-                        <div className="border-b border-line bg-surface-soft px-4 py-3">
-                          <p className="truncate text-[13px] font-bold text-ink">
+                        <div className="border-b border-line px-4 py-3">
+                          <p className="truncate font-serif text-[14px] text-ink">
                             {profile?.full_name || displayName}
                           </p>
-                          <p className="truncate text-[11px] text-muted">{profile?.email}</p>
+                          <p className="truncate text-[10.5px] text-muted">{profile?.email}</p>
                         </div>
-                        <div className="p-1.5">
-                          <Link href="/account" className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-semibold text-gray-700 hover:bg-surface-soft">
-                            <User className="h-4 w-4 text-brand" /> My account
-                          </Link>
-                          <Link href="/orders" className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-semibold text-gray-700 hover:bg-surface-soft">
-                            <Package className="h-4 w-4 text-brand" /> My orders
-                          </Link>
-                          <Link href="/profile" className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-semibold text-gray-700 hover:bg-surface-soft">
-                            <Heart className="h-4 w-4 text-brand" /> Saved items
-                          </Link>
-                          <Link href="/admin/dashboard" className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-semibold text-gray-700 hover:bg-surface-soft">
-                            <LayoutDashboard className="h-4 w-4 text-brand" /> Dashboard
-                          </Link>
+                        <div className="py-1.5">
+                          {[
+                            { href: '/account', label: 'My account' },
+                            { href: '/orders', label: 'My orders' },
+                            { href: '/profile', label: 'Saved items' },
+                            { href: '/admin/dashboard', label: 'Shop dashboard' },
+                          ].map((item) => (
+                            <Link
+                              key={item.href}
+                              href={item.href}
+                              className="block px-4 py-2 text-[12px] text-gray-700 hover:bg-sage-wash hover:text-sage-deep"
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
                           <button
                             type="button"
                             onClick={handleSignOut}
-                            className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-[13px] font-semibold text-brand hover:bg-brand-soft"
+                            className="block w-full px-4 py-2 text-left text-[12px] text-gray-700 hover:bg-sage-wash hover:text-sage-deep"
                           >
-                            <LogOut className="h-4 w-4" /> Sign out
+                            Sign out
                           </button>
                         </div>
                       </>
                     ) : (
-                      <div className="p-3">
-                        <p className="mb-3 text-[12px] leading-relaxed text-muted">
-                          Sign in for faster checkout, order tracking and exclusive deals.
+                      <div className="p-4">
+                        <p className="mb-3 text-[11.5px] leading-relaxed text-muted">
+                          Sign in to see your orders and check out faster.
                         </p>
                         <button
                           type="button"
-                          onClick={() => {
-                            setAccountOpen(false);
-                            openAuth('login');
-                          }}
-                          className="btn-brand mb-2 h-9 w-full text-[13px]"
+                          onClick={() => openAuth('login')}
+                          className="btn-brand h-9 w-full text-[11px] uppercase tracking-[0.1em]"
                         >
                           Sign in
                         </button>
                         <button
                           type="button"
-                          onClick={() => {
-                            setAccountOpen(false);
-                            openAuth('register');
-                          }}
-                          className="h-9 w-full rounded-lg border border-line text-[13px] font-bold text-ink hover:bg-surface-soft"
+                          onClick={() => openAuth('register')}
+                          className="mt-1.5 h-9 w-full border border-line text-[11px] font-bold uppercase tracking-[0.1em] text-ink hover:border-sage-deep"
                         >
                           Create account
                         </button>
@@ -310,255 +252,247 @@ export function Navbar() {
                 )}
               </div>
 
-              {/* Cart */}
+              {/* Bag */}
               <button
                 type="button"
                 onClick={toggleCart}
-                className="flex h-10 items-center gap-2 rounded-lg px-2 text-ink hover:bg-surface-soft"
-                aria-label={`Open cart, ${totalItems} items`}
+                className="flex items-baseline gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-ink hover:text-sage-deep"
+                aria-label={`Open bag, ${totalItems} items`}
               >
-                <span className="relative">
-                  <ShoppingBag className="h-5 w-5" />
-                  <span className="absolute -right-2 -top-2 flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-brand px-1 text-[10px] font-extrabold text-white">
-                    {totalItems > 99 ? '99+' : totalItems}
-                  </span>
+                Bag
+                <span className="text-sage-deep tabular-nums">
+                  {totalItems.toString().padStart(2, '0')}
                 </span>
-                <span className="hidden text-left leading-tight lg:block">
-                  <span className="block text-[10px] font-medium uppercase tracking-wide text-muted">
-                    My cart
-                  </span>
-                  <span className="block text-[13px] font-bold text-ink">
-                    {formatCedis(totalPrice)}
-                  </span>
+                <span className="hidden text-[10px] font-medium normal-case tracking-normal text-muted lg:inline">
+                  {formatCedis(totalPrice)}
                 </span>
               </button>
             </div>
           </div>
 
-          {/* Mobile search row */}
-          <form action="/products" className="pb-2.5 md:hidden" role="search">
-            <div className="flex h-9 items-center rounded-lg border border-line bg-surface-soft pl-3">
-              <Search className="h-4 w-4 text-gray-400" />
+          {/* Mobile search */}
+          <form action="/products" role="search" className="pb-2.5 md:hidden">
+            <div className="flex items-center border-b border-line">
               <input
                 name="q"
                 type="search"
-                placeholder="Search skin care products…"
-                className="h-full w-full bg-transparent px-2 text-[13px] outline-none placeholder:text-gray-400"
+                placeholder="Search the shelves"
                 aria-label="Search products"
+                className="h-8 w-full bg-transparent text-[13px] outline-none placeholder:text-gray-400"
               />
             </div>
           </form>
         </div>
 
-        {/* ── Category navigation ───────────────────────────── */}
-        <div className="hidden border-t border-line bg-white lg:block">
-          <div className="container-page flex h-11 items-center gap-1">
+        {/* ── Departments ─────────────────────────────────────── */}
+        <div className="hidden border-t border-line bg-paper lg:block">
+          <div className="container-page flex h-11 items-center gap-6">
             <div ref={categoryRef} className="relative">
               <button
                 type="button"
-                onClick={() => setCategoriesOpen((v) => !v)}
-                className="flex h-8 items-center gap-2 rounded-md bg-brand px-3 text-[12.5px] font-bold uppercase tracking-wide text-white"
+                onClick={() => setCategoriesOpen((value) => !value)}
+                className="flex h-11 items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-[0.16em] text-sage-deep"
+                aria-expanded={categoriesOpen}
               >
-                <Grid2X2 className="h-4 w-4" />
-                All Categories
-                <ChevronDown className={cn('h-3.5 w-3.5 transition-transform', categoriesOpen && 'rotate-180')} />
+                All departments
+                <span aria-hidden="true" className="text-[9px]">
+                  {categoriesOpen ? '−' : '+'}
+                </span>
               </button>
 
               {categoriesOpen && (
-                <div className="absolute left-0 top-[calc(100%+8px)] z-50 grid w-[520px] grid-cols-2 gap-1 rounded-xl border border-line bg-white p-3 shadow-2xl">
+                <div className="absolute left-0 top-full z-50 grid w-[560px] grid-cols-2 gap-px border border-line bg-line">
                   {NAV_CATEGORIES.map((category) => (
                     <Link
                       key={category.slug}
                       href={`/categories/${category.slug}`}
-                      className="flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-semibold text-gray-700 hover:bg-brand-soft hover:text-brand"
+                      className="group bg-white px-4 py-3 hover:bg-sage-wash"
                     >
-                      <span className="text-base">{category.icon}</span>
-                      {category.name}
-                      <ChevronRight className="ml-auto h-3.5 w-3.5 text-gray-300" />
+                      <span className="block font-serif text-[15px] text-ink group-hover:text-sage-deep">
+                        {category.name}
+                      </span>
+                      <span className="mt-0.5 block line-clamp-1 text-[10.5px] text-muted">
+                        {category.blurb}
+                      </span>
                     </Link>
                   ))}
                   <Link
                     href="/products"
-                    className="col-span-2 mt-1 flex items-center justify-between rounded-lg bg-surface-soft px-3 py-2 text-[12.5px] font-bold text-brand hover:bg-brand-soft"
+                    className="col-span-2 bg-paper px-4 py-2.5 text-[10.5px] font-bold uppercase tracking-[0.14em] text-sage-deep hover:bg-sage-wash"
                   >
-                    Shop all products
-                    <ChevronRight className="h-3.5 w-3.5" />
+                    Every product in the shop
                   </Link>
                 </div>
               )}
             </div>
 
-            <nav className="ml-2 flex items-center gap-0.5">
+            <nav className="flex items-center gap-6">
               {PRIMARY_LINKS.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="rounded-md px-3 py-2 text-[12.5px] font-semibold text-gray-700 transition-colors hover:bg-brand-soft hover:text-brand"
+                  className="text-[10.5px] font-semibold uppercase tracking-[0.14em] text-gray-700 transition-colors hover:text-sage-deep"
                 >
                   {link.label}
                 </Link>
               ))}
-              <Link
-                href="/products?deals=1"
-                className="ml-1 inline-flex items-center gap-1 rounded-md px-3 py-2 text-[12.5px] font-extrabold text-brand transition-colors hover:bg-brand-soft"
-              >
-                <Sparkles className="h-3.5 w-3.5" />
-                Deals
-              </Link>
             </nav>
 
-            <div className="ml-auto hidden items-center gap-1.5 text-[11.5px] font-semibold text-gray-500 xl:flex">
-              <Truck className="h-4 w-4 text-brand" />
-              Pay on delivery available in Accra & Kumasi
-            </div>
+            <a
+              href={`https://wa.me/${site.whatsapp}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ml-auto text-[10.5px] font-semibold uppercase tracking-[0.14em] text-sage-deep underline decoration-sage/40 underline-offset-4 hover:decoration-sage-deep"
+            >
+              Ask on WhatsApp
+            </a>
           </div>
         </div>
       </header>
 
-      {/* ── Mobile menu ───────────────────────────────────────── */}
+      {/* ── Mobile drawer ─────────────────────────────────────── */}
       {mobileOpen && (
         <div className="fixed inset-0 z-[60] lg:hidden">
           <button
             type="button"
             aria-label="Close menu"
-            className="absolute inset-0 bg-black/45"
+            className="absolute inset-0 bg-ink/40"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="absolute inset-y-0 left-0 flex w-[86%] max-w-sm flex-col bg-white shadow-2xl">
+          <div className="absolute inset-y-0 left-0 flex w-[88%] max-w-sm flex-col bg-paper">
             <div className="flex h-16 items-center justify-between border-b border-line px-4">
-              <Logo />
+              <Wordmark compact />
               <button
                 type="button"
                 onClick={() => setMobileOpen(false)}
-                className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-surface-soft"
+                className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted"
                 aria-label="Close menu"
               >
-                <X className="h-5 w-5" />
+                Close
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-4 py-4">
-              <p className="mb-2 text-[10.5px] font-bold uppercase tracking-[0.18em] text-muted">
-                Shop by category
+            <div className="flex-1 overflow-y-auto px-4 py-5">
+              <p className="text-[9.5px] font-bold uppercase tracking-[0.2em] text-muted">
+                Departments
               </p>
-              <div className="mb-5 grid grid-cols-2 gap-2">
+              <div className="mt-2 border-t border-line">
                 {NAV_CATEGORIES.map((category) => (
                   <Link
                     key={category.slug}
                     href={`/categories/${category.slug}`}
-                    className="flex items-center gap-2 rounded-lg border border-line px-3 py-2.5 text-[12.5px] font-semibold text-gray-700"
+                    className="flex items-baseline justify-between border-b border-line py-2.5"
                   >
-                    <span>{category.icon}</span>
-                    {category.name}
+                    <span className="font-serif text-[16px] text-ink">{category.name}</span>
+                    <span aria-hidden="true" className="text-[11px] text-muted">
+                      →
+                    </span>
                   </Link>
                 ))}
               </div>
 
-              <p className="mb-2 text-[10.5px] font-bold uppercase tracking-[0.18em] text-muted">
-                Quick links
+              <p className="mt-6 text-[9.5px] font-bold uppercase tracking-[0.2em] text-muted">
+                Elsewhere
               </p>
-              <div className="mb-5 flex flex-col">
+              <div className="mt-2 border-t border-line">
                 {[
-                  { href: '/', label: 'Home' },
-                  { href: '/products', label: 'Shop all products' },
+                  { href: '/products', label: 'Everything' },
+                  { href: '/products?deals=1', label: 'Reduced' },
                   { href: '/orders', label: 'Track my order' },
-                  { href: '/about', label: 'About us' },
+                  { href: '/about', label: 'About the shop' },
                   { href: '/contact', label: 'Contact' },
+                  { href: '/sitemap', label: 'Sitemap' },
                 ].map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="flex items-center justify-between border-b border-line/70 py-2.5 text-[13.5px] font-semibold text-gray-800"
+                    className="block border-b border-line py-2.5 text-[13px] text-gray-700"
                   >
                     {link.label}
-                    <ChevronRight className="h-4 w-4 text-gray-300" />
                   </Link>
                 ))}
               </div>
 
-              {mounted && isAuthenticated ? (
-                <div className="space-y-2">
-                  <Link href="/account" className="btn-brand h-11 w-full text-sm">
-                    My account
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={handleSignOut}
-                    className="h-11 w-full rounded-lg border border-line text-sm font-bold text-gray-700"
-                  >
-                    Sign out
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <button
-                    type="button"
-                    onClick={() => openAuth('login')}
-                    className="btn-brand h-11 w-full text-sm"
-                  >
-                    Sign in
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => openAuth('register')}
-                    className="h-11 w-full rounded-lg border border-line text-sm font-bold text-gray-700"
-                  >
-                    Create account
-                  </button>
-                </div>
-              )}
+              <div className="mt-6 flex flex-col gap-2">
+                {mounted && isAuthenticated ? (
+                  <>
+                    <Link
+                      href="/account"
+                      className="btn-brand h-10 text-[11px] uppercase tracking-[0.12em]"
+                    >
+                      My account
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={handleSignOut}
+                      className="h-10 border border-line text-[11px] font-bold uppercase tracking-[0.12em] text-ink"
+                    >
+                      Sign out
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => openAuth('login')}
+                      className="btn-brand h-10 text-[11px] uppercase tracking-[0.12em]"
+                    >
+                      Sign in
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => openAuth('register')}
+                      className="h-10 border border-line text-[11px] font-bold uppercase tracking-[0.12em] text-ink"
+                    >
+                      Create account
+                    </button>
+                  </>
+                )}
+              </div>
 
               <a
                 href={`tel:${site.phone}`}
-                className="mt-5 flex items-center justify-center gap-2 rounded-lg bg-surface-soft py-3 text-[12.5px] font-bold text-ink"
+                className="mt-6 block border-t border-line pt-3 text-[11px] uppercase tracking-[0.13em] text-sage-deep"
               >
-                <Phone className="h-4 w-4 text-brand" />
-                Call us: {site.phoneDisplay}
+                Call the shop · {site.phoneDisplay}
               </a>
             </div>
           </div>
         </div>
       )}
 
-      {/* ── Search overlay ────────────────────────────────────── */}
-      {searchOpen && (
-        <SearchOverlay key="search" open onClose={() => setSearchOpen(false)} />
-      )}
+      {searchOpen && <SearchOverlay key="search" open onClose={() => setSearchOpen(false)} />}
 
-      {/* ── Mobile bottom nav ─────────────────────────────────── */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
+      {/* ── Mobile bottom bar ─────────────────────────────────── */}
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden">
         <div className="grid grid-cols-4">
           {[
-            { href: '/', label: 'Home', icon: Home },
-            { href: '/products', label: 'Shop', icon: Search },
-            { href: '/categories/bath-body-care', label: 'Categories', icon: Grid2X2 },
-          ].map(({ href, label, icon: Icon }) => {
-            const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
+            { href: '/', label: 'Home' },
+            { href: '/products', label: 'Shop' },
+            { href: '/categories/bath-body-care', label: 'Shelves' },
+          ].map((item) => {
+            const active = item.href === '/' ? pathname === '/' : pathname.startsWith(item.href);
             return (
               <Link
-                key={href}
-                href={href}
+                key={item.href}
+                href={item.href}
                 className={cn(
-                  'flex flex-col items-center gap-0.5 py-2 text-[10.5px] font-semibold',
-                  active ? 'text-brand' : 'text-gray-500'
+                  'py-2.5 text-center text-[9.5px] font-bold uppercase tracking-[0.13em]',
+                  active ? 'text-sage-deep' : 'text-muted'
                 )}
               >
-                <Icon className="h-5 w-5" />
-                {label}
+                {item.label}
               </Link>
             );
           })}
           <button
             type="button"
             onClick={toggleCart}
-            className="relative flex flex-col items-center gap-0.5 py-2 text-[10.5px] font-semibold text-gray-500"
+            className="relative py-2.5 text-center text-[9.5px] font-bold uppercase tracking-[0.13em] text-muted"
           >
-            <ShoppingBag className="h-5 w-5" />
-            Cart
+            Bag
             {totalItems > 0 && (
-              <span className="absolute right-5 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[9px] font-bold text-white">
-                {totalItems}
-              </span>
+              <span className="ml-1 text-sage-deep tabular-nums">{totalItems}</span>
             )}
           </button>
         </div>
@@ -567,9 +501,7 @@ export function Navbar() {
   );
 }
 
-/* ────────────────────────────────────────────────────────────
-   Search overlay with live results
-   ──────────────────────────────────────────────────────────── */
+/* ── Search overlay ─────────────────────────────────────────── */
 
 function SearchOverlay({ open, onClose }: { open: boolean; onClose: () => void }) {
   const router = useRouter();
@@ -578,29 +510,22 @@ function SearchOverlay({ open, onClose }: { open: boolean; onClose: () => void }
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // The overlay is mounted fresh each time it opens (keyed below), so state
-  // starts empty — this effect only touches the DOM.
   useEffect(() => {
     if (!open) return;
     const timer = setTimeout(() => inputRef.current?.focus(), 80);
     document.body.style.overflow = 'hidden';
-
     return () => {
       clearTimeout(timer);
       document.body.style.overflow = '';
     };
   }, [open]);
 
-  // Debounced live search. All setState calls happen inside the timeout
-  // callback (an external event), never synchronously in the effect body.
   useEffect(() => {
     if (!open) return;
-
     const query = term.trim();
     if (query.length < 2) return;
 
     let active = true;
-
     const timeout = setTimeout(async () => {
       setLoading(true);
       try {
@@ -642,40 +567,43 @@ function SearchOverlay({ open, onClose }: { open: boolean; onClose: () => void }
 
   return (
     <div className="fixed inset-0 z-[70]">
-      <button type="button" aria-label="Close search" className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative mx-auto mt-[8vh] w-[94%] max-w-2xl overflow-hidden rounded-2xl bg-white shadow-2xl">
-        <form onSubmit={submit} className="flex items-center gap-2 border-b border-line px-4 py-3">
-          <Search className="h-5 w-5 text-gray-400" />
+      <button
+        type="button"
+        aria-label="Close search"
+        className="absolute inset-0 bg-ink/45"
+        onClick={onClose}
+      />
+      <div className="relative mx-auto mt-[10vh] w-[94%] max-w-xl border border-line bg-paper shadow-2xl">
+        <form onSubmit={submit} className="flex items-center gap-3 border-b border-line px-4 py-3">
           <input
             ref={inputRef}
             value={term}
             onChange={(event) => setTerm(event.target.value)}
-            placeholder="Search for body lotion, serum, baby diapers…"
-            className="h-10 flex-1 bg-transparent text-[14px] outline-none placeholder:text-gray-400"
+            placeholder="Search the shelves"
+            className="h-9 flex-1 bg-transparent font-serif text-[17px] outline-none placeholder:font-sans placeholder:text-[13px] placeholder:text-gray-400"
           />
           <button
             type="button"
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg hover:bg-surface-soft"
-            aria-label="Close"
+            className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted"
           >
-            <X className="h-4 w-4" />
+            Close
           </button>
         </form>
 
-        <div className="max-h-[60vh] overflow-y-auto p-3">
+        <div className="max-h-[58vh] overflow-y-auto p-4">
           {term.trim().length < 2 ? (
             <div>
-              <p className="mb-2 px-1 text-[10.5px] font-bold uppercase tracking-[0.16em] text-muted">
-                Popular searches
+              <p className="text-[9.5px] font-bold uppercase tracking-[0.18em] text-muted">
+                People look for
               </p>
-              <div className="flex flex-wrap gap-1.5">
+              <div className="mt-2 flex flex-wrap gap-1.5">
                 {POPULAR_SEARCHES.map((keyword) => (
                   <button
                     key={keyword}
                     type="button"
                     onClick={() => setTerm(keyword)}
-                    className="rounded-full border border-line px-3 py-1.5 text-[12px] font-semibold text-gray-600 hover:border-brand hover:text-brand"
+                    className="border border-line px-2.5 py-1 text-[11.5px] text-gray-700 hover:border-sage-deep hover:text-sage-deep"
                   >
                     {keyword}
                   </button>
@@ -683,41 +611,45 @@ function SearchOverlay({ open, onClose }: { open: boolean; onClose: () => void }
               </div>
             </div>
           ) : loading ? (
-            <p className="px-2 py-6 text-center text-[12.5px] text-muted">Searching…</p>
+            <p className="py-6 text-center text-[12px] text-muted">Looking…</p>
           ) : results.length === 0 ? (
-            <div className="px-2 py-6 text-center">
-              <p className="text-[13px] font-semibold text-ink">No matches for “{term}”</p>
-              <p className="mt-1 text-[12px] text-muted">Try a different product name or browse all products.</p>
-              <Link href="/products" onClick={onClose} className="btn-brand mt-3 h-9 px-5 text-[12.5px]">
-                Browse products
-              </Link>
+            <div className="py-6 text-center">
+              <p className="font-serif text-[16px] text-ink">Nothing under “{term}”</p>
+              <p className="mt-1 text-[11.5px] text-muted">
+                We may still have it in the shop — ask us on WhatsApp.
+              </p>
             </div>
           ) : (
-            <div className="space-y-1">
+            <div className="divide-y divide-line">
               {results.map((result) => (
                 <Link
                   key={result.id}
                   href={`/products/${result.slug}`}
                   onClick={onClose}
-                  className="flex items-center gap-3 rounded-lg p-2 hover:bg-surface-soft"
+                  className="flex items-center gap-3 py-2 hover:bg-white"
                 >
-                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-surface-soft">
+                  <span className="relative h-11 w-11 shrink-0 overflow-hidden bg-paper-deep">
                     {result.thumbnail && (
-                      <Image src={result.thumbnail} alt={result.name} fill className="object-cover" sizes="48px" />
+                      <Image
+                        src={result.thumbnail}
+                        alt={result.name}
+                        fill
+                        className="object-cover"
+                        sizes="44px"
+                      />
                     )}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13px] font-semibold text-ink">{result.name}</p>
-                    <p className="text-[12px] font-bold text-brand">
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[12.5px] text-ink">{result.name}</span>
+                    <span className="block text-[11.5px] font-semibold text-sage-deep tabular-nums">
                       {formatCedis(result.price ?? 0)}
                       {result.compare_at_price ? (
-                        <span className="ml-2 font-medium text-gray-400 line-through">
+                        <span className="ml-2 font-normal text-gray-400 line-through">
                           {formatCedis(result.compare_at_price)}
                         </span>
                       ) : null}
-                    </p>
-                  </div>
-                  <ChevronRight className="h-4 w-4 shrink-0 text-gray-300" />
+                    </span>
+                  </span>
                 </Link>
               ))}
             </div>

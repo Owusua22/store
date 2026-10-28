@@ -129,9 +129,9 @@ function StatusUpdateModal({ order, isOpen, onClose, onStatusChange }: StatusMod
                     <div className="flex-1">
                       <p className="font-medium text-gray-900 capitalize">{status}</p>
                       <p className="text-xs text-gray-500">
-                        {status === 'delivered' && '✅ Will restock inventory'}
-                        {status === 'cancelled' && '♻️ Will restock inventory'}
-                        {status === 'refunded' && '💰 Order refunded'}
+                        {status === 'delivered' && 'Will restock inventory'}
+                        {status === 'cancelled' && 'Will restock inventory'}
+                        {status === 'refunded' && 'Order refunded'}
                         {!['delivered', 'cancelled', 'refunded'].includes(status) && 'Update order status'}
                       </p>
                     </div>
@@ -312,20 +312,18 @@ export default function AdminOrdersPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'Total Orders', value: stats.total, icon: '📦', color: 'from-red-500 to-red-600' },
-          { label: 'Pending', value: stats.pending, icon: '⏳', color: 'from-yellow-500 to-amber-500' },
-          { label: 'Processing', value: stats.processing, icon: '🔄', color: 'from-blue-500 to-red-500' },
-          { label: 'Revenue', value: formatPrice(stats.revenue), icon: '💰', color: 'from-green-500 to-emerald-500' },
-        ].map(({ label, value, icon, color }) => (
+          { label: 'Total Orders', value: stats.total, color: 'from-red-500 to-red-600' },
+          { label: 'Pending', value: stats.pending, color: 'from-yellow-500 to-amber-500' },
+          { label: 'Processing', value: stats.processing, color: 'from-blue-500 to-red-500' },
+          { label: 'Revenue', value: formatPrice(stats.revenue), color: 'from-green-500 to-emerald-500' },
+        ].map(({ label, value, color }) => (
           <div key={label} className="bg-white rounded-xl border border-gray-200 p-5">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">{label}</p>
                 <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
               </div>
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center text-xl`}>
-                {icon}
-              </div>
+              <div className={`h-12 w-1 rounded-full bg-gradient-to-b ${color}`} />
             </div>
           </div>
         ))}
@@ -446,7 +444,7 @@ export default function AdminOrdersPage() {
                           className="text-gray-400 hover:text-red-600 transition-colors"
                           title="Update status"
                         >
-                          ✎
+                          Edit
                         </button>
                       </div>
                     </td>

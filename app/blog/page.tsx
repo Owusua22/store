@@ -55,7 +55,7 @@ export default async function BlogIndexPage({ searchParams }: Props) {
             <Sparkles className="h-3.5 w-3.5" />
             The Glow-Up Journal
           </div>
-          <h1 className="mt-4 text-3xl font-black tracking-tight text-ink sm:text-[42px]">
+          <h1 className="font-serif mt-4 text-3xl text-ink sm:text-[48px]">
             Skin care advice that actually applies to Ghana
           </h1>
           <p className="mt-3 max-w-2xl text-[14px] leading-relaxed text-gray-600">
@@ -100,7 +100,7 @@ export default async function BlogIndexPage({ searchParams }: Props) {
                     : 'border-line bg-white text-gray-600 hover:border-brand/60'
                 }`}
               >
-                {type.emoji} {type.label} skin
+                {type.label} skin
               </Link>
             ))}
           </div>

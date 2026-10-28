@@ -5,6 +5,7 @@ import type { Product } from '@/types';
 
 interface ProductSectionProps {
   title: string;
+  kicker?: string;
   subtitle?: string;
   href?: string;
   hrefLabel?: string;
@@ -15,6 +16,7 @@ interface ProductSectionProps {
 
 export function ProductSection({
   title,
+  kicker,
   subtitle,
   href = '/products',
   hrefLabel = 'View more',
@@ -31,11 +33,12 @@ export function ProductSection({
 
   return (
     <section
-      className={`container-page pt-7 sm:pt-9 ${tone === 'soft' ? '' : ''}`}
+      className={`container-page pt-10 sm:pt-14 ${tone === 'soft' ? '' : ''}`}
       aria-label={title}
     >
       <div className="section-head">
         <div>
+          {kicker && <span className="section-kicker">{kicker}</span>}
           <h2 className="section-title">{title}</h2>
           {subtitle && <p className="section-subtitle">{subtitle}</p>}
         </div>

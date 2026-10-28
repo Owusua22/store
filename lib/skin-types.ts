@@ -2,12 +2,12 @@
 // Shared vocabulary for skin types + concerns across the admin and storefront.
 
 export const SKIN_TYPES = [
-  { value: 'normal', label: 'Normal', emoji: '🌿' },
-  { value: 'dry', label: 'Dry', emoji: '🏜️' },
-  { value: 'oily', label: 'Oily', emoji: '💧' },
-  { value: 'combination', label: 'Combination', emoji: '⚖️' },
-  { value: 'sensitive', label: 'Sensitive', emoji: '🌸' },
-  { value: 'acne-prone', label: 'Acne-prone', emoji: '🩹' },
+  { value: 'normal', label: 'Normal' },
+  { value: 'dry', label: 'Dry' },
+  { value: 'oily', label: 'Oily' },
+  { value: 'combination', label: 'Combination' },
+  { value: 'sensitive', label: 'Sensitive' },
+  { value: 'acne-prone', label: 'Acne-prone' },
 ] as const;
 
 export const SKIN_CONCERNS = [
@@ -32,10 +32,6 @@ export const BLOG_CATEGORIES = [
 
 export function skinTypeLabel(value: string): string {
   return SKIN_TYPES.find((type) => type.value === value)?.label ?? value;
-}
-
-export function skinTypeEmoji(value: string): string {
-  return SKIN_TYPES.find((type) => type.value === value)?.emoji ?? '✨';
 }
 
 export function concernLabel(value: string): string {

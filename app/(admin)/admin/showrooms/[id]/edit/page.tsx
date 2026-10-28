@@ -5,12 +5,6 @@ import { useEffect, useState, useRef } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { toast } from 'react-toastify';
 
-const ICON_OPTIONS = [
-  '🌟', '🔥', '💎', '🏷️', '🛍️', '✨', '🎁', '💝',
-  '🆕', '📦', '👑', '🎀', '💰', '🏆', '⚡', '🎯',
-  '❤️', '🌈', '🌸', '🍂', '❄️', '☀️', '🌙', '💫',
-];
-
 const TYPE_OPTIONS = [
   { value: 'manual', label: 'Manual', desc: 'Manually select products' },
   { value: 'auto_new', label: 'New Arrivals', desc: 'Automatically shows newest products' },
@@ -30,7 +24,6 @@ export default function EditShowroomPage() {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    icon: '',
     type: 'manual',
     sort_order: '0',
     is_active: true,
@@ -54,7 +47,6 @@ export default function EditShowroomPage() {
           setFormData({
             name: s.name || '',
             description: s.description || '',
-            icon: s.icon || '',
             type: s.type || 'manual',
             sort_order: s.sort_order?.toString() || '0',
             is_active: s.is_active ?? true,
@@ -224,68 +216,6 @@ export default function EditShowroomPage() {
                 <p className="text-xs text-gray-500 mt-1">{opt.desc}</p>
               </button>
             ))}
-          </div>
-        </div>
-
-        {/* Icon */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Icon</label>
-          <div className="grid grid-cols-8 gap-2 p-4 border border-gray-300 rounded-lg bg-gray-50">
-            {ICON_OPTIONS.map((icon) => (
-              <button
-                key={icon}
-                type="button"
-                onClick={() => setFormData((prev) => ({ ...prev, icon }))}
-                className={`w-10 h-10 flex items-center justify-center text-xl rounded-lg transition-colors ${
-                  formData.icon === icon
-                    ? 'bg-red-600 text-white'
-                    : 'bg-white hover:bg-gray-100 border border-gray-200'
-                }`}
-              >
-                {icon}
-              </button>
-            ))}
-          </div>
-          {formData.icon && (
-            <div className="mt-2 flex items-center gap-2">
-              <span className="text-3xl">{formData.icon}</span>
-              <button
-                type="button"
-                onClick={() => setFormData((prev) => ({ ...prev, icon: '' }))}
-                className="text-sm text-red-600 hover:text-red-700"
-              >
-                Remove icon
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* Sort Order & Max Products */}
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
-            <input
-              type="number"
-              name="sort_order"
-              value={formData.sort_order}
-              onChange={handleChange}
-              min="0"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-            />
-            <p className="text-xs text-gray-500 mt-1">Lower numbers appear first</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Max Products</label>
-            <input
-              type="number"
-              name="max_products"
-              value={formData.max_products}
-              onChange={handleChange}
-              min="1"
-              max="50"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
-            />
-            <p className="text-xs text-gray-500 mt-1">Maximum products to display</p>
           </div>
         </div>
 

@@ -105,11 +105,11 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
 
       {/* Breadcrumb */}
       <nav className="hide-scrollbar flex items-center gap-1 overflow-x-auto py-2 text-[11.5px] text-muted">
-        <Link href="/" className="hover:text-brand">
+        <Link href="/" className="hover:text-sage-deep">
           Home
         </Link>
         <ChevronRight className="h-3 w-3 shrink-0" />
-        <Link href="/products" className="hover:text-brand">
+        <Link href="/products" className="hover:text-sage-deep">
           Shop
         </Link>
         {activeCategory && (
@@ -121,28 +121,27 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       </nav>
 
       {/* Header */}
-      <div className="rounded-xl border border-line bg-surface-soft p-4 sm:p-5">
+      <div className="border-b border-line pb-4 pt-2">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-[22px] font-extrabold tracking-tight text-ink sm:text-[26px]">
+            <h1 className="font-serif text-[30px] leading-tight text-ink sm:text-[38px]">
               {query ? `Results for “${query}”` : heading}
             </h1>
-            <p className="mt-1 text-[12px] text-muted">
-              {products.length} product{products.length === 1 ? '' : 's'} available
+            <p className="mt-1.5 text-[12px] text-muted">
+              {products.length} {products.length === 1 ? 'item' : 'items'} on the shelf
               {activeCategory ? ` in ${activeCategory.name}` : ''}
               {activeSkinType ? ` for ${activeSkinType.label.toLowerCase()} skin` : ''}
-              {activeBrand ? ` from ${activeBrand.name}` : ''} ·
-              authentic products, nationwide delivery
+              {activeBrand ? ` from ${activeBrand.name}` : ''}
             </p>
 
             {/* Skin type quick filters */}
             <div className="mt-3 flex flex-wrap gap-1.5">
               <Link
                 href={`/products${categorySlug ? `?category=${categorySlug}` : ''}`}
-                className={`rounded-full border px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                className={`border px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.1em] transition-colors ${
                   !skinType
-                    ? 'border-brand bg-brand text-white'
-                    : 'border-line bg-white text-gray-600 hover:border-brand/60'
+                    ? 'border-sage-deep bg-sage-deep text-paper'
+                    : 'border-line bg-transparent text-gray-700 hover:border-sage-deep hover:text-sage-deep'
                 }`}
               >
                 All skin types
@@ -156,13 +155,12 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                   <Link
                     key={type.slug}
                     href={`/products?${search.toString()}`}
-                    className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                    className={`inline-flex items-center gap-1 border px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.1em] transition-colors ${
                       skinType === type.slug
-                        ? 'border-brand bg-brand text-white'
-                        : 'border-line bg-white text-gray-600 hover:border-brand/60'
+                        ? 'border-sage-deep bg-sage-deep text-paper'
+                        : 'border-line bg-transparent text-gray-700 hover:border-sage-deep hover:text-sage-deep'
                     }`}
                   >
-                    <span aria-hidden="true">{type.emoji}</span>
                     {type.label}
                   </Link>
                 );
@@ -185,10 +183,10 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                     <Link
                       key={brand.id}
                       href={`/products?${search.toString()}`}
-                      className={`rounded-full border px-2.5 py-1 text-[11px] font-bold transition-colors ${
+                      className={`border px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.1em] transition-colors ${
                         brandFilter === brand.slug
-                          ? 'border-brand bg-brand text-white'
-                          : 'border-line bg-white text-gray-600 hover:border-brand/60'
+                          ? 'border-sage-deep bg-sage-deep text-paper'
+                          : 'border-line bg-transparent text-gray-700 hover:border-sage-deep hover:text-sage-deep'
                       }`}
                     >
                       {brand.name}
@@ -198,7 +196,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
                 {brandFilter ? (
                   <Link
                     href={`/products${categorySlug ? `?category=${categorySlug}` : ''}`}
-                    className="rounded-full border border-line bg-white px-2.5 py-1 text-[11px] font-bold text-gray-600 hover:border-brand/60"
+                    className="border border-line px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.1em] text-gray-700 hover:border-sage-deep hover:text-sage-deep"
                   >
                     Clear brand
                   </Link>
@@ -207,7 +205,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
             ) : null}
           </div>
 
-          <form action="/products" className="flex h-10 w-full max-w-sm items-center rounded-lg border border-line bg-white pl-3">
+          <form action="/products" className="flex h-10 w-full max-w-sm items-center border border-line bg-white pl-3">
             {categorySlug && <input type="hidden" name="category" value={categorySlug} />}
             <Search className="h-4 w-4 text-gray-400" />
             <input

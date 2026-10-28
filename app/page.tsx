@@ -1,27 +1,30 @@
 // app/page.tsx
 import type { Metadata } from 'next';
+import Link from 'next/link';
+
 import { HeroBanner } from '@/components/home/HeroBanner';
 import { CategoryStrip } from '@/components/home/CategoryStrip';
 import { ProductSection } from '@/components/home/ProductSection';
 import { ProductRail } from '@/components/home/ProductRail';
 import { DealBanner, PromoBands, ValueStrip } from '@/components/home/PromoBands';
+import { ReviewFeed } from '@/components/reviews/ReviewFeed';
 import { getHomeData } from '@/lib/data/store';
+import { getPublishedReviews } from '@/lib/data/reviews';
 import { StoreSetupNotice } from '@/components/layout/StoreSetupNotice';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { checkDatabaseHealth } from '@/lib/supabase/health';
-import Link from 'next/link';
-import { Clock, MapPin } from 'lucide-react';
 import { JsonLd } from '@/components/seo/JsonLd';
-import { site } from '@/lib/site';
 import { breadcrumbSchema, itemListSchema } from '@/lib/seo/jsonld';
+import { site } from '@/lib/site';
 
 export const metadata: Metadata = {
-  title: `100% Authentic Skincare, Body Care & Mothercare in East Doboro — Beside St. George's Height`,
-  description: `Authentic Nivea, Vaseline, Johnson's, Dove and Cetaphil skincare, mothercare and baby essentials at every budget. Visit us beside St. George's Height, East Doboro, Nsawam — open ${site.hoursSummary} — or order on WhatsApp with delivery across Ghana.`,
+  title: `Skincare, body care and mother care — ${site.nameFull}`,
+  description:
+    'A small shop for genuine skincare, body care, haircare and mother-and-baby essentials. Pick it up in person or have it sent anywhere in Ghana.',
   alternates: { canonical: '/' },
   openGraph: {
-    title: `${site.nameFull} — East Doboro, Nsawam`,
-    description: site.tagline,
+    title: `${site.nameFull}`,
+    description: site.description,
     url: '/',
     type: 'website',
   },
@@ -33,8 +36,16 @@ export default async function HomePage() {
   const { banners, categories, hotArrivals, topPicks, hotSellers, showrooms } = await getHomeData();
 
   const deals = showrooms[0]?.products ?? [];
+  const reviews = await getPublishedReviews(8);
 
-  // Connected but no tables yet: tell shoppers instead of showing an empty store.
+  // Options for the "leave a note" form — whatever the shop actually stocks.
+  const reviewProducts = [...hotArrivals, ...topPicks, ...hotSellers]
+    .filter(
+      (product, index, list) => list.findIndex((item) => item.id === product.id) === index
+    )
+    .slice(0, 30)
+    .map((product) => ({ id: product.id, name: product.name, slug: product.slug }));
+
   const database = isSupabaseConfigured ? await checkDatabaseHealth() : null;
   const awaitingCatalogue = Boolean(database?.configured && !database.initialized);
 
@@ -51,20 +62,73 @@ export default async function HomePage() {
           breadcrumbSchema([{ name: 'Home', href: '/' }]),
         ]}
       />
+
       {awaitingCatalogue ? <StoreSetupNotice /> : null}
+
       <h1 className="sr-only">
-        100% Authentic Skincare, Body Care &amp; Mothercare in East Doboro — Beside St.
-        George&apos;s Height
+        {site.nameFull} — skincare, body care and mother-and-baby essentials
       </h1>
+
       <HeroBanner banners={banners} />
+
+      {/* Standfirst — plain speech, set like a shop notice rather than a hero */}
+      <section className="container-page pt-8 sm:pt-12">
+        <div className="grid gap-6 border-b border-line pb-8 sm:grid-cols-12 sm:gap-10 sm:pb-10">
+          <div className="sm:col-span-7">
+            <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-sage-deep">
+              Skincare · Body care · Mother &amp; baby
+            </p>
+            <p className="mt-3 font-serif text-[25px] leading-[1.25] text-ink sm:text-[33px] sm:leading-[1.2]">
+              We stock the things people come back for: thick body lotion that survives
+              harmattan, baby wash that does not sting, and the serum that actually fades
+              spots.
+            </p>
+            <p className="mt-3 max-w-[54ch] text-[13px] leading-relaxed text-muted">
+              No copies, no short-dated stock pushed to the front of the shelf. If something is
+              not worth your money, we will say so before you buy it.
+            </p>
+          </div>
+
+          <div className="sm:col-span-5 sm:pl-8 sm:border-l sm:border-line">
+            <dl className="space-y-4">
+              {[
+                {
+                  term: 'Pick it up',
+                  detail: 'Collect at the counter during opening hours, or have it brought to you.',
+                },
+                {
+                  term: 'Pay how you like',
+                  detail: 'MTN MoMo, or cash when the rider hands it over.',
+                },
+                {
+                  term: 'Ask a person',
+                  detail: 'One WhatsApp line, answered by somebody who works in the shop.',
+                },
+              ].map(({ term, detail }) => (
+                <div key={term}>
+                  <dt className="text-[10px] font-bold uppercase tracking-[0.18em] text-sage-deep">
+                    {term}
+                  </dt>
+                  <dd className="mt-1 text-[12.5px] leading-relaxed text-gray-700">{detail}</dd>
+                </div>
+              ))}
+            </dl>
+            <Link href="/about" className="section-link mt-5 inline-flex">
+              How we choose stock
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <CategoryStrip categories={categories} />
       <ValueStrip />
 
       <ProductSection
-        title="Hot arrivals!"
-        subtitle="Fresh stock, loved by our customers"
+        kicker="Fresh in"
+        title="Just off the delivery"
+        subtitle="What came in this week, before it settles on the shelf"
         href="/products?sort=newest"
-        hrefLabel="View more"
+        hrefLabel="See everything new"
         products={hotArrivals.slice(0, 10)}
         columns="five"
       />
@@ -72,116 +136,34 @@ export default async function HomePage() {
       <PromoBands />
 
       <ProductSection
-        title="Mega deals"
-        subtitle="More shopping, less spending"
+        kicker="Reduced"
+        title="Marked down"
+        subtitle="Lines we bought deep, so the price is lower than usual"
         href="/products?deals=1"
-        hrefLabel="All deals"
+        hrefLabel="All reductions"
         products={deals.slice(0, 8)}
       />
 
       <DealBanner />
 
       <ProductSection
-        title="Our top picks"
-        subtitle="Tried, loved and highly rated"
+        kicker="Most loved"
+        title="What people keep re-buying"
+        subtitle="Ranked by what actually leaves the shop"
         href="/products?sort=popular"
-        hrefLabel="View more"
+        hrefLabel="See the bestsellers"
         products={topPicks.slice(0, 8)}
       />
 
       <ProductRail
-        title="Hot sellers"
-        subtitle="The items everyone is buying"
+        kicker="Also moving"
+        title="Worth a look"
+        subtitle="Less obvious, equally good"
         href="/products?sort=popular"
         products={hotSellers.slice(0, 10)}
       />
 
-      <section className="container-page pt-8 sm:pt-10">
-        <div className="grid gap-3 rounded-xl border border-line bg-white p-5 sm:grid-cols-3 sm:p-6">
-          {[
-            {
-              name: 'Ama D.',
-              location: 'East Legon, Accra',
-              quote:
-                'The shea body lotion is everything. My skin stayed soft through harmattan and delivery took one day.',
-              stars: 5,
-            },
-            {
-              name: 'Kwame A.',
-              location: 'Kumasi',
-              quote:
-                'Ordered diapers and baby lotion on Friday, received them Saturday morning. Genuine products, fair prices.',
-              stars: 5,
-            },
-            {
-              name: 'Nana A.',
-              location: 'Takoradi',
-              quote:
-                'The vitamin C serum cleared my dark spots in three weeks. Customer support on WhatsApp was super helpful.',
-              stars: 5,
-            },
-          ].map((review) => (
-            <figure key={review.name} className="rounded-lg bg-surface-soft p-4">
-              <div className="mb-2 flex gap-0.5 text-amber-500" aria-label={`${review.stars} star review`}>
-                {Array.from({ length: review.stars }).map((_, index) => (
-                  <span key={index} aria-hidden="true">
-                    ★
-                  </span>
-                ))}
-              </div>
-              <blockquote className="text-[12.5px] leading-relaxed text-gray-700">
-                “{review.quote}”
-              </blockquote>
-              <figcaption className="mt-3 text-[11px] font-bold text-ink">
-                {review.name}
-                <span className="ml-1 font-medium text-muted">· {review.location}</span>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
-      </section>
-
-      {/* Visit us — local SEO and directions */}
-      <section className="container-page pt-8 sm:pt-10">
-        <div className="grid gap-4 rounded-xl border border-line bg-surface-soft p-5 sm:grid-cols-[1.2fr_1fr] sm:p-6">
-          <div>
-            <h2 className="section-title">Visit the shop in East Doboro</h2>
-            <p className="mt-1 text-[12.5px] leading-relaxed text-gray-600">
-              We are beside <strong>{site.landmark}</strong>, {site.town}, Nsawam. Come in to
-              smell the lotions, check expiry dates yourself and pay at the counter — or send
-              stock to a friend on WhatsApp.
-            </p>
-            <ul className="mt-3 space-y-1.5 text-[12.5px] font-semibold text-ink">
-              <li className="flex items-center gap-2">
-                <MapPin className="h-4 w-4 text-brand" /> {site.address}
-              </li>
-              <li className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-brand" /> {site.hoursSummary}
-              </li>
-            </ul>
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Link href="/location" className="btn-brand h-10 px-4 text-[12.5px]">
-                Directions &amp; delivery rates
-              </Link>
-              <a
-                href={`tel:${site.phone}`}
-                className="inline-flex h-10 items-center rounded-lg border border-line bg-white px-4 text-[12.5px] font-bold text-ink"
-              >
-                Call {site.phoneDisplay}
-              </a>
-            </div>
-          </div>
-          <div className="overflow-hidden rounded-lg border border-line">
-            <iframe
-              title="Map to Glow-Up Skincare & Mother Care, East Doboro"
-              src={site.mapEmbedUrl}
-              className="h-[190px] w-full sm:h-full"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-            />
-          </div>
-        </div>
-      </section>
+      <ReviewFeed initialReviews={reviews} products={reviewProducts} />
     </>
   );
 }

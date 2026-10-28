@@ -18,122 +18,126 @@ import {
   Boxes,
   ClipboardList,
   Receipt,
-  Truck as TruckIcon,
   Wallet,
   Newspaper,
   Wrench,
   Tag,
+  MessageSquareQuote,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
-const navItems = [
-  { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/products', label: 'Products', icon: Package },
-  { href: '/admin/categories', label: 'Categories', icon: FolderTree },
-  { href: '/admin/brands', label: 'Brands', icon: Tag },
-  { href: '/admin/skin-types', label: 'Skin Types', icon: Sparkles },
-  { href: '/admin/stock', label: 'Stock', icon: Boxes },
-  { href: '/admin/purchases', label: 'Purchases', icon: ClipboardList },
-  { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
-  { href: '/admin/shipping', label: 'Shipping', icon: Truck },
-  { href: '/admin/blog', label: 'Blog', icon: Newspaper },
-  { href: '/admin/showrooms', label: 'Showrooms', icon: Store },
-  { href: '/admin/banners', label: 'Banners', icon: ImageIcon },
-  { href: '/admin/accounting', label: 'Accounting', icon: Wallet },
-  { href: '/admin/expenses', label: 'Expenses', icon: Receipt },
-  { href: '/admin/suppliers', label: 'Suppliers', icon: TruckIcon },
-  { href: '/admin/users', label: 'Users', icon: User },
-  { href: '/admin/setup', label: 'Setup', icon: Wrench },
+const navGroups = [
+  {
+    label: 'Trading',
+    items: [
+      { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+      { href: '/admin/orders', label: 'Orders', icon: ShoppingCart },
+      { href: '/admin/products', label: 'Products', icon: Package },
+      { href: '/admin/categories', label: 'Categories', icon: FolderTree },
+      { href: '/admin/brands', label: 'Brands', icon: Tag },
+      { href: '/admin/skin-types', label: 'Skin types', icon: Sparkles },
+    ],
+  },
+  {
+    label: 'Back of house',
+    items: [
+      { href: '/admin/stock', label: 'Stock', icon: Boxes },
+      { href: '/admin/purchases', label: 'Purchases', icon: ClipboardList },
+      { href: '/admin/suppliers', label: 'Suppliers', icon: Truck },
+      { href: '/admin/expenses', label: 'Expenses', icon: Receipt },
+      { href: '/admin/accounting', label: 'Accounting', icon: Wallet },
+      { href: '/admin/shipping', label: 'Shipping', icon: Truck },
+    ],
+  },
+  {
+    label: 'Storefront',
+    items: [
+      { href: '/admin/reviews', label: 'Reviews', icon: MessageSquareQuote },
+      { href: '/admin/banners', label: 'Banners', icon: ImageIcon },
+      { href: '/admin/showrooms', label: 'Collections', icon: Store },
+      { href: '/admin/blog', label: 'Journal', icon: Newspaper },
+      { href: '/admin/users', label: 'Customers', icon: User },
+      { href: '/admin/setup', label: 'Setup', icon: Wrench },
+    ],
+  },
 ];
 
-export default function Sidebar({ 
-  fullName, 
-  email 
-}: { 
-  fullName: string; 
-  email: string;
-}) {
+export default function Sidebar({ fullName, email }: { fullName: string; email: string }) {
   const pathname = usePathname();
   const { signOut } = useAuth();
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
 
   const handleLogout = async () => {
-    if (!confirm('Are you sure you want to sign out?')) return;
-
+    if (!confirm('Sign out of the shop dashboard?')) return;
     try {
       await signOut();
     } catch {
-      toast.error('Failed to sign out. Please try again.');
+      toast.error('Could not sign out. Please try again.');
     }
   };
 
   return (
-    <aside className="w-72 min-h-screen bg-gray-900 border-r border-gray-800 fixed flex flex-col">
-      {/* Logo Header */}
-      <div className="p-8 border-b border-gray-800 bg-gray-950">
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="w-11 h-11 bg-gradient-to-br from-red-500 via-red-700 to-fuchsia-500 rounded-2xl flex items-center justify-center shadow-xl shadow-red-500/40 transition-transform group-hover:scale-110">
-            <span className="text-white font-bold text-3xl tracking-tighter">S</span>
-          </div>
-          <div>
-            <p className="text-2xl font-semibold text-white tracking-tighter">Glow-Up</p>
-            <p className="text-[10px] text-red-400 font-medium -mt-1 tracking-[2px]">ADMINISTRATOR</p>
-          </div>
+    <aside className="fixed flex min-h-screen w-64 flex-col bg-ink">
+      <div className="border-b border-white/10 px-6 py-6">
+        <Link href="/" className="block">
+          <p className="font-serif text-[24px] leading-none text-paper">
+            Glow<span className="text-sage-pale">-</span>Up
+          </p>
+          <p className="mt-2 text-[9px] font-bold uppercase tracking-[0.26em] text-sage-pale/70">
+            Shop desk
+          </p>
         </Link>
       </div>
 
+      <nav className="flex-1 overflow-y-auto px-3 py-5">
+        {navGroups.map((group) => (
+          <div key={group.label} className="mb-5">
+            <p className="px-3 pb-2 text-[9px] font-bold uppercase tracking-[0.22em] text-white/35">
+              {group.label}
+            </p>
+            <div className="space-y-px">
+              {group.items.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.href);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`flex items-center gap-3 px-3 py-2 text-[12.5px] transition-colors ${
+                      active
+                        ? 'bg-sage-deep text-paper'
+                        : 'text-white/65 hover:bg-white/5 hover:text-paper'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" strokeWidth={1.6} />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
 
-
-      {/* Navigation */}
-      <nav className="flex-1 px-4 py-10 space-y-1">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const active = isActive(item.href);
-
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`group flex items-center gap-3.5 px-6 py-4 rounded-2xl text-sm font-medium transition-all duration-200 ${
-                active
-                  ? 'bg-red-600 text-white shadow-md shadow-red-500/30'
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-gray-100'
-              }`}
-            >
-              <Icon 
-                className={`w-5 h-5 transition-colors ${
-                  active ? 'text-white' : 'text-gray-500 group-hover:text-red-400'
-                }`} 
-              />
-              {item.label}
-              {active && (
-                <div className="ml-auto w-1.5 h-1.5 bg-white rounded-full ring-2 ring-red-300 animate-pulse" />
-              )}
-            </Link>
-          );
-        })}
-
-        {/* Back to Store */}
-        <div className="pt-8 mt-8 border-t border-gray-800 px-2">
-          <Link
-            href="/"
-            className="flex items-center gap-3.5 px-6 py-4 rounded-2xl text-gray-400 hover:bg-gray-800 hover:text-white transition-all text-sm font-medium"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Back to Store
-          </Link>
-        </div>
+        <Link
+          href="/"
+          className="flex items-center gap-3 border-t border-white/10 px-3 pt-4 text-[12px] text-white/50 hover:text-paper"
+        >
+          <ArrowLeft className="h-4 w-4" strokeWidth={1.6} />
+          Back to the shop
+        </Link>
       </nav>
 
-      {/* Logout Button */}
-      <div className="p-6 border-t border-gray-800 mt-auto">
+      <div className="border-t border-white/10 px-4 py-4">
+        <p className="truncate text-[12px] font-semibold text-paper">{fullName || 'Shop admin'}</p>
+        <p className="truncate text-[10.5px] text-white/45">{email}</p>
         <button
+          type="button"
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-3 py-4 bg-red-500/10 hover:bg-red-500/20 active:bg-red-500/30 text-red-400 hover:text-red-300 rounded-2xl font-medium transition-all duration-200"
+          className="mt-3 flex w-full items-center justify-center gap-2 border border-white/15 py-2 text-[10.5px] font-bold uppercase tracking-[0.12em] text-white/70 transition-colors hover:border-sage-pale hover:text-sage-pale"
         >
-          <LogOut className="w-5 h-5" />
-          Sign Out
+          <LogOut className="h-3.5 w-3.5" />
+          Sign out
         </button>
       </div>
     </aside>

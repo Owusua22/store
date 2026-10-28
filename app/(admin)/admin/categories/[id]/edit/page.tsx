@@ -5,14 +5,6 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { toast } from 'react-toastify';
 
-const ICON_OPTIONS = [
-  '👕', '👖', '👗', '👠', '👜', '⌚', '🕶️', '🧢',
-  '🧥', '👟', '🎒', '💍', '👑', '🎀', '🌟', '🔥',
-  '✨', '💎', '🎁', '🏷️', '📦', '🛍️', '💄', '🧴',
-  '🧹', '🏠', '🍳', '☕', '🍽️', '🥄', '🔪', '📚',
-  '✏️', '🎨', '🎵', '🎮', '⚽', '🏀', '🎾', '🏊','👩🏻'
-];
-
 export default function EditCategoryPage() {
   const router = useRouter();
   const params = useParams();
@@ -24,7 +16,7 @@ export default function EditCategoryPage() {
     name: '',
     description: '',
     slug: '',
-    icon: '',
+    image_url: '',
     parent_id: '',
     is_active: true,
     sort_order: '0',
@@ -43,7 +35,7 @@ export default function EditCategoryPage() {
             name: category.name || '',
             description: category.description || '',
             slug: category.slug || '',
-            icon: category.icon || '',
+            image_url: category.image_url || '',
             parent_id: category.parent_id || '',
             is_active: category.is_active ?? true,
             sort_order: category.sort_order?.toString() || '0',
@@ -195,37 +187,22 @@ export default function EditCategoryPage() {
           </select>
         </div>
 
-        {/* Icon Selection */}
+        {/* Category image */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Icon</label>
-          <div className="grid grid-cols-8 gap-2 p-4 border border-gray-300 rounded-lg bg-gray-50">
-            {ICON_OPTIONS.map((icon) => (
-              <button
-                key={icon}
-                type="button"
-                onClick={() => setFormData((prev) => ({ ...prev, icon }))}
-                className={`w-10 h-10 flex items-center justify-center text-xl rounded-lg transition-colors ${
-                  formData.icon === icon
-                    ? 'bg-red-600 text-white'
-                    : 'bg-white hover:bg-gray-100 border border-gray-200'
-                }`}
-              >
-                {icon}
-              </button>
-            ))}
-          </div>
-          {formData.icon && (
-            <div className="mt-2 flex items-center gap-2">
-              <span className="text-3xl">{formData.icon}</span>
-              <button
-                type="button"
-                onClick={() => setFormData((prev) => ({ ...prev, icon: '' }))}
-                className="text-sm text-red-600 hover:text-red-700"
-              >
-                Remove icon
-              </button>
-            </div>
-          )}
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Image URL (optional)
+          </label>
+          <input
+            type="text"
+            name="image_url"
+            value={formData.image_url ?? ''}
+            onChange={handleChange}
+            placeholder="/images/categories/facial-skincare.webp"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            Square photo of the shelf. Leave blank to show the category name instead.
+          </p>
         </div>
 
         {/* Sort Order */}

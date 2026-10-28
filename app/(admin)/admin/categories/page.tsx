@@ -74,14 +74,14 @@ export default async function CategoriesPage() {
                 <tr key={category.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">{category.icon|| '📦'}</span>
+                      <span className="text-2xl"></span>
                       <div>
                         <p className="font-medium text-gray-900">{category.name}</p>
                         <p className="text-sm text-gray-500">/{category.slug}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-2xl">{category.icon|| '📦'}</td>
+                  <td className="px-6 py-4 text-2xl"></td>
                   <td className="px-6 py-4 text-sm text-gray-600 truncate max-w-xs">
                     {category.description || '—'}
                   </td>
@@ -112,7 +112,7 @@ export default async function CategoriesPage() {
 
           {activeCategories.length === 0 && (
             <div className="text-center py-12">
-              <div className="text-4xl mb-3">📁</div>
+              
               <p className="text-gray-500 mb-4">No active categories</p>
               <Link href="/admin/categories/new" className="text-red-600 hover:text-red-700 font-medium">
                 Add your first category →
@@ -142,13 +142,13 @@ export default async function CategoriesPage() {
                   <tr key={category.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <span className="text-2xl grayscale">{category.icon|| '📁'}</span>
+                        <span className="text-2xl grayscale"></span>
                         <div>
                           <p className="font-medium text-gray-900">{category.name}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-2xl grayscale">{category.icon|| '📁'}</td>
+                    <td className="px-6 py-4 text-2xl grayscale"></td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
                         <Link

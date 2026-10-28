@@ -23,7 +23,7 @@ import { generalWhatsAppMessage, whatsappLink } from '@/lib/whatsapp';
 export const metadata: Metadata = {
   title: `Skincare & Mothercare Shop in East Doboro, Nsawam — Beside St. George's Height`,
   description:
-    `Visit ${site.nameFull} in East Doboro, Nsawam (beside St. George's Height). Open ${site.hoursSummary}. Delivery across Nsawam, Doboro, Accra, Kumasi and all Ghana — see the full delivery fee table.`,
+    `Visit ${site.nameFull} in East Doboro, Nsawam (beside St. George's Height). Open ${site.hoursSummary}. Delivery countrywide — see the full delivery fee table.`,
   alternates: { canonical: '/location' },
   openGraph: {
     title: `${site.nameFull} — East Doboro, Nsawam`,
@@ -54,7 +54,7 @@ export default async function LocationPage() {
             '@type': 'Store',
             '@id': `${site.url}/location#store`,
             name: site.nameFull,
-            image: `${site.url}/images/banners/hero-teal.webp`,
+            image: `${site.url}/images/banners/banner-1.webp`,
             url: `${site.url}/location`,
             telephone: `+${site.whatsapp}`,
             priceRange: 'GH₵10 – GH₵400',
@@ -88,7 +88,7 @@ export default async function LocationPage() {
           <p className="inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-2.5 py-1 text-[10.5px] font-extrabold uppercase tracking-[0.14em] text-brand">
             <MapPin className="h-3.5 w-3.5" /> Find us
           </p>
-          <h1 className="mt-2 text-[26px] font-black leading-tight tracking-tight text-ink sm:text-[32px]">
+          <h1 className="font-serif mt-2 text-[38px] leading-tight text-ink">
             Skincare &amp; Mothercare Shop in East Doboro, Nsawam
           </h1>
           <p className="mt-2 text-[13px] leading-relaxed text-gray-600">

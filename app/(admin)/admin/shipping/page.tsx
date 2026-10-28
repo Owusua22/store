@@ -509,7 +509,7 @@ export default function ShippingPage() {
                 : undefined
             }
           >
-            {tab === 'zones' ? '🚚 Shipping Zones' : '🏷️ Discount Codes'}
+            {tab === 'zones' ? 'Shipping Zones' : 'Discount Codes'}
           </button>
         ))}
       </div>

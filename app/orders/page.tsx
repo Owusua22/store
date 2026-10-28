@@ -77,7 +77,7 @@ function OrderCard({ order }: { order: OrderListItem }) {
       className="group block bg-white rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-300 overflow-hidden"
     >
       {/* Top accent bar — thin gradient line */}
-      <div className="h-0.5 w-full bg-gradient-to-r from-brand via-accent to-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="h-0.5 w-full bg-sage opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
       <div className="p-5 sm:p-6">
         {/* Row 1 – order number + status */}
@@ -195,7 +195,7 @@ function OrdersShell({
             </div>
             <p className="text-xs font-bold uppercase tracking-widest text-brand">My Account</p>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="font-serif text-2xl sm:text-3xl text-slate-900">
             Order History
           </h1>
           <p className="text-sm text-slate-500 mt-1">

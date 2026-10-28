@@ -1,18 +1,19 @@
 // app/about/page.tsx
 import type { Metadata } from 'next';
-import { Sparkles, ShieldCheck, Truck, HeartHandshake } from 'lucide-react';
+import Link from 'next/link';
 import { site } from '@/lib/site';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { aboutPageSchema, breadcrumbSchema } from '@/lib/seo/jsonld';
 
 export const metadata: Metadata = {
   title: `About ${site.nameFull}`,
-  description: `Who we are: authentic skincare, hair care and mother care, delivered across Ghana by ${site.nameFull}.`,
+  description: `Who runs Glow-Up, how stock is chosen, and why the shelf looks the way it does.`,
+  alternates: { canonical: '/about' },
 };
 
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-gradient-to-br from-brand-soft via-white to-accent-soft">
+    <main>
       <JsonLd
         id="about"
         data={[
@@ -23,109 +24,97 @@ export default function AboutPage() {
           ]),
         ]}
       />
-      <section className="relative overflow-hidden">
-        {/* Decorative blobs */}
-        <div className="absolute top-0 -left-40 w-96 h-96 bg-brand-soft/40 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 -right-40 w-96 h-96 bg-brand-soft/40 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-24">
-          {/* Header */}
-          <div className="text-center max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-soft border border-brand-soft/60 mb-6">
-              <Sparkles className="w-3.5 h-3.5 text-brand" />
-              <span className="text-xs font-semibold text-brand-dark uppercase tracking-wide">
-                About Us
-              </span>
+      <article className="container-page py-10 sm:py-14">
+        <p className="text-[10px] font-bold uppercase tracking-[0.24em] text-sage-deep">
+          About the shop
+        </p>
+        <h1 className="mt-3 max-w-[20ch] font-serif text-[34px] leading-[1.1] text-ink sm:text-[52px]">
+          A small shop with a short list of rules.
+        </h1>
+
+        <div className="mt-8 grid gap-10 border-t border-line pt-8 sm:grid-cols-12 sm:gap-12">
+          <div className="sm:col-span-7">
+            <div className="prose-soft max-w-[62ch] text-[13.5px] leading-[1.75] text-gray-700">
+              <p>
+                Glow-Up is a skincare and mother-care shop. We started because buying
+                genuine products here was harder than it should be — the same bottle of
+                lotion, three prices, and no way to tell which one had been sitting in a
+                hot container for two years.
+              </p>
+              <p>
+                So the shop works on a short list of rules. We buy from distributors we can
+                name. We check dates when stock arrives, not when a customer complains. We
+                keep the bestseller list honest by looking at what actually leaves the
+                counter. And if a product is not worth its price, we say so — including
+                when it is on our own shelf.
+              </p>
+              <p>
+                The range is deliberately ordinary: body lotions that survive harmattan,
+                bar soap, shower cream, shampoo and conditioner, face washes and serums for
+                people dealing with spots or dark marks, nappies, baby wash, baby lotion,
+                and the stretch-mark creams new mothers ask for by name.
+              </p>
+              <p>
+                You can buy in person, or send a message and we will pack it. If you are
+                not sure what suits your skin, tell us what is happening with it and we
+                will point you at two things, not twelve.
+              </p>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-gray-900">
-              Healthy Skin,
-              <br />
-              <span className="bg-gradient-to-r from-brand via-brand-dark to-accent bg-clip-text text-transparent">
-                Everyday Confidence
-              </span>
-            </h1>
-
-            <p className="mt-6 text-lg text-gray-600 leading-relaxed">
-              We are a Ghanaian skin care store built on one belief: everyone deserves
-              products that are authentic, effective and affordable. From shea body
-              lotions to vitamin C serums, baby care and daily sun protection, every item
-              we stock is chosen to help your skin feel healthy and look its best.
-            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/products" className="btn-brand h-10 px-5 text-[11px] uppercase tracking-[0.12em]">
+                Browse the shelves
+              </Link>
+              <a
+                href={`https://wa.me/${site.whatsapp}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-quiet h-10 px-5 text-[11px] uppercase tracking-[0.12em]"
+              >
+                Ask a question
+              </a>
+            </div>
           </div>
 
-          {/* Story section */}
-          <div className="mt-16 grid lg:grid-cols-2 gap-10 items-center">
-            <div className="bg-white rounded-3xl shadow-xl shadow-brand-soft/30 border border-gray-100 p-8 sm:p-10">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Story</h2>
-              <div className="space-y-4 text-gray-600 leading-relaxed">
-                <p>
-                  Glow-Up started with a simple frustration: finding genuine skin care in
-                  Ghana was harder than it should be. Products were either overpriced,
-                  expired or impossible to verify. So we built a store that only sells
-                  what we would use ourselves.
-                </p>
-                <p>
-                  We work directly with trusted distributors and brands, check every
-                  batch, and pack orders carefully so your lotion, serum or baby wash
-                  arrives exactly as it should. Our range covers body lotions, shower gels,
-                  shampoos and conditioners, face creams, serums, face washes, baby
-                  diapers, baby lotions, sun care and more.
-                </p>
-                <p>
-                  Whether you are building a full routine or restocking a family
-                  favourite, our team on WhatsApp is always a message away — and we deliver
-                  to every region in Ghana.
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <aside className="sm:col-span-5">
+            <h2 className="border-b border-line pb-2 font-serif text-[19px] text-ink">
+              The particulars
+            </h2>
+            <dl className="mt-3 space-y-3 text-[12.5px]">
               {[
+                { term: 'Where', detail: site.address },
+                { term: 'When', detail: site.hoursSummary },
+                { term: 'Phone', detail: site.phoneDisplay },
+                { term: 'Email', detail: site.email },
                 {
-                  icon: ShieldCheck,
-                  title: 'Authentic products',
-                  desc: 'Sourced from verified suppliers, never expired stock.',
+                  term: 'Payment',
+                  detail: 'MTN MoMo Pay, or cash when the rider arrives.',
                 },
                 {
-                  icon: Truck,
-                  title: 'Reliable delivery',
-                  desc: 'Nationwide dispatch with pay-on-delivery options.',
+                  term: 'Exchange',
+                  detail:
+                    '48 hours on unopened, factory-sealed items. Opened cosmetics and baby creams cannot come back unless they are faulty.',
                 },
                 {
-                  icon: HeartHandshake,
-                  title: 'Customer first',
-                  desc: 'Real people on WhatsApp to help with every order.',
+                  term: 'Delivery',
+                  detail: `Countrywide. Free over GH₵${site.freeDeliveryThreshold}.`,
                 },
-                {
-                  icon: Sparkles,
-                  title: 'Curated for Ghana',
-                  desc: 'Routines built for our climate, skin and budgets.',
-                },
-              ].map(({ icon: Icon, title, desc }) => (
-                <div
-                  key={title}
-                  className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-lg hover:shadow-brand-soft/20 transition-all"
-                >
-                  <div className="w-12 h-12 rounded-xl bg-brand-soft flex items-center justify-center mb-4">
-                    <Icon className="w-6 h-6 text-brand" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 mb-2">{title}</h3>
-                  <p className="text-sm text-gray-600">{desc}</p>
+              ].map(({ term, detail }) => (
+                <div key={term} className="border-b border-line-soft pb-2.5">
+                  <dt className="text-[9.5px] font-bold uppercase tracking-[0.18em] text-muted">
+                    {term}
+                  </dt>
+                  <dd className="mt-0.5 leading-relaxed text-gray-700">{detail}</dd>
                 </div>
               ))}
-            </div>
-          </div>
-
-          {/* Bottom statement */}
-          <div className="mt-16 text-center max-w-3xl mx-auto">
-            <p className="text-base sm:text-lg text-gray-600">
-              We&apos;re more than a store — we&apos;re your skin care partner, committed to
-              honest products, fair prices and service that feels personal.
-            </p>
-          </div>
+            </dl>
+            <Link href="/policies" className="section-link mt-4 inline-flex">
+              The full policies
+            </Link>
+          </aside>
         </div>
-      </section>
+      </article>
     </main>
   );
 }

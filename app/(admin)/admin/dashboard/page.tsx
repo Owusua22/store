@@ -157,7 +157,7 @@ export default async function AdminDashboard() {
                 <p className="text-white text-xl font-bold">{orderCount || 0}</p>
               </div>
             </div>
-            <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-30 text-8xl select-none">🛍️</div>
+            
           </div>
 
           <div className="flex flex-col gap-6">
@@ -170,7 +170,7 @@ export default async function AdminDashboard() {
                   <p className="text-orange-100 text-sm font-medium">Total Orders</p>
                   <p className="text-white text-3xl font-bold mt-1">{orderCount || 0}</p>
                 </div>
-                <div className="text-3xl opacity-40">🛒</div>
+                
               </div>
               <div className="mt-2">
                 <div className="h-1 bg-orange-300 rounded-full opacity-50 mb-1">
@@ -189,7 +189,7 @@ export default async function AdminDashboard() {
                   <p className="text-red-100 text-sm font-medium">Low Stock Items</p>
                   <p className="text-white text-3xl font-bold mt-1">{lowStock?.length || 0}</p>
                 </div>
-                <div className="text-3xl opacity-40">⚠️</div>
+                
               </div>
               <div className="mt-2">
                 <div className="h-1 bg-red-300 rounded-full opacity-50 mb-1">
@@ -204,15 +204,15 @@ export default async function AdminDashboard() {
         {/* Row 2: Metric cards */}
         <div className="grid grid-cols-4 gap-6 mb-6">
           {[
-            { label: 'Total Products', value: productCount || 0, icon: '📦', color: 'bg-red-50', sub: '▲ In your catalog', subColor: 'text-green-500' },
-            { label: 'Completed Orders', value: revenue?.length || 0, icon: '✅', color: 'bg-green-50', sub: '▲ Fulfilled successfully', subColor: 'text-green-500' },
-            { label: 'Total Revenue', value: formatCedis(totalRevenue), icon: '💰', color: 'bg-emerald-50', sub: '▲ Lifetime earnings', subColor: 'text-green-500', green: true },
-            { label: 'All Orders', value: orderCount || 0, icon: '🛒', color: 'bg-orange-50', sub: lowStock?.length ? `▼ ${lowStock.length} low stock` : '✓ Stock looks good', subColor: lowStock?.length ? 'text-orange-500' : 'text-green-500' },
+            { label: 'Total Products', value: productCount || 0, color: 'bg-gray-50', sub: '▲ In your catalog', subColor: 'text-green-500' },
+            { label: 'Completed Orders', value: revenue?.length || 0, color: 'bg-green-50', sub: '▲ Fulfilled successfully', subColor: 'text-green-500' },
+            { label: 'Total Revenue', value: formatCedis(totalRevenue), color: 'bg-emerald-50', sub: '▲ Lifetime earnings', subColor: 'text-green-500', green: true },
+            { label: 'All Orders', value: orderCount || 0, color: 'bg-orange-50', sub: lowStock?.length ? `▼ ${lowStock.length} low stock` : '✓ Stock looks good', subColor: lowStock?.length ? 'text-orange-500' : 'text-green-500' },
           ].map((card, i) => (
             <div key={i} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
               <div className="flex items-center justify-between mb-3">
                 <p className="text-gray-500 text-sm">{card.label}</p>
-                <div className={`w-9 h-9 rounded-lg ${card.color} flex items-center justify-center text-lg`}>{card.icon}</div>
+                
               </div>
               <p className={`text-3xl font-bold ${card.green ? 'text-green-600' : 'text-gray-900'}`}>{card.value}</p>
               <p className={`text-xs mt-1 font-medium ${card.subColor}`}>{card.sub}</p>
@@ -258,7 +258,7 @@ export default async function AdminDashboard() {
               {topProducts && topProducts.length > 0 ? (
                 topProducts.map((product, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center text-lg flex-shrink-0">📦</div>
+                    
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
                       <p className="text-xs text-emerald-500 font-semibold">TOP SALES</p>
@@ -279,7 +279,7 @@ export default async function AdminDashboard() {
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-base font-bold text-gray-900">⚠️ Low Stock Alert</h2>
+                <h2 className="text-base font-bold text-gray-900">Low stock</h2>
                 <p className="text-gray-400 text-xs">Items needing restock</p>
               </div>
               <Link href="/admin/products" className="text-emerald-500 text-sm font-medium hover:underline">See All</Link>
@@ -299,7 +299,7 @@ export default async function AdminDashboard() {
                 ))
               ) : (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <div className="text-4xl mb-2">✅</div>
+                  
                   <p className="text-gray-500 text-sm">All items well stocked!</p>
                 </div>
               )}

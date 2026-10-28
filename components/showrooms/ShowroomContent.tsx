@@ -92,7 +92,7 @@ export function ShowroomContent({ showroom, products, allShowrooms }: ShowroomCo
   const otherShowrooms = allShowrooms.filter((s) => s.id !== showroom.id);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50/50 to-white">
+    <div className="min-h-screen bg-paper">
 
       {/* ── Compact sticky header ── */}
       <header className="sticky top-0 z-30 backdrop-blur-xl bg-white/85 border-b border-slate-200/70">
@@ -114,8 +114,8 @@ export function ShowroomContent({ showroom, products, allShowrooms }: ShowroomCo
                 <span className="text-2xl sm:text-[28px] leading-none shrink-0">{showroom.icon}</span>
               )}
               <div className="min-w-0">
-                <h1 className="flex items-center gap-2 text-base sm:text-xl font-bold tracking-tight text-slate-900 truncate">
-                  <span className="bg-clip-text text-transparent" style={{ backgroundImage: gradient }}>
+                <h1 className="font-serif flex items-center gap-2 text-base sm:text-xl text-slate-900 truncate">
+                  <span className="" style={{ backgroundImage: gradient }}>
                     {showroom.name}
                   </span>
                   <span
@@ -158,7 +158,7 @@ export function ShowroomContent({ showroom, products, allShowrooms }: ShowroomCo
               onChange={(e) => setSortBy(e.target.value as SortOption)}
               className="h-9 flex-1 lg:flex-none lg:ml-auto px-3 text-xs sm:text-sm rounded-lg bg-slate-100/80 border border-slate-200/60 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-brand/20"
             >
-              <option value="default">✨ Featured</option>
+              <option value="default">Featured</option>
               <option value="price_asc">↑ Price: Low to High</option>
               <option value="price_desc">↓ Price: High to Low</option>
               <option value="name">A-Z Name</option>
@@ -195,7 +195,7 @@ export function ShowroomContent({ showroom, products, allShowrooms }: ShowroomCo
           <div className="flex-1 min-w-0">
             {sortedProducts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-soft to-accent-soft flex items-center justify-center mb-4 border border-brand-soft">
+                <div className="w-16 h-16 rounded-2xl bg-sage-wash flex items-center justify-center mb-4 border border-brand-soft">
                   <Package className="w-7 h-7 text-accent" />
                 </div>
                 <h3 className="text-lg font-semibold text-slate-900 mb-1.5">No products yet</h3>
@@ -286,7 +286,7 @@ function ProductCard({
               />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
-                <span className="text-2xl">📦</span>
+                
               </div>
             )}
 
@@ -376,7 +376,7 @@ function ProductCard({
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200">
-              <span className="text-4xl">📦</span>
+              
             </div>
           )}
 

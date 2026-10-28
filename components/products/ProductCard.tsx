@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Check, Loader2, ShoppingBag, Star, Truck } from 'lucide-react';
 import { useState } from 'react';
 import { formatCedis, metaNumber, metaString } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
@@ -13,6 +12,10 @@ interface ProductCardProps {
   compact?: boolean;
 }
 
+/**
+ * A shelf label, not a dashboard tile: photograph, maker, name, price.
+ * Quick-add is a word, not a floating button.
+ */
 export function ProductCard({ product, compact = false }: ProductCardProps) {
   const { addToCart } = useCart();
   const [status, setStatus] = useState<'idle' | 'loading' | 'done'>('idle');
@@ -20,37 +23,27 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
   const discount =
     product.compare_at_price && product.compare_at_price > product.price
       ? Math.round(
-          ((product.compare_at_price - product.price) /
-            product.compare_at_price) *
-            100
+          ((product.compare_at_price - product.price) / product.compare_at_price) * 100
         )
       : null;
 
   const categoryName =
-    typeof product.category === 'string'
-      ? product.category
-      : product.category?.name ?? '';
+    typeof product.category === 'string' ? product.category : product.category?.name ?? '';
 
-  const rating = product.rating ?? metaNumber(product.metadata, 'rating', 4.8);
-  const reviews =
-    product.reviews_count ?? metaNumber(product.metadata, 'reviews', 0);
+  const rating = product.rating ?? metaNumber(product.metadata, 'rating', 0);
+  const reviews = product.reviews_count ?? metaNumber(product.metadata, 'reviews', 0);
   const sold = product.sold_count ?? metaNumber(product.metadata, 'sold', 0);
   const badge = metaString(product.metadata, 'badge');
-
   const isOutOfStock = product.stock_quantity <= 0;
 
   const handleAddToCart = async (event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
-
     if (isOutOfStock || status !== 'idle') return;
-
-    // pick the first option automatically so quick-add needs no picker
-    const firstOption = product.sizes?.[0] ?? null;
 
     setStatus('loading');
     try {
-      await addToCart(product.id, 1, firstOption, null);
+      await addToCart(product.id, 1, product.sizes?.[0] ?? null, null);
       setStatus('done');
       setTimeout(() => setStatus('idle'), 1600);
     } catch {
@@ -74,97 +67,75 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
           />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center text-gray-300">
-            <ShoppingBag className="h-10 w-10" strokeWidth={1.2} />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <span className="font-serif text-2xl text-sage/50">Glow-Up</span>
           </div>
         )}
 
-        {/* discount */}
-        {discount ? (
-          <span className="absolute left-0 top-0 rounded-br-lg bg-brand px-2 py-1 text-[11px] font-extrabold text-white">
-            -{discount}%
+        {isOutOfStock ? (
+          <span className="absolute inset-x-0 bottom-0 bg-paper/90 py-1 text-center text-[9.5px] font-bold uppercase tracking-[0.18em] text-muted">
+            Out of stock
+          </span>
+        ) : discount ? (
+          <span className="absolute left-0 top-0 bg-sage-deep px-1.5 py-0.5 text-[9.5px] font-bold tabular-nums tracking-wide text-paper">
+            −{discount}%
           </span>
         ) : badge ? (
-          <span className="absolute left-0 top-0 rounded-br-lg bg-ink px-2 py-1 text-[10.5px] font-bold uppercase tracking-wide text-white">
+          <span className="absolute left-0 top-0 bg-ink px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-paper">
             {badge}
           </span>
         ) : null}
+      </div>
 
-        {isOutOfStock && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/40">
-            <span className="rounded-full bg-white px-3 py-1 text-[11px] font-bold text-ink">
-              Sold out
+      <div className="flex flex-1 flex-col px-2.5 pb-2.5 pt-2">
+        <p className="truncate text-[9px] font-bold uppercase tracking-[0.16em] text-muted">
+          {product.brand ?? categoryName}
+        </p>
+
+        <h3 className="mt-1 line-clamp-2 min-h-[32px] text-[12px] font-medium leading-[1.35] text-ink group-hover:text-sage-deep sm:text-[12.5px]">
+          {product.name}
+        </h3>
+
+        <div className="mt-1 flex items-baseline gap-2">
+          <span className="text-[13.5px] font-bold tabular-nums text-ink sm:text-[14.5px]">
+            {formatCedis(product.price)}
+          </span>
+          {product.compare_at_price && product.compare_at_price > product.price && (
+            <span className="text-[10.5px] text-gray-400 line-through tabular-nums">
+              {formatCedis(product.compare_at_price)}
             </span>
-          </div>
+          )}
+        </div>
+
+        {(rating > 0 || sold > 0) && (
+          <p className="mt-0.5 text-[10px] text-muted">
+            {rating > 0 && (
+              <>
+                <span className="font-semibold text-sage-deep tabular-nums">
+                  {rating.toFixed(1)}
+                </span>{' '}
+                / 5
+              </>
+            )}
+            {rating > 0 && reviews > 0 ? ` · ${reviews} ${reviews === 1 ? 'note' : 'notes'}` : ''}
+            {sold > 99 ? ` · ${sold > 999 ? `${Math.round(sold / 100) / 10}k` : sold} sold` : ''}
+          </p>
         )}
 
-        {/* quick add */}
         {!isOutOfStock && (
           <button
             type="button"
             onClick={handleAddToCart}
             disabled={status !== 'idle'}
-            className={`absolute bottom-2 right-2 flex h-9 w-9 items-center justify-center rounded-full shadow-md transition-all duration-200 md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 ${
+            className={`mt-2 w-full border px-2 py-1.5 text-[10px] font-bold uppercase tracking-[0.12em] transition-colors ${
               status === 'done'
-                ? 'bg-emerald-500 text-white'
-                : 'bg-white text-ink hover:bg-brand hover:text-white'
-            }`}
-            aria-label={`Add ${product.name} to cart`}
+                ? 'border-sage-deep bg-sage-deep text-paper'
+                : 'border-line bg-transparent text-sage-deep hover:border-sage-deep hover:bg-sage-deep hover:text-paper'
+            } ${compact ? '' : 'sm:opacity-0 sm:group-hover:opacity-100 sm:focus-visible:opacity-100'}`}
           >
-            {status === 'loading' ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : status === 'done' ? (
-              <Check className="h-4 w-4" />
-            ) : (
-              <ShoppingBag className="h-4 w-4" />
-            )}
+            {status === 'loading' ? 'Adding' : status === 'done' ? 'In the bag' : 'Add to bag'}
           </button>
         )}
-      </div>
-
-      <div className="flex flex-1 flex-col p-2.5">
-        {(product.brand || categoryName) && (
-          <p className="mb-1 truncate text-[10px] font-semibold uppercase tracking-wide text-gray-400">
-            {product.brand ?? categoryName}
-          </p>
-        )}
-
-        <h3 className="line-clamp-2 min-h-[34px] text-[12.5px] font-semibold leading-[1.35] text-gray-800 transition-colors group-hover:text-brand">
-          {product.name}
-        </h3>
-
-        <div className="mt-1 flex items-center gap-1 text-[10.5px] text-gray-500">
-          <span className="flex items-center gap-0.5 text-amber-500">
-            <Star className="h-3 w-3 fill-current" />
-            <span className="font-bold text-gray-700">{rating.toFixed(1)}</span>
-          </span>
-          {reviews > 0 && <span>({reviews})</span>}
-          {sold > 0 && (
-            <>
-              <span className="text-gray-300">·</span>
-              <span>{sold >= 1000 ? `${(sold / 1000).toFixed(1)}k` : sold} sold</span>
-            </>
-          )}
-        </div>
-
-        {!compact && (
-          <div className="mt-1.5 flex items-center gap-1 text-[10px] font-semibold text-emerald-600">
-            <Truck className="h-3 w-3" />
-            Express delivery
-          </div>
-        )}
-
-        <div className="mt-auto flex items-baseline gap-1.5 pt-2">
-          <span className="text-[15px] font-extrabold tracking-tight text-ink">
-            {formatCedis(product.price)}
-          </span>
-          {product.compare_at_price &&
-            product.compare_at_price > product.price && (
-              <span className="text-[11.5px] text-gray-400 line-through">
-                {formatCedis(product.compare_at_price)}
-              </span>
-            )}
-        </div>
       </div>
     </Link>
   );

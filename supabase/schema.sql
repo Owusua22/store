@@ -882,4 +882,79 @@ where not archived
   and stock_quantity <= low_stock_threshold
 order by stock_quantity asc;
 
+
+-- ---------------------------------------------------------------------------
+-- Customer product reviews (live on the storefront, moderated in the admin)
+-- ---------------------------------------------------------------------------
+create table if not exists public.product_reviews (
+  id             uuid primary key default gen_random_uuid(),
+  product_id     uuid references public.products(id) on delete cascade,
+  customer_name  text not null,
+  rating         integer not null check (rating between 1 and 5),
+  body           text not null,
+  status         text not null default 'published' check (status in ('pending', 'published', 'hidden')),
+  is_verified    boolean not null default false,
+  created_at     timestamptz not null default timezone('utc', now())
+);
+
+create index if not exists product_reviews_created_idx
+  on public.product_reviews (created_at desc);
+create index if not exists product_reviews_product_idx
+  on public.product_reviews (product_id, created_at desc);
+create index if not exists product_reviews_status_idx
+  on public.product_reviews (status, created_at desc);
+
+alter table public.product_reviews enable row level security;
+
+-- Anyone may read published reviews; anyone may post one (it starts published
+-- so the live feed is honest — hide the bad ones deliberately, not by default).
+drop policy if exists "reviews are public" on public.product_reviews;
+create policy "reviews are public"
+  on public.product_reviews for select
+  using (status = 'published' or public.is_admin());
+
+drop policy if exists "anyone can leave a review" on public.product_reviews;
+create policy "anyone can leave a review"
+  on public.product_reviews for insert
+  with check (status = 'published' and is_verified = false);
+
+drop policy if exists "admins manage reviews" on public.product_reviews;
+create policy "admins manage reviews"
+  on public.product_reviews for all
+  using (public.is_admin())
+  with check (public.is_admin());
+
+-- Keep products.rating / reviews_count in step with what is published.
+create or replace function public.refresh_product_rating(p_product_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  update public.products p
+     set rating = coalesce((
+           select round(avg(r.rating)::numeric, 2)
+             from public.product_reviews r
+            where r.product_id = p.id and r.status = 'published'
+         ), 0),
+         reviews_count = (
+           select count(*)
+             from public.product_reviews r
+            where r.product_id = p.id and r.status = 'published'
+         )
+   where p.id = p_product_id;
+end;
+$$;
+
+-- Realtime: the storefront subscribes to inserts on this table.
+do $$
+begin
+  alter publication supabase_realtime add table public.product_reviews;
+exception
+  when duplicate_object then null;
+  when undefined_object then null;
+end;
+$$;
+
 -- Done.

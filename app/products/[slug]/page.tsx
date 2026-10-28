@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { ProductDetails } from '@/components/products/ProductDetails';
 import { getProductBySlug, getRelatedProducts } from '@/lib/data/store';
+import { ReviewFeed } from '@/components/reviews/ReviewFeed';
+import { getProductReviews } from '@/lib/data/reviews';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { breadcrumbSchema, productSchema } from '@/lib/seo/jsonld';
 
@@ -33,7 +35,10 @@ export default async function ProductPage({ params }: Props) {
 
   if (!product) notFound();
 
-  const relatedProducts = await getRelatedProducts(product, 4);
+  const [relatedProducts, reviews] = await Promise.all([
+    getRelatedProducts(product, 4),
+    getProductReviews(product.id, 12),
+  ]);
 
   return (
     <>
@@ -52,6 +57,13 @@ export default async function ProductPage({ params }: Props) {
         ]}
       />
       <ProductDetails product={product} relatedProducts={relatedProducts} />
+
+      <div className="border-t border-line">
+        <ReviewFeed
+          initialReviews={reviews}
+          products={[{ id: product.id, name: product.name, slug: product.slug }]}
+        />
+      </div>
     </>
   );
 }

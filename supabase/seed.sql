@@ -425,20 +425,33 @@ on conflict (code) do nothing;
 -- ---------------------------------------------------------------------------
 -- Homepage banners (swap the image URLs for your own R2 uploads)
 -- ---------------------------------------------------------------------------
+-- The carousel shows photography only. Title is used for alt text and the
+-- admin list; nothing is printed over the image.
 insert into public.banners (title, subtitle, description, image_url, link_url, link_text, sort_order, is_active)
 select * from (
   values
-    ('Authentic skincare, right here in East Doboro.', 'Beside St. George''s Height', 'Original Nivea, Vaseline, Johnson''s, Dove and Cetaphil — no fakes, no expired stock. Walk in, or order on WhatsApp.', '/images/banners/hero-teal.webp', '/products', 'Shop all products', 1, true),
-    ('Soft skin, all harmattan.', 'Bath & body edit', 'Shea-rich lotions, body oils and shower creams that keep ash away for 24 hours.', '/images/banners/hero-body.webp', '/categories/bath-body-care', 'Shop bath & body', 2, true),
-    ('Care for mum, care for baby.', 'Mothercare & baby essentials', 'Stretch-mark creams, baby washes and jumbo diaper packs — or the whole hospital bag in one bundle.', '/images/banners/hero-baby.webp', '/categories/mothercare-pregnancy', 'Shop mothercare', 3, true)
+    ('The shelf, this week', null, null, '/images/banners/banner-1.webp', '/products', null, 1, true),
+    ('Shea, by the jar', null, null, '/images/banners/banner-2.webp', '/categories/bath-body-care', null, 2, true),
+    ('For the new arrival', null, null, '/images/banners/banner-3.webp', '/categories/baby-care-essentials', null, 3, true)
 ) as t(title, subtitle, description, image_url, link_url, link_text, sort_order, is_active)
 where not exists (select 1 from public.banners);
 
 -- Older projects: point existing banners at the new brand artwork and the live
 -- category slugs (re-running seed.sql should not leave stale links behind).
 update public.banners
-   set image_url = '/images/banners/hero-teal.webp'
- where image_url = '/images/hero-skincare.webp';
+   set image_url = '/images/banners/banner-1.webp'
+ where image_url in ('/images/hero-skincare.webp', '/images/banners/hero-teal.webp');
+update public.banners
+   set image_url = '/images/banners/banner-2.webp'
+ where image_url = '/images/banners/hero-body.webp';
+update public.banners
+   set image_url = '/images/banners/banner-3.webp'
+ where image_url = '/images/banners/hero-baby.webp';
+
+-- Banner copy is no longer drawn over the photograph.
+update public.banners
+   set subtitle = null, description = null, link_text = null,
+       text_color = null, overlay_opacity = 0;
 update public.banners
    set link_url = '/categories/bath-body-care'
  where link_url = '/categories/body-lotions';
@@ -497,3 +510,19 @@ values (
   'published', true, 5, timezone('utc', now())
 )
 on conflict (slug) do nothing;
+
+-- ---------------------------------------------------------------------------
+-- Customer reviews (replace with real ones; the storefront is live-editable)
+-- ---------------------------------------------------------------------------
+insert into public.product_reviews (product_id, customer_name, rating, body, status, is_verified, created_at)
+select p.id, v.customer_name, v.rating, v.body, 'published', v.is_verified, timezone('utc', now()) - v.age
+from (
+  values
+    ('shea-butter-body-lotion-400ml', 'Adjoa M.', 5, 'Finished my second tub. It is thick but it sinks in, and my arms are still soft the next evening. I buy two now so I never run out.', true, interval '5 hours'),
+    ('baby-soft-lotion-400ml', 'Yaa A.', 5, 'No reaction on my daughter''s skin, and it has no strong perfume — that was the main thing for me. The bottle is big for the price.', true, interval '1 day 3 hours'),
+    ('vitamin-c-glow-serum-30ml', 'Nana K.', 4, 'Three weeks in and the dark spots on my cheeks have faded. It stings slightly if you use too much, so I use two drops only.', true, interval '2 days 4 hours'),
+    ('nourishing-argan-shampoo-500ml', 'Efua B.', 4, 'My braids last longer with this one, less flaking on the scalp. I wish the bottle came bigger.', false, interval '3 days'),
+    ('shea-shower-cream-750ml', 'Kwesi O.', 5, 'Bought it for my mother and she asked me to get three more for her friends. That says enough.', true, interval '4 days')
+) as v(slug, customer_name, rating, body, is_verified, age)
+join public.products p on p.slug = v.slug
+where not exists (select 1 from public.product_reviews);

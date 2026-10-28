@@ -130,12 +130,12 @@ export function AuthModal() {
         <div
           ref={panelRef}
           tabIndex={-1}
-          className="relative my-6 w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl outline-none sm:p-8"
+          className="relative my-6 w-full max-w-md border border-line bg-paper p-6 outline-none sm:p-8"
         >
           <button
             type="button"
             onClick={closeAuth}
-            className="absolute right-3 top-3 rounded-full p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-700"
+            className="absolute right-3 top-3 p-2 text-muted transition-colors hover:text-ink"
             aria-label="Close"
           >
             <X className="h-5 w-5" />

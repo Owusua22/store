@@ -59,7 +59,7 @@ export default async function ShowroomsPage() {
                 <tr key={showroom.id} className="hover:bg-gray-50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <span className="text-2xl">{showroom.icon || '🏪'}</span>
+                      <span className="text-2xl"></span>
                       <div>
                         <p className="font-medium text-gray-900">{showroom.name}</p>
                         {showroom.description && (
@@ -111,7 +111,7 @@ export default async function ShowroomsPage() {
 
           {active.length === 0 && (
             <div className="text-center py-12">
-              <div className="text-4xl mb-3">🏪</div>
+              
               <p className="text-gray-500 mb-4">No showrooms yet</p>
               <Link href="/admin/showrooms/new" className="text-red-600 hover:text-red-700 font-medium">
                 Create your first showroom →
@@ -139,7 +139,7 @@ export default async function ShowroomsPage() {
                   <tr key={showroom.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <span className="text-2xl grayscale">{showroom.icon || '🏪'}</span>
+                        <span className="text-2xl grayscale"></span>
                         <p className="font-medium text-gray-900">{showroom.name}</p>
                       </div>
                     </td>

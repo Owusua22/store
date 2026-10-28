@@ -30,7 +30,7 @@ export function AdminNav() {
     <aside className="fixed left-0 top-0 h-full w-64 bg-gray-900 text-white flex flex-col z-10">
       {/* Logo */}
       <div className="p-6 border-b border-gray-700">
-        <h1 className="text-xl font-bold text-white">Admin Panel</h1>
+        <h1 className="font-serif text-xl text-white">Admin Panel</h1>
         <p className="text-xs text-gray-400 mt-1">{profile?.email}</p>
       </div>
 

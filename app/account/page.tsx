@@ -59,7 +59,7 @@ export default function AccountPage() {
 
   return (
     <div className="container-page py-6 sm:py-8">
-      <h1 className="text-[22px] font-extrabold tracking-tight text-ink sm:text-[26px]">
+      <h1 className="font-serif text-[30px] text-ink">
         My account
       </h1>
       <p className="mt-1 text-[12.5px] text-muted">

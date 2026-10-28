@@ -93,7 +93,7 @@ export default async function OrderDetailsPage({ params }: Props) {
   const shipping = safeOrder.shipping_address;
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-brand-soft via-white to-accent-soft">
+    <main className="min-h-screen bg-paper">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
         <Link
           href="/orders"
@@ -108,7 +108,7 @@ export default async function OrderDetailsPage({ params }: Props) {
             <p className="text-sm font-semibold text-brand uppercase tracking-wide mb-2">
               Order Details
             </p>
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
+            <h1 className="font-serif text-3xl sm:text-4xl text-gray-900">
               #{safeOrder.order_number}
             </h1>
             <p className="text-gray-500 mt-2">
@@ -161,7 +161,7 @@ export default async function OrderDetailsPage({ params }: Props) {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-300">
-                            📷
+                            No photo
                           </div>
                         )}
                       </div>
@@ -256,7 +256,7 @@ export default async function OrderDetailsPage({ params }: Props) {
                 </div>
                 <div className="flex justify-between font-bold text-base text-gray-900 pt-3 border-t border-gray-100">
                   <span>Total</span>
-                  <span className="bg-gradient-to-r from-brand via-brand-dark to-accent bg-clip-text text-transparent">
+                  <span className="bg-sage-deep ">
                     {formatCedis(safeOrder.total_amount)}
                   </span>
                 </div>

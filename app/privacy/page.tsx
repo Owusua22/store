@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <div className="container-page max-w-3xl py-8">
-      <h1 className="text-[24px] font-extrabold tracking-tight text-ink">Privacy policy</h1>
+      <h1 className="font-serif text-[32px] text-ink">Privacy policy</h1>
       <p className="mt-2 rounded-lg border border-line bg-surface-soft px-3.5 py-2.5 text-[12.5px] leading-relaxed text-gray-700">
         {site.nameFull} is the <strong>data controller</strong> for this website and processes
         personal data in accordance with the <strong>Data Protection Act, 2012 (Act 843)</strong>{' '}

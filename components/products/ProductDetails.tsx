@@ -238,7 +238,7 @@ export function ProductDetails({ product, relatedProducts }: ProductDetailsProps
               {[
                 { icon: Truck, title: 'Fast delivery', copy: '1–3 business days' },
                 { icon: ShieldCheck, title: 'Authentic', copy: 'Verified supplier' },
-                { icon: RotateCcw, title: 'Easy returns', copy: '7-day policy' },
+                { icon: RotateCcw, title: '48-hour exchange', copy: 'Sealed items only' },
               ].map(({ icon: Icon, title, copy }) => (
                 <div
                   key={title}
@@ -258,7 +258,7 @@ export function ProductDetails({ product, relatedProducts }: ProductDetailsProps
               {product.category && (
                 <Link
                   href={categoryHref}
-                  className="rounded-full bg-brand-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-brand"
+                  className="border border-sage/50 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.14em] text-sage-deep"
                 >
                   {product.category.name}
                 </Link>
@@ -266,40 +266,41 @@ export function ProductDetails({ product, relatedProducts }: ProductDetailsProps
               {brandLink ? (
                 <Link
                   href={brandLink}
-                  className="rounded-full bg-surface-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-gray-500 transition-colors hover:bg-brand-soft hover:text-brand"
+                  className="border border-line px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.14em] text-muted transition-colors hover:border-sage-deep hover:text-sage-deep"
                 >
                   {brand}
                 </Link>
               ) : (
-                <span className="rounded-full bg-surface-soft px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-gray-500">
+                <span className="border border-line px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.14em] text-muted">
                   {brand}
                 </span>
               )}
               {isLowStock && (
-                <span className="rounded-full bg-amber-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-amber-600">
+                <span className="border border-amber-200 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-[0.14em] text-amber-700">
                   Only {stock} left
                 </span>
               )}
             </div>
 
-            <h1 className="mt-2 text-[22px] font-extrabold leading-tight tracking-tight text-ink sm:text-[28px]">
+            <h1 className="mt-2.5 font-serif text-[27px] leading-[1.15] text-ink sm:text-[34px]">
               {product.name}
             </h1>
 
             <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-muted">
-              <span className="flex items-center gap-0.5 text-amber-500">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <Star key={index} className="h-3.5 w-3.5 fill-current" />
-                ))}
-                <span className="ml-1 font-bold text-ink">{rating.toFixed(1)}</span>
+              <span className="flex items-baseline gap-1">
+                <span aria-hidden="true" className="text-[12px] tracking-[0.06em] text-sage-deep">
+                  {'★'.repeat(Math.round(rating))}
+                  <span className="text-line">{'★'.repeat(5 - Math.round(rating))}</span>
+                </span>
+                <span className="font-bold text-ink tabular-nums">{rating.toFixed(1)}</span>
               </span>
               {reviews > 0 && <span>{reviews} reviews</span>}
               {sold > 0 && <span>{sold} sold</span>}
-              <span className="text-emerald-600">In stock</span>
+              <span className="text-sage-deep">{stock > 0 ? 'In stock' : 'Out of stock'}</span>
             </div>
 
             <div className="mt-4 flex flex-wrap items-baseline gap-2">
-              <span className="text-[30px] font-extrabold tracking-tight text-brand">
+              <span className="text-[30px] font-bold tracking-tight text-ink tabular-nums">
                 {formatCedis(price)}
               </span>
               {compareAt && compareAt > price && (
@@ -484,7 +485,7 @@ export function ProductDetails({ product, relatedProducts }: ProductDetailsProps
                   <div>
                     <p className="text-[12px] font-bold text-ink">Delivery across Ghana</p>
                     <p className="text-[11px] leading-snug text-muted">
-                      Accra & Kumasi in 1–2 days. Other regions 2–4 days.
+                      Countrywide, 1–4 working days.
                     </p>
                   </div>
                 </div>
@@ -500,9 +501,9 @@ export function ProductDetails({ product, relatedProducts }: ProductDetailsProps
                 <div className="flex items-start gap-2.5">
                   <RotateCcw className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
                   <div>
-                    <p className="text-[12px] font-bold text-ink">7-day returns</p>
+                    <p className="text-[12px] font-bold text-ink">48-hour exchange</p>
                     <p className="text-[11px] leading-snug text-muted">
-                      Unopened items can be returned within 7 days.
+                      Unopened, factory-sealed items can be exchanged within 48 hours.
                     </p>
                   </div>
                 </div>
@@ -584,7 +585,7 @@ export function ProductDetails({ product, relatedProducts }: ProductDetailsProps
             </h2>
             <p className="prose-soft mt-2 text-[12px] leading-relaxed text-gray-600">
               Orders placed before 3pm are dispatched the same working day. Free delivery
-              on orders over GH₵300. Unopened products can be returned within 7 days.
+              on orders over GH₵300. Unopened, sealed products can be exchanged within 48 hours.
             </p>
           </div>
         </div>

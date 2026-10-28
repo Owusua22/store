@@ -64,7 +64,7 @@ export default function ContactPage() {
         <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-brand">
           <Mail className="h-3 w-3" /> Help Center
         </span>
-        <h1 className="mt-2 text-[24px] font-extrabold tracking-tight text-ink sm:text-[28px]">
+        <h1 className="font-serif mt-2 text-[32px] text-ink">
           We&apos;re here to help
         </h1>
         <p className="mt-1 max-w-2xl text-[12.5px] leading-relaxed text-gray-600">

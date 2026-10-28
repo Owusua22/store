@@ -38,7 +38,7 @@ export default function ManageShowroomProductsPage() {
   // ✅ Extract id directly from params (useParams returns a plain object in client components)
   const showroomId = params.id as string;
 
-  const [showroom, setShowroom] = useState<{ name: string; icon: string } | null>(null);
+  const [showroom, setShowroom] = useState<{ name: string } | null>(null);
   const [assignedProducts, setAssignedProducts] = useState<ShowroomProduct[]>([]);
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState('');
@@ -60,7 +60,7 @@ export default function ManageShowroomProductsPage() {
       const productsData = await productsRes.json();
 
       if (showroomData.success) {
-        setShowroom({ name: showroomData.data.name, icon: showroomData.data.icon });
+        setShowroom({ name: showroomData.data.name });
         setAssignedProducts(showroomData.data.products ?? []);
       }
 
@@ -158,7 +158,7 @@ export default function ManageShowroomProductsPage() {
           <ArrowLeft className="w-4 h-4" /> Back to Showrooms
         </Link>
         <h1 className="text-3xl font-bold text-gray-900">
-          {showroom?.icon} {showroom?.name} — Products
+          {showroom?.name} — Products
         </h1>
         <p className="text-gray-500 mt-1">
           Add or remove products from this showroom
@@ -193,7 +193,7 @@ export default function ManageShowroomProductsPage() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-300">
-                        📷
+                        No photo
                       </div>
                     )}
                   </div>
@@ -258,7 +258,7 @@ export default function ManageShowroomProductsPage() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-300">
-                        📷
+                        No photo
                       </div>
                     )}
                   </div>

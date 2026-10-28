@@ -163,7 +163,7 @@ export default function BlogPostForm({
     >
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-[26px] font-black tracking-tight text-gray-900">
+          <h1 className="font-serif text-[32px] text-gray-900">
             {mode === 'create' ? 'New article' : 'Edit article'}
           </h1>
           <p className="mt-1 text-[13px] text-gray-500">

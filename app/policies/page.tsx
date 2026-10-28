@@ -46,7 +46,7 @@ export default function PoliciesPage() {
       />
 
       <header className="max-w-3xl">
-        <h1 className="text-[26px] font-black tracking-tight text-ink sm:text-[32px]">
+        <h1 className="font-serif text-[38px] text-ink">
           Payment, delivery, returns &amp; privacy
         </h1>
         <p className="mt-2 text-[13px] leading-relaxed text-gray-600">

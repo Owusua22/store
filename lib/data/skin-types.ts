@@ -20,7 +20,7 @@ export const fallbackSkinTypes: SkinTypeRow[] = SKIN_TYPES.map((type, index) => 
   id: `skin-${type.value}`,
   slug: type.value,
   label: type.label,
-  emoji: type.emoji,
+  emoji: '',
   description: null,
   sort_order: index + 1,
   is_active: true,

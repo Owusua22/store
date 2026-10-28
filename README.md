@@ -142,29 +142,64 @@ docs/backend-setup.md       step-by-step Supabase + Cloudflare R2 guide
 public/images/              WebP artwork — banners/ (carousel) + products/ (packshots)
 ```
 
-## Brand palette
+## Brand palette — sage & paper
 
-The whole storefront is driven by three CSS variables in `app/globals.css`, so a
-recolour never means hunting through components:
+Three greens on a warm paper ground. Every colour below lives in
+`app/globals.css`; components use the tokens, never raw hex.
 
 | Token | Hex | Used for |
 | --- | --- | --- |
-| `--brand` | `#1B4D3E` Deep Botanical Teal | header strip, headings, buttons, footer, links |
-| `--accent` | `#C86D51` Warm Terracotta | promo bands, hairline rules, carousel progress, hot offers |
-| `--cream` | `#FDF8F5` Crisp Cream | page ground, hero copy on dark panels, cards |
+| `--sage` | `#69A297` | wide surfaces, dividers, accent rules |
+| `--sage-mid` | `#84B59F` | secondary panels, hover fills |
+| `--sage-pale` | `#A3C9A8` | quiet buttons, tags, highlights |
+| `--sage-deep` | `#42746A` | links, buttons, small caps labels (5.0:1 on paper) |
+| `--paper` | `#FBF8F2` | page ground |
+| `--ink` | `#22302B` | body copy and headings |
 
-`--accent-dark` / `--accent-ink` are deeper shades of the terracotta used where white
-button text or small uppercase labels need to clear WCAG AA contrast.
+`#69A297` with white text is only 2.9:1, so buttons and links use the darkened
+`--sage-deep`. The whole Tailwind grey ramp is remapped to warm, paper-tinted
+neutrals and the radius scale is capped at 8px — that is what stops the UI from
+looking like a template.
+
+Typography: headings are set in the `--font-serif` stack (Iowan Old Style /
+Palatino / Georgia), body copy in the system sans. No webfonts are downloaded.
 
 ## Home page anatomy
 
-1. `components/home/HeroBanner.tsx` — auto-playing banner carousel (6.5 s, swipe,
-   arrow keys, pause on hover). Slides come from `/admin/banners`; without any rows
-   three built-in brand slides are used.
-2. `components/home/HomeBrandBand.tsx` — compact cream band carrying the H1
-   ("100% Authentic Skincare … in East Doboro — Beside St. George's Height"), the
-   tagline, the trust points and the three primary calls to action.
-3. Category strip, value strip, product rails, promo bands and the reviews block.
+1. `components/home/HeroBanner.tsx` — photography only. The carousel rotates
+   every 7 s, is swipeable, arrow-key driven and pauses on hover. **No headline,
+   no copy and no colour overlay is drawn over the image.** Slides come from
+   `/admin/banners`; without rows, three built-in photographs are used.
+2. Standfirst — two paragraphs of plain speech set in serif, with a ruled column
+   of practical facts (pickup, payment, WhatsApp) beside them.
+3. `CategoryStrip` — six department plates, hairline-divided.
+4. `ValueStrip` — three plain promises on rules, no icon cards.
+5. Product sections, promo plates, `DealBanner`, rail.
+6. `components/reviews/ReviewFeed.tsx` — live customer reviews plus the
+   "leave a note" form.
+
+## Customer reviews (live)
+
+`public.product_reviews` holds name, rating, body, product link and status.
+Reviews are written from the home page or a product page and appear at once.
+
+- **Realtime:** the browser subscribes to `postgres_changes` on
+  `product_reviews`; the SQL block in `supabase/schema.sql` adds the table to the
+  `supabase_realtime` publication. Demo mode polls `/api/reviews` every 8 s.
+- **API:** `GET /api/reviews` returns the newest published rows;
+  `POST /api/reviews` validates with zod (2–60 char name, 1–5 stars,
+  12–600 char body) and saves.
+- **Moderation:** `/admin/reviews` hides or restores a review.
+  `PATCH /api/admin/reviews/[id]` is admin-only.
+- Ratings stay in step with the published set through
+  `refresh_product_rating(product_id)`.
+
+## Sitemap
+
+- `/sitemap` — a human index: every department with its products, journal
+  posts, information pages and account pages.
+- `/sitemap.xml` — generated in `app/sitemap.ts` for crawlers; both are linked
+  from the footer.
 
 ## Catalogue content
 
