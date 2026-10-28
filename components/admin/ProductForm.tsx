@@ -27,6 +27,10 @@ export interface ProductFormValues {
   description: string;
   price: number | string;
   compare_at_price: number | string | null;
+  /** What the shop pays the supplier. Admin only — never rendered on the storefront. */
+  cost_price: number | string | null;
+  /** Shown on the product page as "Who it is for". */
+  who_for: string;
   sku: string;
   stock_quantity: number | string;
   low_stock_threshold: number | string;
@@ -62,6 +66,8 @@ export const emptyProductValues: ProductFormValues = {
   description: '',
   price: '',
   compare_at_price: '',
+  cost_price: '',
+  who_for: '',
   sku: '',
   stock_quantity: 0,
   low_stock_threshold: 10,
@@ -127,6 +133,9 @@ export default function ProductForm({
   const images = watch('images');
   const price = toNumber(watch('price'));
   const compareAt = toNumber(watch('compare_at_price'));
+  const cost = toNumber(watch('cost_price')) ?? 0;
+  const sellingPrice = price ?? 0;
+  const margin = sellingPrice > 0 ? ((sellingPrice - cost) / sellingPrice) * 100 : 0;
   const stock = toNumber(watch('stock_quantity')) ?? 0;
 
   const discount = useMemo(() => {
@@ -171,6 +180,8 @@ export default function ProductForm({
         description: values.description || null,
         price: toNumber(values.price) ?? 0,
         compare_at_price: toNumber(values.compare_at_price),
+        cost_price: toNumber(values.cost_price) ?? 0,
+        who_for: values.who_for || null,
         sku: values.sku || null,
         stock_quantity: toNumber(values.stock_quantity) ?? 0,
         low_stock_threshold: toNumber(values.low_stock_threshold) ?? 10,
@@ -292,6 +303,16 @@ export default function ProductForm({
 
               <Field label="Short tagline" hint="Shown on product cards (max ~90 characters).">
                 <Input {...register('short_description')} placeholder="24-hour moisture for dry skin" />
+              </Field>
+
+              <Field
+                label="Who it is for"
+                hint="Shown on the product page, e.g. “Oily & blemish-prone skin” or “Newborns 0+ months”."
+              >
+                <Input
+                  {...register('who_for')}
+                  placeholder="Dry & very dry skin · pregnant mums · babies 0–12 months"
+                />
               </Field>
 
               <Field label="Full description">
@@ -504,10 +525,28 @@ export default function ProductForm({
               <Field label="Compare-at price (GH₵)" hint="Shows a strike-through and % off tag.">
                 <Input type="number" step="0.01" min="0" {...register('compare_at_price')} />
               </Field>
+              <Field
+                label="Cost price (GH₵)"
+                hint="What you paid your supplier. Never shown to customers — used for profit."
+              >
+                <Input type="number" step="0.01" min="0" {...register('cost_price')} />
+              </Field>
               <div className="rounded-lg bg-gray-50 px-3 py-2.5 text-[12px] text-gray-600">
                 Selling at <strong className="text-gray-900">{formatCedis(price ?? 0)}</strong>
                 {discount ? (
                   <span className="ml-1 font-bold text-red-600">· {discount}% off</span>
+                ) : null}
+                {cost > 0 && sellingPrice > 0 ? (
+                  <span className="mt-1 block text-[11.5px] text-gray-500">
+                    Profit per unit{' '}
+                    <strong className={sellingPrice - cost > 0 ? 'text-emerald-600' : 'text-red-600'}>
+                      {formatCedis(sellingPrice - cost)}
+                    </strong>{' '}
+                    · margin{' '}
+                    <strong className={margin >= 25 ? 'text-emerald-600' : 'text-amber-600'}>
+                      {margin.toFixed(0)}%
+                    </strong>
+                  </span>
                 ) : null}
               </div>
             </div>

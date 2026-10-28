@@ -30,6 +30,10 @@ export const productSchema = z.object({
   category_id: z.string().uuid().nullable().optional(),
   brand: optionalText,
   brand_id: z.string().uuid().nullable().optional(),
+  /** What you pay the supplier — admin only, never shown to shoppers */
+  cost_price: z.coerce.number().nonnegative().optional(),
+  /** Who it is for, e.g. "Oily / blemish-prone skin", "Newborns 0+ months" */
+  who_for: optionalText,
 
   // Skin care attributes
   skin_types: z.array(z.string()).default([]),
@@ -73,15 +77,6 @@ export const categorySchema = z.object({
   is_active: z.boolean().optional(),
 });
 
-export const skinTypeSchema = z.object({
-  label: z.string().trim().min(2, 'Label is required').max(60),
-  slug: z.string().trim().max(60).optional(),
-  emoji: z.string().trim().max(8).optional().nullable(),
-  description: z.string().trim().max(1000).optional().nullable(),
-  sort_order: z.coerce.number().int().optional(),
-  is_active: z.boolean().optional(),
-});
-
 export const brandSchema = z.object({
   name: z.string().trim().min(2, 'Brand name is required').max(80),
   slug: z.string().trim().max(80).optional(),
@@ -89,6 +84,15 @@ export const brandSchema = z.object({
   logo_url: z.string().trim().max(500).optional().nullable(),
   website_url: z.string().trim().max(500).optional().nullable(),
   country: z.string().trim().max(80).optional().nullable(),
+  sort_order: z.coerce.number().int().optional(),
+  is_active: z.boolean().optional(),
+});
+
+export const skinTypeSchema = z.object({
+  label: z.string().trim().min(2, 'Label is required').max(60),
+  slug: z.string().trim().max(60).optional(),
+  emoji: z.string().trim().max(8).optional().nullable(),
+  description: z.string().trim().max(1000).optional().nullable(),
   sort_order: z.coerce.number().int().optional(),
   is_active: z.boolean().optional(),
 });
@@ -116,3 +120,46 @@ export const stockAdjustmentSchema = z.object({
   reason: z.string().trim().max(80).default('manual-adjustment'),
   note: z.string().trim().max(500).optional().nullable(),
 });
+
+// ── Bookkeeping ────────────────────────────────────────────────────────────
+
+export const supplierSchema = z.object({
+  name: z.string().trim().min(2, 'Supplier name is required').max(120),
+  contact_person: z.string().trim().max(120).optional().nullable(),
+  phone: z.string().trim().max(40).optional().nullable(),
+  email: z.string().trim().max(160).optional().nullable(),
+  address: z.string().trim().max(300).optional().nullable(),
+  notes: z.string().trim().max(1000).optional().nullable(),
+  payment_terms: z.string().trim().max(80).optional().nullable(),
+  is_active: z.boolean().optional(),
+});
+
+export const purchaseSchema = z.object({
+  supplier_id: z.string().uuid().nullable().optional(),
+  product_id: z.string().uuid('Choose the product you bought'),
+  quantity: z.coerce.number().int().positive('Quantity must be at least 1'),
+  unit_cost: z.coerce.number().nonnegative('Unit cost must be zero or more'),
+  amount_paid: z.coerce.number().nonnegative().optional(),
+  payment_method: z.enum(['cash', 'momo', 'bank', 'credit']).default('cash'),
+  reference: z.string().trim().max(80).optional().nullable(),
+  note: z.string().trim().max(500).optional().nullable(),
+  purchased_at: z.string().trim().max(20).optional(),
+  /** Also add the quantity to on-hand stock (default true). */
+  add_to_stock: z.boolean().optional().default(true),
+});
+
+export const expenseSchema = z.object({
+  category: z
+    .enum(['rent', 'transport', 'utilities', 'internet', 'salaries', 'packaging', 'marketing', 'repairs', 'fees', 'other'])
+    .default('other'),
+  description: z.string().trim().min(2, 'Describe the expense').max(200),
+  amount: z.coerce.number().positive('Amount must be more than zero'),
+  payment_method: z.enum(['cash', 'momo', 'bank']).default('cash'),
+  supplier_id: z.string().uuid().nullable().optional(),
+  reference: z.string().trim().max(80).optional().nullable(),
+  spent_at: z.string().trim().max(20).optional(),
+});
+
+export type PurchaseInput = z.infer<typeof purchaseSchema>;
+export type ExpenseInput = z.infer<typeof expenseSchema>;
+export type SupplierInput = z.infer<typeof supplierSchema>;

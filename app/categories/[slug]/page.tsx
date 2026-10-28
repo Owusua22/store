@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import type { Metadata } from 'next';
 import { CategoryContent } from '@/components/categories/CategoriesContent';
 import {
@@ -8,6 +8,7 @@ import {
 } from '@/lib/data/store';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { breadcrumbSchema, categorySchema, itemListSchema } from '@/lib/seo/jsonld';
+import { LEGACY_CATEGORY_SLUGS } from '@/lib/site';
 import type { Category, Product } from '@/types';
 
 interface Props {
@@ -36,7 +37,12 @@ export default async function CategoryPage({ params }: Props) {
   const { slug } = await params;
   const category = await getCategoryBySlug(slug);
 
-  if (!category) notFound();
+  // Old category URLs (body-lotions, face-care, mother-care …) keep working.
+  if (!category) {
+    const mapped = LEGACY_CATEGORY_SLUGS[slug];
+    if (mapped && mapped !== slug) redirect(`/categories/${mapped}`);
+    notFound();
+  }
 
   const [allCategories, products] = await Promise.all([
     getCategories(),

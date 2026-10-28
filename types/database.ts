@@ -61,6 +61,10 @@ export interface Product {
   stock_quantity: number;
   low_stock_threshold?: number;
   category_id: string | null;
+  /** Who the product is for, e.g. "Oily / blemish-prone skin", "Newborns 0+ months" */
+  who_for?: string | null;
+  /** What you pay the supplier per unit — admin/accounting only */
+  cost_price?: number;
   /** Brand name as typed / resolved from the brands table */
   brand?: string | null;
   /** FK to public.brands (null when the product has no brand) */

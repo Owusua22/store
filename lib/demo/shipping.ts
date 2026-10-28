@@ -14,6 +14,13 @@ export interface DemoShippingZone {
 }
 
 const ZONE_SEED: Array<[string, string, number, number, number]> = [
+  // Local: same-day around the shop
+  ['Eastern', 'East Doboro (pickup at shop)', 0, 0, 0],
+  ['Eastern', 'Doboro', 10, 0, 1],
+  ['Eastern', 'Nsawam', 15, 0, 1],
+  ['Eastern', 'Adoagyiri', 15, 0, 1],
+  ['Eastern', 'Nsawam Market', 15, 0, 1],
+  ['Eastern', 'Koforidua', 35, 1, 2],
   ['Greater Accra', 'Accra Central', 25, 1, 2],
   ['Greater Accra', 'East Legon', 25, 1, 2],
   ['Greater Accra', 'Madina', 25, 1, 2],
@@ -24,7 +31,6 @@ const ZONE_SEED: Array<[string, string, number, number, number]> = [
   ['Ashanti', 'Obuasi', 40, 2, 3],
   ['Western', 'Takoradi', 40, 2, 4],
   ['Central', 'Cape Coast', 40, 2, 4],
-  ['Eastern', 'Koforidua', 40, 2, 4],
   ['Northern', 'Tamale', 50, 3, 5],
 ];
 

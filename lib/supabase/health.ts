@@ -29,6 +29,10 @@ export const CORE_TABLES = [
   'blog_posts',
 ] as const;
 
+/** Tables added for cost prices, suppliers and the books. Listed separately so an
+ *  older project still reads as "initialized" instead of being locked out. */
+export const BOOKKEEPING_TABLES = ['suppliers', 'stock_purchases', 'expenses'] as const;
+
 export interface DatabaseHealth {
   configured: boolean;
   reachable: boolean;

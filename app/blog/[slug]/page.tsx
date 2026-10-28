@@ -171,7 +171,7 @@ export default async function BlogPostPage({ params }: Props) {
                 >
                   <div className="relative aspect-[16/9] overflow-hidden">
                     <Image
-                      src={item.cover_image ?? '/images/products/serum.jpg'}
+                      src={item.cover_image ?? '/images/products/serum.webp'}
                       alt={item.title}
                       fill
                       sizes="(max-width: 640px) 100vw, 33vw"

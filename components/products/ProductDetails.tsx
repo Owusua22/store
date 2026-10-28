@@ -17,12 +17,19 @@ import {
   Truck,
   X,
   ZoomIn,
+  MessageCircle,
+  ShieldCheck as ShieldIcon,
+  Ruler,
+  Users,
+  FlaskConical,
 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { useCart } from '@/hooks/useCart';
 import { formatCedis, metaNumber } from '@/lib/utils';
 import { skinTypeLabel } from '@/lib/skin-types';
 import { brandHref } from '@/lib/brands';
+import { orderOnWhatsApp } from '@/lib/whatsapp';
+import { site } from '@/lib/site';
 import { ProductCard } from '@/components/products/ProductCard';
 import type { Product, ProductVariant } from '@/types';
 
@@ -39,7 +46,7 @@ export function ProductDetails({ product, relatedProducts }: ProductDetailsProps
       ...(product.thumbnail ? [product.thumbnail] : []),
       ...(product.images ?? []).filter((image) => image !== product.thumbnail),
     ];
-    return images.length > 0 ? images : ['/images/products/body-lotion.jpg'];
+    return images.length > 0 ? images : ['/images/products/body-lotion.webp'];
   }, [product.thumbnail, product.images]);
 
   const variants: ProductVariant[] = useMemo(
@@ -97,6 +104,22 @@ export function ProductDetails({ product, relatedProducts }: ProductDetailsProps
   const sold = metaNumber(product.metadata, 'sold', 0);
   const brand = product.brand ?? 'Glow-Up';
   const brandLink = brandHref(product.brand);
+
+  // Every listing must state an exact size, who it is for and key ingredients.
+  const sizeLabel = selectedOption || product.sizes?.[0] || null;
+  const whoFor =
+    product.who_for ??
+    (product.skin_types?.length
+      ? `${product.skin_types.map((type) => skinTypeLabel(type)).join(', ')} skin`
+      : null);
+
+  const whatsappHref = orderOnWhatsApp({
+    name: product.name,
+    price,
+    size: sizeLabel,
+    quantity,
+    url: `${site.url}/products/${product.slug}`,
+  });
 
   const isOutOfStock = stock <= 0;
   const isLowStock = stock > 0 && stock <= 5;
@@ -291,6 +314,39 @@ export function ProductDetails({ product, relatedProducts }: ProductDetailsProps
               )}
             </div>
 
+            {/* Exact size, who it is for, ingredients — required on every listing */}
+            <dl className="mt-4 grid gap-2 rounded-lg border border-line bg-surface-soft p-3 sm:grid-cols-3">
+              <div className="flex items-start gap-2">
+                <Ruler className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                <div>
+                  <dt className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted">
+                    Size
+                  </dt>
+                  <dd className="text-[12.5px] font-bold text-ink">{sizeLabel ?? 'See pack'}</dd>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Users className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                <div>
+                  <dt className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted">
+                    Who it is for
+                  </dt>
+                  <dd className="text-[12.5px] font-bold text-ink">{whoFor ?? 'Everyone'}</dd>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <FlaskConical className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                <div>
+                  <dt className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted">
+                    Key ingredients
+                  </dt>
+                  <dd className="line-clamp-2 text-[12.5px] font-bold text-ink">
+                    {product.ingredients ?? 'See pack'}
+                  </dd>
+                </div>
+              </div>
+            </dl>
+
             <p className="mt-3 max-w-xl text-[13px] leading-relaxed text-gray-600">
               {product.description}
             </p>
@@ -375,6 +431,21 @@ export function ProductDetails({ product, relatedProducts }: ProductDetailsProps
                   Buy now
                 </button>
               </div>
+
+              {/* Direct order over WhatsApp — the launch payment flow */}
+              <a
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[#25D366] text-[13px] font-extrabold text-white transition-colors hover:bg-[#1da851]"
+              >
+                <MessageCircle className="h-4 w-4" />
+                Buy via WhatsApp — {formatCedis(price * quantity)}
+              </a>
+              <p className="flex items-center justify-center gap-1.5 text-[10.5px] text-muted">
+                <ShieldIcon className="h-3 w-3 text-emerald-600" />
+                Pay by MTN MoMo ({site.momo.number}) or cash on pickup. We confirm stock before you pay.
+              </p>
 
               <div className="flex items-center gap-4">
                 <button

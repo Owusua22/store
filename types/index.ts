@@ -34,6 +34,9 @@ export interface CartItemWithProduct {
   id: string;
   product_id: string;
   quantity: number;
+  /** Variant chosen on the product page, when the product has sizes. */
+  selected_size?: string | null;
+  selected_color?: string | null;
   product: import('./database').Product;
 }
 

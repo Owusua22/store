@@ -5,14 +5,15 @@ import './globals.css';
 
 import { AppShell } from '@/components/layout/AppShell';
 import { JsonLd } from '@/components/seo/JsonLd';
+import { Analytics, searchConsoleVerification } from '@/components/seo/Analytics';
 import { organizationSchema, websiteSchema } from '@/lib/seo/jsonld';
 import { site } from '@/lib/site';
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.name} | ${site.tagline} — Online Shopping in Ghana`,
-    template: `%s | ${site.name}`,
+    default: `${site.nameFull} — East Doboro, Nsawam | ${site.tagline}`,
+    template: `%s | ${site.nameFull}`,
   },
   description: site.description,
   keywords: [
@@ -29,8 +30,14 @@ export const metadata: Metadata = {
     'baby lotion',
     'mother care Ghana',
     'online shopping Ghana',
+    'skincare shop East Doboro',
+    'cosmetics shop Nsawam',
+    'mothercare Nsawam',
+    'baby products Doboro',
+    'skincare near St. George’s Height',
   ],
   alternates: { canonical: '/' },
+  verification: { google: searchConsoleVerification() },
   openGraph: {
     title: `${site.name} | ${site.tagline}`,
     description: site.description,
@@ -61,6 +68,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       <body className="antialiased bg-white text-ink font-sans">
         <JsonLd id="site" data={[organizationSchema(), websiteSchema()]} />
         <AppShell>{children}</AppShell>
+        <Analytics />
       </body>
     </html>
   );

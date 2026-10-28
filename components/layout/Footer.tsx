@@ -15,8 +15,11 @@ import { NAV_CATEGORIES, site, USEFUL_LINKS } from '@/lib/site';
 const SERVICE_LINKS = [
   { label: 'My account', href: '/account' },
   { label: 'Track my order', href: '/orders' },
-  { label: 'Shipping & delivery', href: '/contact' },
-  { label: 'Returns & refunds', href: '/contact' },
+  { label: 'Shop location & hours', href: '/location' },
+  { label: 'Delivery rates', href: '/location#delivery' },
+  { label: 'Payment methods', href: '/policies#payment' },
+  { label: 'Returns & refunds', href: '/policies#returns' },
+  { label: 'Privacy (Act 843)', href: '/policies#privacy' },
   { label: 'Help Center', href: '/contact' },
 ] as const;
 
@@ -222,6 +225,18 @@ export function Footer() {
             </Link>
             <Link href="/products" className="hover:text-brand">
               Shop
+            </Link>
+            <Link href="/location" className="hover:text-brand">
+              Location
+            </Link>
+            <Link href="/policies" className="hover:text-brand">
+              Payment &amp; returns
+            </Link>
+            <Link href="/privacy" className="hover:text-brand">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-brand">
+              Terms
             </Link>
           </div>
         </div>

@@ -9,7 +9,7 @@ const posts: Array<Omit<BlogPost, 'id' | 'created_at' | 'updated_at'>> = [
     slug: 'harmattan-skin-care-routine',
     excerpt:
       'Dry, tight, ashy skin? Here is the exact routine we recommend from December to February.',
-    cover_image: '/images/products/body-lotion.jpg',
+    cover_image: '/images/products/body-lotion.webp',
     category: 'Skin care tips',
     tags: ['harmattan', 'routine', 'dry skin'],
     skin_types: ['dry', 'normal', 'sensitive'],
@@ -46,7 +46,7 @@ Harmattan air is dry and dusty, so your skin loses water faster than usual. The 
     slug: 'products-for-oily-acne-prone-skin',
     excerpt:
       'More oil does not mean you should skip moisturiser. Here is what actually helps.',
-    cover_image: '/images/products/face-wash.jpg',
+    cover_image: '/images/products/face-wash.webp',
     category: 'Routine',
     tags: ['acne', 'oily skin', 'serums'],
     skin_types: ['oily', 'combination', 'acne-prone'],
@@ -81,7 +81,7 @@ Alcohol-heavy toners, gritty scrubs and picking at breakouts.
     slug: 'baby-skin-care-first-year',
     excerpt:
       'Fragrance-free, gentle and simple — the three rules for newborn skin.',
-    cover_image: '/images/products/baby-lotion.jpg',
+    cover_image: '/images/products/baby-lotion.webp',
     category: 'Baby care',
     tags: ['baby', 'sensitive skin'],
     skin_types: ['sensitive'],
@@ -117,7 +117,7 @@ Change often, keep the area dry, and use a barrier cream at the first sign of re
     slug: 'how-to-use-vitamin-c-serum',
     excerpt:
       'Strength is not everything. Here is how to get results from vitamin C without the sting.',
-    cover_image: '/images/products/serum.jpg',
+    cover_image: '/images/products/serum.webp',
     category: 'Ingredients',
     tags: ['vitamin c', 'serums', 'dark spots'],
     skin_types: ['normal', 'combination', 'oily'],

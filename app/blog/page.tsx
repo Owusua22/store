@@ -124,7 +124,7 @@ export default async function BlogIndexPage({ searchParams }: Props) {
               >
                 <div className="relative aspect-[16/10] md:aspect-auto md:h-full">
                   <Image
-                    src={featured.cover_image ?? '/images/products/body-lotion.jpg'}
+                    src={featured.cover_image ?? '/images/products/body-lotion.webp'}
                     alt={featured.title}
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
@@ -165,7 +165,7 @@ export default async function BlogIndexPage({ searchParams }: Props) {
                   >
                     <div className="relative aspect-[16/10] overflow-hidden bg-surface-soft">
                       <Image
-                        src={post.cover_image ?? '/images/products/face-cream.jpg'}
+                        src={post.cover_image ?? '/images/products/face-cream.webp'}
                         alt={post.title}
                         fill
                         sizes="(max-width: 640px) 100vw, 33vw"

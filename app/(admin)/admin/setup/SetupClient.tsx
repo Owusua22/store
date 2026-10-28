@@ -29,6 +29,7 @@ const TABLE_LABELS: Record<string, string> = {
   profiles: 'profiles (accounts + admin roles)',
   categories: 'categories',
   skin_types: 'skin_types',
+  brands: 'brands (managed brand list)',
   products: 'products',
   product_variants: 'product_variants',
   inventory_movements: 'inventory_movements',
@@ -40,6 +41,12 @@ const TABLE_LABELS: Record<string, string> = {
   order_items: 'order_items',
   shipping_zones: 'shipping_zones',
   blog_posts: 'blog_posts',
+};
+
+const BOOKKEEPING_LABELS: Record<string, string> = {
+  suppliers: 'suppliers (who you buy from)',
+  stock_purchases: 'stock_purchases (cost price, restocks)',
+  expenses: 'expenses (rent, transport, data)',
 };
 
 export default function SetupClient({
@@ -267,6 +274,27 @@ export default function SetupClient({
                 ))}
               </div>
             )}
+
+            <details className="mt-4 rounded-lg border border-gray-100 bg-gray-50/60 p-3">
+              <summary className="cursor-pointer text-[12px] font-bold text-gray-700">
+                Accounting tables (cost prices, suppliers, expenses)
+              </summary>
+              <p className="mt-2 text-[11.5px] leading-relaxed text-gray-500">
+                Re-run <code className="font-mono">supabase/schema.sql</code> to add these. The shop
+                works without them; only <em>Accounting</em>, <em>Purchases</em>, <em>Expenses</em>{' '}
+                and <em>Suppliers</em> need them.
+              </p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {Object.keys(BOOKKEEPING_LABELS).map((table) => (
+                  <span
+                    key={table}
+                    className="inline-flex items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10.5px] font-semibold text-gray-600 ring-1 ring-gray-200"
+                  >
+                    {table}
+                  </span>
+                ))}
+              </div>
+            </details>
 
             {counts.length > 0 ? (
               <div className="mt-4 grid gap-2 sm:grid-cols-5">

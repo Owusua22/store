@@ -37,7 +37,7 @@ export function PromoBands() {
         className="group relative flex min-h-[150px] overflow-hidden rounded-xl bg-[#a01118] sm:min-h-[190px]"
       >
         <Image
-          src="/images/products/body-lotion.jpg"
+          src="/images/products/body-lotion.webp"
           alt="Body lotion offer"
           fill
           sizes="(max-width: 640px) 100vw, 50vw"
@@ -66,7 +66,7 @@ export function PromoBands() {
         className="group relative flex min-h-[150px] overflow-hidden rounded-xl bg-[#115e59] sm:min-h-[190px]"
       >
         <Image
-          src="/images/products/baby-diapers.jpg"
+          src="/images/products/baby-diapers.webp"
           alt="Baby care offer"
           fill
           sizes="(max-width: 640px) 100vw, 50vw"
@@ -98,7 +98,7 @@ export function DealBanner() {
     <section className="container-page pt-7 sm:pt-9">
       <div className="relative overflow-hidden rounded-xl bg-ink">
         <Image
-          src="/images/hero-skincare.jpg"
+          src="/images/hero-skincare.webp"
           alt="Mega deals"
           fill
           sizes="100vw"

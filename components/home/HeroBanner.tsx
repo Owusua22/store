@@ -28,7 +28,7 @@ const FALLBACK: Banner[] = [
     subtitle: 'Up to 40% off skin care',
     description:
       'Authentic body lotions, serums, face creams and baby care — delivered nationwide across Ghana.',
-    image_url: '/images/hero-skincare.jpg',
+    image_url: '/images/hero-skincare.webp',
     link_url: '/products',
     link_text: 'Shop the sale',
   },
@@ -96,7 +96,7 @@ export function HeroBanner({ banners }: HeroBannerProps) {
             >
               <Image
                 loading={slideIndex === 0 ? 'eager' : 'lazy'}
-                src={slide.image_url || '/images/hero-skincare.jpg'}
+                src={slide.image_url || '/images/hero-skincare.webp'}
                 alt={slide.title ?? 'Skincare offer'}
                 fill
                 priority={slideIndex === 0}

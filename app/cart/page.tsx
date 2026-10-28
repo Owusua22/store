@@ -1,16 +1,28 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, ShoppingBag, Trash2 } from 'lucide-react';
+import { ArrowRight, MessageCircle, ShoppingBag, Trash2 } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { CartItem } from '@/components/cart/CartItem';
 import { formatCedis } from '@/lib/utils';
 import { site } from '@/lib/site';
+import { cartOrderMessage, whatsappLink } from '@/lib/whatsapp';
 
 export default function CartPage() {
   const { items, totalItems, totalPrice, clearCart, canCheckout } = useCart();
 
   const deliveryFree = totalPrice >= site.freeDeliveryThreshold;
+
+  const whatsappOrderHref = whatsappLink(
+    cartOrderMessage(
+      items.map((item) => ({
+        name: item.product.name,
+        price: item.product.price,
+        quantity: item.quantity,
+        size: item.selected_size ?? null,
+      }))
+    )
+  );
 
   return (
     <div className="container-page py-6">
@@ -87,8 +99,17 @@ export default function CartPage() {
               Checkout <ArrowRight className="h-4 w-4" />
             </Link>
 
+            <a
+              href={whatsappOrderHref}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-[#25D366]/40 bg-[#25D366]/10 text-[13px] font-bold text-[#128C4B] transition hover:bg-[#25D366]/20"
+            >
+              <MessageCircle className="h-4 w-4" /> Order on WhatsApp
+            </a>
+
             <p className="mt-2 text-center text-[11px] text-muted">
-              Pay on delivery · MoMo · Card
+              Pay by MTN MoMo Pay (till {site.momo.payTill}) · Cash on pickup
             </p>
           </aside>
         </div>
