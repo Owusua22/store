@@ -74,15 +74,16 @@ interface Order {
 const STATUS_STEPS = [
   { key: 'pending', label: 'Pending', icon: Clock, color: 'text-yellow-600' },
   { key: 'confirmed', label: 'Confirmed', icon: CheckCircle, color: 'text-blue-600' },
-  { key: 'processing', label: 'Processing', icon: Package, color: 'text-indigo-600' },
-  { key: 'shipped', label: 'Shipped', icon: Truck, color: 'text-purple-600' },
+  { key: 'processing', label: 'Processing', icon: Package, color: 'text-red-600' },
+  { key: 'shipped', label: 'Shipped', icon: Truck, color: 'text-red-700' },
   { key: 'delivered', label: 'Delivered', icon: CheckCircle, color: 'text-green-600' },
 ];
 
 const PAYMENT_LABELS: Record<string, string> = {
-  cod: '💵 Cash on Delivery',
-  mpesa: '📱 M-Pesa',
-  card: '💳 Credit / Debit Card',
+  cod: '💵 Cash on pickup / delivery',
+  momo: '📱 MTN MoMo Pay',
+  mpesa: '📱 Mobile money',
+  card: '💳 Card',
 };
 
 export default function AdminOrderDetailPage() {
@@ -160,7 +161,7 @@ export default function AdminOrderDetailPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-red-600" />
       </div>
     );
   }
@@ -180,7 +181,7 @@ export default function AdminOrderDetailPage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900">
               Order{' '}
-              <span className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-red-600 via-red-700 to-rose-600 bg-clip-text text-transparent">
                 {order.order_number}
               </span>
             </h1>
@@ -215,7 +216,7 @@ export default function AdminOrderDetailPage() {
                     <div
                       className={`w-10 h-10 rounded-full flex items-center justify-center ${
                         isCompleted ? 'text-white' : 'bg-gray-100 text-gray-400'
-                      } ${isCurrent ? 'ring-4 ring-indigo-100' : ''}`}
+                      } ${isCurrent ? 'ring-4 ring-red-100' : ''}`}
                       style={isCompleted ? { background: 'linear-gradient(135deg, #4F46E5, #7C3AED, #EC4899)' } : undefined}
                     >
                       <Icon className="w-5 h-5" />
@@ -225,7 +226,7 @@ export default function AdminOrderDetailPage() {
                     </span>
                   </div>
                   {index < STATUS_STEPS.length - 1 && (
-                    <div className={`flex-1 h-0.5 mx-2 ${index < currentStepIndex ? 'bg-indigo-500' : 'bg-gray-200'}`} />
+                    <div className={`flex-1 h-0.5 mx-2 ${index < currentStepIndex ? 'bg-red-500' : 'bg-gray-200'}`} />
                   )}
                 </div>
               );
@@ -292,7 +293,7 @@ export default function AdminOrderDetailPage() {
           {(item.selected_size || item.selected_color) && (
             <div className="flex items-center gap-2 mt-1">
               {item.selected_size && (
-                <span className="text-xs px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md font-medium">
+                <span className="text-xs px-2 py-0.5 bg-red-50 text-red-700 rounded-md font-medium">
                   Size: {item.selected_size}
                 </span>
               )}
@@ -385,7 +386,7 @@ export default function AdminOrderDetailPage() {
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="w-4 h-4 text-gray-400" />
-                <a href={`mailto:${order.customer?.email || order.shipping_address.email}`} className="text-sm text-indigo-600 hover:text-indigo-700">
+                <a href={`mailto:${order.customer?.email || order.shipping_address.email}`} className="text-sm text-red-600 hover:text-red-700">
                   {order.customer?.email || order.shipping_address.email}
                 </a>
               </div>
@@ -437,7 +438,7 @@ export default function AdminOrderDetailPage() {
             <h3 className="font-semibold text-gray-900 mb-4">Timeline</h3>
             <div className="space-y-4">
               <div className="flex gap-3">
-                <div className="w-2 h-2 rounded-full bg-indigo-500 mt-1.5 flex-shrink-0" />
+                <div className="w-2 h-2 rounded-full bg-red-500 mt-1.5 flex-shrink-0" />
                 <div>
                   <p className="text-sm font-medium text-gray-900">Order placed</p>
                   <p className="text-xs text-gray-500">{formatDate(order.created_at)}</p>
@@ -445,7 +446,7 @@ export default function AdminOrderDetailPage() {
               </div>
               {order.updated_at !== order.created_at && (
                 <div className="flex gap-3">
-                  <div className="w-2 h-2 rounded-full bg-purple-500 mt-1.5 flex-shrink-0" />
+                  <div className="w-2 h-2 rounded-full bg-red-600 mt-1.5 flex-shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-gray-900">Last updated</p>
                     <p className="text-xs text-gray-500">{formatDate(order.updated_at)}</p>

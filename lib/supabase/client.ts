@@ -1,18 +1,17 @@
-// src/lib/supabase/client.ts
-// ✅ FIXED: Uses @supabase/ssr instead of deprecated package
+// lib/supabase/client.ts
+// Browser Supabase client. Returns null in demo mode (no credentials) so the
+// storefront can keep working with local demo auth + cart state.
 
 import { createBrowserClient } from '@supabase/ssr';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import { isSupabaseConfigured, supabaseAnonKey, supabaseUrl } from './config';
 
-// Cache the client to avoid creating multiple instances
-let client: ReturnType<typeof createBrowserClient> | null = null;
+let client: SupabaseClient | null = null;
 
-export function createClient() {
+export function createClient(): SupabaseClient | null {
+  if (!isSupabaseConfigured) return null;
   if (client) return client;
 
-  client = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
+  client = createBrowserClient(supabaseUrl, supabaseAnonKey);
   return client;
 }

@@ -5,6 +5,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/hooks/useAuth';
+import { useAuthModal } from '@/stores/authModalStore';
+import { describeAuthError } from '@/lib/auth-errors';
 import { toast } from 'react-toastify';
 
 // Simple eye icons (inline SVG) for accessibility
@@ -25,11 +27,15 @@ const registerSchema = z
   .object({
     full_name: z.string().min(2, 'Name must be at least 2 characters'),
     email: z.string().email('Invalid email address'),
+    // Contact number is required: we call/WhatsApp customers about deliveries.
     phone: z
       .string()
-      .optional()
-      .refine((val) => !val || /^[+]?[\d\s().-]{7,20}$/.test(val), {
-        message: 'Enter a valid phone number (e.g., +233 50 123 4567)',
+      .min(1, 'Contact number is required')
+      .refine((val) => /^[+]?[\d\s().-]{7,20}$/.test(val.trim()), {
+        message: 'Enter a valid phone number (e.g., 054 945 5367)',
+      })
+      .refine((val) => val.replace(/\D/g, '').length >= 9, {
+        message: 'Enter a valid phone number (e.g., 054 945 5367)',
       }),
     password: z
       .string()
@@ -52,7 +58,9 @@ interface RegisterFormProps {
 
 export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) {
   const { signUp } = useAuth();
+  const { openAuth } = useAuthModal();
   const [isLoading, setIsLoading] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   // Password visibility toggles
   const [showPassword, setShowPassword] = useState(false);
@@ -72,29 +80,35 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
   const onSubmit = async (data: RegisterFormData) => {
     try {
       setIsLoading(true);
+      setFormError(null);
 
-      // Call signUp — your hook should handle email confirmation vs immediate session
-      const result = await signUp(data.email, data.password, data.full_name);
+      const email = data.email.toLowerCase().trim();
+      const { needsEmailConfirmation } = await signUp(
+        email,
+        data.password,
+        data.full_name,
+        data.phone
+      );
 
-      // If your hook returns a `needsEmailConfirmation` flag (recommended), you can branch here:
-      if ((result as { needsEmailConfirmation: boolean })?.needsEmailConfirmation) {
-        toast.info('Please check your email and click the confirmation link before signing in.');
-        setTimeout(() => {
-          onSwitchToLogin?.();
-        }, 1200);
-        onSuccess?.();
-        return;
-      }
+      toast.success(
+        needsEmailConfirmation
+          ? 'Account created! Confirm your email, then sign in.'
+          : 'Account created successfully! Please sign in.'
+      );
 
-      toast.success('Account created successfully! Please sign in.');
-      setTimeout(() => {
-        onSwitchToLogin?.();
-      }, 1500);
       onSuccess?.();
+
+      // Never auto-signed-in: swap this dialog to the sign-in view, with the email
+      // already filled in and a note about confirming the address when required.
+      openAuth({
+        view: 'login',
+        notice: needsEmailConfirmation ? 'confirm' : 'registered',
+        email,
+      });
     } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Failed to register. Please try again.';
-      toast.error(message);
+      const info = describeAuthError(err);
+      setFormError(info.message);
+      toast.error(info.message, { autoClose: 8000 });
     } finally {
       setIsLoading(false);
     }
@@ -102,19 +116,30 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
 
   return (
     <div className="space-y-4">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900">Create account</h2>
-        <p className="mt-2 text-sm text-gray-600">
-          Already have an account?{' '}
-          <button
-            type="button"
-            onClick={onSwitchToLogin}
-            className="text-indigo-600 hover:text-indigo-500 font-medium"
-          >
-            Sign in
-          </button>
+      {onSwitchToLogin ? (
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900">Create your account</h2>
+          <p className="mt-2 text-sm text-gray-600">
+            Already have an account?{' '}
+            <button
+              type="button"
+              onClick={onSwitchToLogin}
+              className="font-medium text-brand hover:text-brand"
+            >
+              Sign in
+            </button>
+          </p>
+        </div>
+      ) : null}
+
+      {formError ? (
+        <p
+          role="alert"
+          className="rounded-lg border border-brand/25 bg-brand-soft px-3.5 py-2.5 text-[12.5px] leading-relaxed text-brand-dark"
+        >
+          {formError}
         </p>
-      </div>
+      ) : null}
 
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)}>
         {/* Full Name */}
@@ -127,7 +152,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
             id="full_name"
             type="text"
             autoComplete="name"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
             placeholder="Jane Doe"
           />
           {errors.full_name && (
@@ -145,7 +170,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
             id="email"
             type="email"
             autoComplete="email"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
             placeholder="you@example.com"
           />
           {errors.email && (
@@ -153,21 +178,28 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
           )}
         </div>
 
-        {/* Phone (optional) */}
+        {/* Contact number */}
         <div>
           <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
-            Phone number <span className="text-gray-400 font-normal">(optional)</span>
+            Contact number
           </label>
           <input
             {...register('phone')}
             id="phone"
             type="tel"
+            inputMode="tel"
             autoComplete="tel"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="+233 50 123 4567"
+            required
+            aria-describedby="phone-hint"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
+            placeholder="054 945 5367"
           />
-          {errors.phone && (
+          {errors.phone ? (
             <p className="mt-1 text-sm text-red-600">{errors.phone.message}</p>
+          ) : (
+            <p id="phone-hint" className="mt-1 text-xs text-gray-500">
+              We&apos;ll call or WhatsApp you about delivery.
+            </p>
           )}
         </div>
 
@@ -182,7 +214,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
               id="password"
               type={showPassword ? 'text' : 'password'}
               autoComplete="new-password"
-              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
               placeholder="Create a strong password"
             />
             <button
@@ -214,7 +246,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
               id="confirm_password"
               type={showConfirmPassword ? 'text' : 'password'}
               autoComplete="new-password"
-              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand"
               placeholder="Re-enter your password"
             />
             <button
@@ -235,11 +267,12 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full py-3 px-4 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+          className="w-full py-3 px-4 bg-brand text-white rounded-lg font-medium hover:bg-brand-dark disabled:opacity-50 transition-colors"
         >
           {isLoading ? 'Creating account...' : 'Create account'}
         </button>
       </form>
+
     </div>
   );
 }

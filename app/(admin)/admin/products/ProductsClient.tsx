@@ -1,356 +1,301 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
-import { formatPrice } from '@/lib/utils';
 import Image from 'next/image';
+import { Pencil, Search } from 'lucide-react';
+import { formatCedis } from '@/lib/utils';
 import ArchiveButton from './ArchiveButton';
 
-interface Variant {
-  id: string;
-  size: string;
-  color: string;
-  price: number;
-  compare_at_price: number | null;
-  stock_quantity: number;
-}
-
-interface Product {
+export interface AdminProductRow {
   id: string;
   name: string;
-  description: string;
-  thumbnail: string;
+  brand: string | null;
+  thumbnail: string | null;
   price: number;
   compare_at_price: number | null;
   stock_quantity: number;
+  low_stock_threshold: number | null;
+  skin_types: string[] | null;
   is_active: boolean;
+  is_featured: boolean;
+  archived: boolean;
   created_at: string;
-  category: { name: string } | null;
-  variants: Variant[];
-}
-
-interface Category {
-  id: string;
-  name: string;
+  category: { id: string; name: string } | null;
 }
 
 interface ProductsClientProps {
-  products: Product[];
-  categories: Category[];
+  products: AdminProductRow[];
+  categories: { id: string; name: string }[];
+  skinTypes: { slug: string; label: string; emoji: string | null }[];
+  demoMode: boolean;
 }
 
-export default function ProductsClient({ products, categories }: ProductsClientProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [stockFilter, setStockFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+export default function ProductsClient({
+  products,
+  categories,
+  skinTypes,
+  demoMode,
+}: ProductsClientProps) {
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('all');
+  const [skin, setSkin] = useState('all');
+  const [stock, setStock] = useState('all');
+  const [status, setStatus] = useState('all');
 
-  // ✅ Filter and search logic
-  const filteredProducts = useMemo(() => {
+  const filtered = useMemo(() => {
+    const term = search.trim().toLowerCase();
+
     return products.filter((product) => {
-      const variants = (product.variants ?? []) as Variant[];
-      const totalStock = variants.length > 0
-        ? variants.reduce((sum, v) => sum + v.stock_quantity, 0)
-        : product.stock_quantity;
-
-      // Search filter
-      const searchLower = searchTerm.toLowerCase();
       const matchesSearch =
-        product.name.toLowerCase().includes(searchLower) ||
-        product.description?.toLowerCase().includes(searchLower);
+        !term ||
+        product.name.toLowerCase().includes(term) ||
+        (product.brand ?? '').toLowerCase().includes(term);
 
-      // Category filter
-      const categoryName = typeof product.category === 'object' && product.category
-        ? product.category.name
-        : product.category;
       const matchesCategory =
-        selectedCategory === 'all' || categoryName === selectedCategory;
+        category === 'all' || (product.category?.name ?? '') === category;
 
-      // Stock filter
-      let matchesStock = true;
-      if (stockFilter === 'low') matchesStock = totalStock > 0 && totalStock <= 10;
-      if (stockFilter === 'out') matchesStock = totalStock === 0;
-      if (stockFilter === 'in') matchesStock = totalStock > 10;
+      const matchesSkin =
+        skin === 'all' || (product.skin_types ?? []).includes(skin);
 
-      // Status filter
+      const threshold = product.low_stock_threshold ?? 10;
+      const matchesStock =
+        stock === 'all' ||
+        (stock === 'in' && product.stock_quantity > threshold) ||
+        (stock === 'low' && product.stock_quantity > 0 && product.stock_quantity <= threshold) ||
+        (stock === 'out' && product.stock_quantity === 0);
+
       const matchesStatus =
-        statusFilter === 'all' ||
-        (statusFilter === 'active' && product.is_active) ||
-        (statusFilter === 'archived' && !product.is_active);
+        status === 'all' ||
+        (status === 'active' && product.is_active && !product.archived) ||
+        (status === 'draft' && !product.is_active && !product.archived) ||
+        (status === 'archived' && product.archived);
 
-      return matchesSearch && matchesCategory && matchesStock && matchesStatus;
+      return matchesSearch && matchesCategory && matchesSkin && matchesStock && matchesStatus;
     });
-  }, [products, searchTerm, selectedCategory, stockFilter, statusFilter]);
+  }, [products, search, category, skin, stock, status]);
 
-  const resetFilters = () => {
-    setSearchTerm('');
-    setSelectedCategory('all');
-    setStockFilter('all');
-    setStatusFilter('all');
+  const reset = () => {
+    setSearch('');
+    setCategory('all');
+    setSkin('all');
+    setStock('all');
+    setStatus('all');
   };
 
-  const hasActiveFilters =
-    searchTerm || selectedCategory !== 'all' || stockFilter !== 'all' || statusFilter !== 'all';
+  const hasFilters =
+    search || category !== 'all' || skin !== 'all' || stock !== 'all' || status !== 'all';
+
+  const skinLabel = (slug: string) => skinTypes.find((type) => type.slug === slug);
 
   return (
-    <>
-      {/* 🔍 Search Bar */}
-      <div className="mb-6">
-        <div className="relative">
+    <div>
+      {demoMode ? (
+        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-[12.5px] text-amber-800">
+          <strong className="font-bold">Demo catalogue.</strong> Connect Supabase in{' '}
+          <code>.env.local</code> to upload real products — this list is bundled sample data.
+        </div>
+      ) : null}
+
+      <div className="mb-5 flex flex-wrap items-center gap-3">
+        <div className="relative max-w-sm flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input
-            type="text"
-            placeholder="Search by product name or description..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2.5 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search name or brand…"
+            className="w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-9 pr-3 text-[13.5px] outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100"
           />
-          <svg
-            className="absolute left-3 top-3 w-5 h-5 text-gray-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+        </div>
+
+        {[
+          {
+            value: category,
+            onChange: setCategory,
+            options: [
+              { value: 'all', label: 'All categories' },
+              ...categories.map((item) => ({ value: item.name, label: item.name })),
+            ],
+          },
+          {
+            value: skin,
+            onChange: setSkin,
+            options: [
+              { value: 'all', label: 'All skin types' },
+              ...skinTypes.map((item) => ({
+                value: item.slug,
+                label: `${item.emoji ?? ''} ${item.label}`.trim(),
+              })),
+            ],
+          },
+          {
+            value: stock,
+            onChange: setStock,
+            options: [
+              { value: 'all', label: 'Any stock' },
+              { value: 'in', label: 'In stock' },
+              { value: 'low', label: 'Low stock' },
+              { value: 'out', label: 'Out of stock' },
+            ],
+          },
+          {
+            value: status,
+            onChange: setStatus,
+            options: [
+              { value: 'all', label: 'All status' },
+              { value: 'active', label: 'Active' },
+              { value: 'draft', label: 'Hidden' },
+              { value: 'archived', label: 'Archived' },
+            ],
+          },
+        ].map((filter, index) => (
+          <select
+            key={index}
+            value={filter.value}
+            onChange={(event) => filter.onChange(event.target.value)}
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2.5 text-[13px] text-gray-700 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-        </div>
+            {filter.options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        ))}
+
+        {hasFilters ? (
+          <button
+            onClick={reset}
+            className="rounded-lg bg-gray-100 px-3 py-2.5 text-[12.5px] font-semibold text-gray-700 hover:bg-gray-200"
+          >
+            Reset
+          </button>
+        ) : null}
       </div>
 
-      {/* 🎯 Filters */}
-      <div className="mb-6 bg-white rounded-lg border border-gray-200 p-4">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Category Filter */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Category
-            </label>
-            <select
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
-            >
-              <option value="all">All Categories</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.name}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          </div>
+      <p className="mb-3 text-[12px] text-gray-500">
+        Showing {filtered.length} of {products.length} products
+      </p>
 
-          {/* Stock Filter */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Stock Level
-            </label>
-            <select
-              value={stockFilter}
-              onChange={(e) => setStockFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
-            >
-              <option value="all">All Stock Levels</option>
-              <option value="in">In Stock (10)</option>
-              <option value="low">Low Stock (1-10)</option>
-              <option value="out">Out of Stock</option>
-            </select>
-          </div>
-
-          {/* Status Filter */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Status
-            </label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm"
-            >
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="archived">Archived</option>
-            </select>
-          </div>
-
-          {/* Reset Button */}
-          <div className="flex items-end">
-            {hasActiveFilters && (
-              <button
-                onClick={resetFilters}
-                className="w-full px-3 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-              >
-                Reset Filters
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Results Counter */}
-        {hasActiveFilters && (
-          <div className="mt-3 text-sm text-gray-600">
-            Showing {filteredProducts.length} of {products.length} products
-          </div>
-        )}
-      </div>
-
-      {/* 📊 Products Table */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm">
+        <table className="w-full text-left text-[13px]">
+          <thead className="border-b border-gray-100 bg-gray-50 text-[11px] uppercase tracking-wider text-gray-500">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Product
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Price
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Variants
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Stock
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Category
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                Actions
-              </th>
+              <th className="px-5 py-3 font-bold">Product</th>
+              <th className="px-5 py-3 font-bold">Skin types</th>
+              <th className="px-5 py-3 font-bold">Price</th>
+              <th className="px-5 py-3 font-bold">Stock</th>
+              <th className="px-5 py-3 font-bold">Category</th>
+              <th className="px-5 py-3 font-bold">Status</th>
+              <th className="px-5 py-3 text-right font-bold">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
-            {filteredProducts.map((product) => {
-              const variants = (product.variants ?? []) as Variant[];
-              const hasVariants = variants.length > 0;
-              const uniqueSizes = [...new Set(variants.map((v: Variant) => v.size))];
-              const uniqueColors = [...new Set(variants.map((v: Variant) => v.color))];
-              const totalVariantStock = variants.reduce((sum: number, v: Variant) => sum + v.stock_quantity, 0);
-              const priceRange = hasVariants
-                ? { min: Math.min(...variants.map((v: Variant) => v.price)), max: Math.max(...variants.map((v: Variant) => v.price)) }
-                : null;
-              const displayStock = hasVariants ? totalVariantStock : product.stock_quantity;
+          <tbody className="divide-y divide-gray-50">
+            {filtered.map((product) => {
+              const threshold = product.low_stock_threshold ?? 10;
+              const isOut = product.stock_quantity === 0;
+              const isLow = !isOut && product.stock_quantity <= threshold;
 
               return (
-                <tr key={product.id} className="hover:bg-gray-50 transition-colors">
-                  {/* Product */}
-                  <td className="px-6 py-4">
+                <tr key={product.id} className="hover:bg-gray-50/60">
+                  <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
-                      {product.thumbnail ? (
-                        <Image
-                          src={product.thumbnail}
-                          alt={product.name}
-                          width={48}
-                          height={48}
-                          className="w-12 h-12 rounded-lg object-cover border border-gray-200"
-                        />
-                      ) : (
-                        <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center text-gray-400">
-                          📷
-                        </div>
-                      )}
+                      <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-gray-50">
+                        {product.thumbnail ? (
+                          <Image
+                            src={product.thumbnail}
+                            alt=""
+                            fill
+                            sizes="44px"
+                            className="object-cover"
+                          />
+                        ) : null}
+                      </div>
                       <div>
-                        <p className="font-medium text-gray-900">{product.name}</p>
-                        <p className="text-sm text-gray-500 line-clamp-1">{product.description || ''}</p>
+                        <p className="font-bold text-gray-900">{product.name}</p>
+                        <p className="text-[11.5px] text-gray-500">
+                          {product.brand ?? 'No brand'}
+                          {product.is_featured ? ' · Featured' : ''}
+                        </p>
                       </div>
                     </div>
                   </td>
 
-                  {/* Price */}
-                  <td className="px-6 py-4">
-                    {hasVariants && priceRange ? (
-                      <div>
-                        <p className="font-medium text-gray-900">
-                          {priceRange.min === priceRange.max
-                            ? formatPrice(priceRange.min)
-                            : `${formatPrice(priceRange.min)} – ${formatPrice(priceRange.max)}`}
-                        </p>
-                        <p className="text-xs text-gray-400">from variants</p>
-                      </div>
+                  <td className="px-5 py-3.5">
+                    {(product.skin_types ?? []).length === 0 ? (
+                      <span className="text-[11.5px] text-gray-400">All skin types</span>
                     ) : (
-                      <div>
-                        <p className="font-medium text-gray-900">{formatPrice(product.price)}</p>
-                        {product.compare_at_price && (
-                          <p className="text-sm text-gray-400 line-through">{formatPrice(product.compare_at_price)}</p>
-                        )}
-                      </div>
-                    )}
-                  </td>
-
-                  {/* Variants */}
-                  <td className="px-6 py-4">
-                    {hasVariants ? (
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">{variants.length} variant{variants.length !== 1 ? 's' : ''}</p>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {uniqueSizes.map((size: string) => (
-                            <span key={size} className="text-[10px] px-1.5 py-0.5 bg-indigo-50 text-indigo-700 rounded font-medium">
-                              {size}
-                            </span>
-                          ))}
-                        </div>
-                        <div className="flex items-center gap-1 mt-1">
-                          {uniqueColors.slice(0, 5).map((color: string) => (
+                      <div className="flex flex-wrap gap-1">
+                        {(product.skin_types ?? []).map((slug) => {
+                          const type = skinLabel(slug);
+                          return (
                             <span
-                              key={color}
-                              className="w-3.5 h-3.5 rounded-full border border-gray-200"
-                              style={{ backgroundColor: color.toLowerCase() }}
-                              title={color}
-                            />
-                          ))}
-                          {uniqueColors.length > 5 && (
-                            <span className="text-[10px] text-gray-400">+{uniqueColors.length - 5}</span>
-                          )}
-                        </div>
+                              key={slug}
+                              className="rounded-full bg-gray-100 px-2 py-0.5 text-[10.5px] font-semibold text-gray-700"
+                            >
+                              {type?.emoji ?? '✨'} {type?.label ?? slug}
+                            </span>
+                          );
+                        })}
                       </div>
+                    )}
+                  </td>
+
+                  <td className="px-5 py-3.5">
+                    <p className="font-bold text-gray-900">{formatCedis(product.price)}</p>
+                    {product.compare_at_price && product.compare_at_price > product.price ? (
+                      <p className="text-[11px] text-gray-400 line-through">
+                        {formatCedis(product.compare_at_price)}
+                      </p>
+                    ) : null}
+                  </td>
+
+                  <td className="px-5 py-3.5">
+                    <span
+                      className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                        isOut
+                          ? 'bg-red-50 text-red-700'
+                          : isLow
+                            ? 'bg-amber-50 text-amber-700'
+                            : 'bg-emerald-50 text-emerald-700'
+                      }`}
+                    >
+                      {isOut ? 'Out of stock' : `${product.stock_quantity} in stock`}
+                    </span>
+                    {isLow ? (
+                      <p className="mt-0.5 text-[10.5px] text-gray-400">
+                        alert at {threshold}
+                      </p>
+                    ) : null}
+                  </td>
+
+                  <td className="px-5 py-3.5 text-gray-600">
+                    {product.category?.name ?? '—'}
+                  </td>
+
+                  <td className="px-5 py-3.5">
+                    {product.archived ? (
+                      <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-bold text-gray-600">
+                        Archived
+                      </span>
+                    ) : product.is_active ? (
+                      <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
+                        Active
+                      </span>
                     ) : (
-                      <span className="text-xs text-gray-400">No variants</span>
+                      <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-700">
+                        Hidden
+                      </span>
                     )}
                   </td>
 
-                  {/* Stock */}
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      displayStock > 10 ? 'bg-green-100 text-green-800' :
-                      displayStock > 0 ? 'bg-orange-100 text-orange-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {displayStock} in stock
-                    </span>
-                    {hasVariants && (
-                      <p className="text-[10px] text-gray-400 mt-0.5">across {variants.length} variants</p>
-                    )}
-                  </td>
-
-                  {/* Category */}
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {typeof product.category === 'object' && product.category !== null
-                      ? (product.category as { name: string }).name
-                      : product.category || '—'}
-                  </td>
-
-                  {/* Status */}
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      product.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                    }`}>
-                      {product.is_active ? 'Active' : 'Archived'}
-                    </span>
-                  </td>
-
-                  {/* Actions */}
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center justify-end gap-1.5">
                       <Link
                         href={`/admin/products/${product.id}/edit`}
-                        className="px-3 py-1.5 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                        className="inline-flex items-center gap-1 rounded-md border border-gray-200 px-2.5 py-1.5 text-[12px] font-semibold text-gray-700 hover:bg-gray-50"
                       >
-                        Edit
+                        <Pencil className="h-3.5 w-3.5" /> Edit
                       </Link>
                       <ArchiveButton productId={product.id} isActive={product.is_active} />
                     </div>
@@ -361,30 +306,21 @@ export default function ProductsClient({ products, categories }: ProductsClientP
           </tbody>
         </table>
 
-        {(!filteredProducts || filteredProducts.length === 0) && (
-          <div className="text-center py-12">
-            <div className="text-4xl mb-3">📦</div>
-            {hasActiveFilters ? (
-              <>
-                <p className="text-gray-500 mb-4">No products match your filters</p>
-                <button
-                  onClick={resetFilters}
-                  className="text-indigo-600 hover:text-indigo-700 font-medium"
-                >
-                  Reset filters →
-                </button>
-              </>
+        {filtered.length === 0 ? (
+          <div className="py-12 text-center">
+            <p className="text-[13px] text-gray-500">No products match these filters.</p>
+            {hasFilters ? (
+              <button onClick={reset} className="mt-2 text-[13px] font-bold text-red-600">
+                Reset filters →
+              </button>
             ) : (
-              <>
-                <p className="text-gray-500 mb-4">No products found</p>
-                <Link href="/admin/products/new" className="text-indigo-600 hover:text-indigo-700 font-medium">
-                  Add your first product →
-                </Link>
-              </>
+              <Link href="/admin/products/new" className="mt-2 inline-block text-[13px] font-bold text-red-600">
+                Add your first product →
+              </Link>
             )}
           </div>
-        )}
+        ) : null}
       </div>
-    </>
+    </div>
   );
 }

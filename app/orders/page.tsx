@@ -2,23 +2,27 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ArrowRight, Package, ShoppingBag, Clock, CheckCircle2, XCircle, Truck, RefreshCcw, Loader2 } from 'lucide-react';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { formatPrice } from '@/lib/utils';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { checkDatabaseHealth, logDatabaseError } from '@/lib/supabase/health';
+import { formatCedis } from '@/lib/utils';
+
+export const dynamic = 'force-dynamic';
 
 /* ─── Status config ──────────────────────────────────────────────── */
 const ORDER_STATUS: Record<string, { label: string; color: string; bg: string; icon: React.ReactNode }> = {
   pending:    { label: 'Pending',    color: 'text-amber-700',   bg: 'bg-amber-50 border-amber-200',   icon: <Clock className="w-3 h-3" /> },
   confirmed:  { label: 'Confirmed',  color: 'text-sky-700',     bg: 'bg-sky-50 border-sky-200',       icon: <CheckCircle2 className="w-3 h-3" /> },
-  processing: { label: 'Processing', color: 'text-violet-700',  bg: 'bg-violet-50 border-violet-200', icon: <Loader2 className="w-3 h-3" /> },
+  processing: { label: 'Processing', color: 'text-accent-dark',    bg: 'bg-accent-soft border-accent/30', icon: <Loader2 className="w-3 h-3" /> },
   shipped:    { label: 'Shipped',    color: 'text-blue-700',    bg: 'bg-blue-50 border-blue-200',     icon: <Truck className="w-3 h-3" /> },
   delivered:  { label: 'Delivered',  color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200', icon: <CheckCircle2 className="w-3 h-3" /> },
-  cancelled:  { label: 'Cancelled',  color: 'text-rose-700',    bg: 'bg-rose-50 border-rose-200',     icon: <XCircle className="w-3 h-3" /> },
+  cancelled:  { label: 'Cancelled',  color: 'text-accent-dark',    bg: 'bg-accent-soft border-accent/30',     icon: <XCircle className="w-3 h-3" /> },
   refunded:   { label: 'Refunded',   color: 'text-slate-600',   bg: 'bg-slate-50 border-slate-200',   icon: <RefreshCcw className="w-3 h-3" /> },
 };
 
 const PAYMENT_STATUS: Record<string, { label: string; dot: string }> = {
   pending:  { label: 'Payment pending', dot: 'bg-amber-400' },
   paid:     { label: 'Paid',            dot: 'bg-emerald-500' },
-  failed:   { label: 'Payment failed',  dot: 'bg-rose-500' },
+  failed:   { label: 'Payment failed',  dot: 'bg-accent' },
   refunded: { label: 'Refunded',        dot: 'bg-slate-400' },
 };
 
@@ -73,7 +77,7 @@ function OrderCard({ order }: { order: OrderListItem }) {
       className="group block bg-white rounded-2xl border border-slate-200 hover:border-slate-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-300 overflow-hidden"
     >
       {/* Top accent bar — thin gradient line */}
-      <div className="h-0.5 w-full bg-gradient-to-r from-violet-500 via-fuchsia-400 to-rose-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+      <div className="h-0.5 w-full bg-gradient-to-r from-brand via-accent to-amber-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
       <div className="p-5 sm:p-6">
         {/* Row 1 – order number + status */}
@@ -114,14 +118,14 @@ function OrderCard({ order }: { order: OrderListItem }) {
           <div className="col-span-2 sm:col-span-1 sm:text-right">
             <p className="text-[10px] uppercase tracking-widest font-semibold text-slate-400 mb-0.5">Total</p>
             <p className="text-lg font-extrabold text-slate-900 tabular-nums">
-              {formatPrice(order.total_amount)}
+              {formatCedis(order.total_amount)}
             </p>
           </div>
         </div>
 
         {/* Row 3 – CTA */}
         <div className="mt-5 flex items-center justify-end">
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-violet-600 group-hover:text-violet-700 transition-colors">
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand group-hover:text-brand-dark transition-colors">
             View details
             <ArrowRight className="w-3.5 h-3.5 translate-x-0 group-hover:translate-x-0.5 transition-transform duration-200" />
           </span>
@@ -133,6 +137,11 @@ function OrderCard({ order }: { order: OrderListItem }) {
 
 /* ─── Page ───────────────────────────────────────────────────────── */
 export default async function OrdersPage() {
+  // Demo mode: no backend, so show the empty state instead of redirect loops.
+  if (!isSupabaseConfigured) {
+    return <OrdersShell orders={[]} />;
+  }
+
   const supabase = await createServerSupabaseClient();
 
   const {
@@ -140,7 +149,7 @@ export default async function OrdersPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/login?redirect=/orders');
+    redirect('/?auth=login&redirect=/orders');
   }
 
   const { data: orders, error } = await supabase
@@ -150,10 +159,24 @@ export default async function OrdersPage() {
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error('Failed to fetch user orders:', error);
+    logDatabaseError('orders page', error);
+    const database = await checkDatabaseHealth();
+    if (!database.initialized) {
+      return <OrdersShell orders={[]} setupRequired />;
+    }
   }
 
-  const safeOrders = (orders ?? []) as OrderListItem[];
+  return <OrdersShell orders={(orders ?? []) as OrderListItem[]} />;
+}
+
+function OrdersShell({
+  orders,
+  setupRequired = false,
+}: {
+  orders: OrderListItem[];
+  setupRequired?: boolean;
+}) {
+  const safeOrders = orders;
 
   /* ── Quick stats ── */
   const totalSpent = safeOrders.reduce((sum, o) => sum + (o.total_amount ?? 0), 0);
@@ -164,13 +187,13 @@ export default async function OrdersPage() {
   return (
     <main className="min-h-screen bg-[#F8F7F4]">
       {/* ── Hero / header strip ── */}
-      <div className="bg-white border-b border-slate-200">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+      <div className="border-b border-slate-200 bg-white">
+        <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
           <div className="flex items-center gap-3 mb-1">
-            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-violet-100 text-violet-600 shrink-0">
+            <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-brand-soft text-brand shrink-0">
               <ShoppingBag className="w-5 h-5" />
             </div>
-            <p className="text-xs font-bold uppercase tracking-widest text-violet-600">My Account</p>
+            <p className="text-xs font-bold uppercase tracking-widest text-brand">My Account</p>
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
             Order History
@@ -185,7 +208,7 @@ export default async function OrdersPage() {
               {[
                 { label: 'Orders placed', value: safeOrders.length },
                 { label: 'Active orders', value: activeCount },
-                { label: 'Total spent', value: formatPrice(totalSpent) },
+                { label: 'Total spent', value: formatCedis(totalSpent) },
               ].map(({ label, value }) => (
                 <div
                   key={label}
@@ -212,9 +235,13 @@ export default async function OrdersPage() {
             <div className="mx-auto w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mb-5 text-3xl">
               <Package className="w-8 h-8 text-slate-400" />
             </div>
-            <h2 className="text-xl font-bold text-slate-900 mb-2">No orders yet</h2>
-            <p className="text-sm text-slate-500 mb-8 max-w-xs mx-auto leading-relaxed">
-              Looks like you haven&apos;t placed any orders. Discover products you&apos;ll love.
+            <h2 className="text-xl font-bold text-slate-900 mb-2">
+              {setupRequired ? 'Orders are almost ready' : 'No orders yet'}
+            </h2>
+            <p className="text-sm text-slate-500 mb-8 max-w-sm mx-auto leading-relaxed">
+              {setupRequired
+                ? 'The store database is being set up, so order history is not available yet. Please check back shortly.'
+                : "Looks like you haven't placed any orders. Discover products you'll love."}
             </p>
             <Link
               href="/products"

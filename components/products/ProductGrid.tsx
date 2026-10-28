@@ -57,13 +57,13 @@ export function ProductGrid({
           placeholder="Search products..."
           defaultValue={currentSearch}
           onChange={(e) => updateParams({ search: e.target.value || undefined })}
-          className="flex-1 min-w-48 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flex-1 min-w-48 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/30"
         />
 
         <select
           value={currentCategory || ''}
           onChange={(e) => updateParams({ category: e.target.value || undefined })}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/30"
         >
           <option value="">All Categories</option>
           {categories.map((c) => (
@@ -74,7 +74,7 @@ export function ProductGrid({
         <select
           value={currentSort || 'newest'}
           onChange={(e) => updateParams({ sort: e.target.value })}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand/30"
         >
           <option value="newest">Newest</option>
           <option value="price-asc">Price: Low to High</option>
@@ -111,7 +111,7 @@ export function ProductGrid({
               key={p}
               onClick={() => updateParams({ page: String(p) })}
               className={`px-4 py-2 border rounded-lg transition-colors ${
-                p === page ? 'bg-indigo-600 text-white border-indigo-600' : 'hover:bg-gray-50'
+                p === page ? 'bg-brand text-white border-brand' : 'hover:bg-gray-50'
               }`}
             >
               {p}

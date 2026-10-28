@@ -1,8 +1,10 @@
 // app/products/[slug]/page.tsx
 import { notFound } from 'next/navigation';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
-import { ProductDetails } from '@/components/products/ProductDetails';
 import type { Metadata } from 'next';
+import { ProductDetails } from '@/components/products/ProductDetails';
+import { getProductBySlug, getRelatedProducts } from '@/lib/data/store';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { breadcrumbSchema, productSchema } from '@/lib/seo/jsonld';
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -10,19 +12,12 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const supabase = await createServerSupabaseClient();
+  const product = await getProductBySlug(slug);
 
-  const { data: product } = await supabase
-    .from('products')
-    .select('name, description, thumbnail')
-    .eq('slug', slug)
-    .eq('is_active', true)
-    .single();
-
-  if (!product) return { title: 'Product Not Found' };
+  if (!product) return { title: 'Product not found' };
 
   return {
-    title: `${product.name} | Sally's Clothing & More`,
+    title: product.name,
     description: product.description ?? undefined,
     openGraph: {
       title: product.name,
@@ -34,32 +29,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function ProductPage({ params }: Props) {
   const { slug } = await params;
-  const supabase = await createServerSupabaseClient();
-
-  // ✅ Added variants:product_variants(*)
-  const { data: product } = await supabase
-    .from('products')
-    .select('*, category:categories(id, name, slug, icon, description), variants:product_variants(*)')
-    .eq('slug', slug)
-    .eq('is_active', true)
-    .single();
+  const product = await getProductBySlug(slug);
 
   if (!product) notFound();
 
-  const { data: relatedProducts } = product.category_id
-    ? await supabase
-        .from('products')
-        .select('id, name, slug, price, compare_at_price, thumbnail, stock_quantity')
-        .eq('category_id', product.category_id)
-        .eq('is_active', true)
-        .neq('id', product.id)
-        .limit(4)
-    : { data: [] };
+  const relatedProducts = await getRelatedProducts(product, 4);
 
   return (
-    <ProductDetails
-      product={product}
-      relatedProducts={relatedProducts ?? []}
-    />
+    <>
+      <JsonLd
+        id="product"
+        data={[
+          productSchema(product),
+          breadcrumbSchema([
+            { name: 'Home', href: '/' },
+            { name: 'Shop', href: '/products' },
+            ...(product.category
+              ? [{ name: product.category.name, href: `/categories/${product.category.slug}` }]
+              : []),
+            { name: product.name, href: `/products/${product.slug}` },
+          ]),
+        ]}
+      />
+      <ProductDetails product={product} relatedProducts={relatedProducts} />
+    </>
   );
 }

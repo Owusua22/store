@@ -5,6 +5,10 @@ import { createClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 import { formatZodError } from '@/lib/validation';
 import type { Product } from '@/types';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { site } from '@/lib/site';
+
+const FREE_DELIVERY_THRESHOLD = site.freeDeliveryThreshold;
 
 // ============================================
 // Schemas and Helpers
@@ -14,14 +18,23 @@ const shippingSchema = z.object({
   full_name: z.string().min(1, 'Full name is required'),
   email: z.string().email('Valid email required'),
   phone: z.string().min(1, 'Phone number is required'),
- 
-  
+  address: z.string().optional(),
+  address_line1: z.string().optional(),
+  address_line2: z.string().optional(),
+  town: z.string().optional(),
+  city: z.string().optional(),
+  region: z.string().optional(),
+  zone_id: z.string().uuid().optional().nullable(),
+  delivery_notes: z.string().optional(),
 });
 
 const checkoutSchema = z.object({
   shipping_address: shippingSchema,
-  payment_method: z.enum(['cod', 'card', 'mpesa']).default('cod'),
+  payment_method: z.enum(['cod', 'card', 'mpesa', 'momo']).default('cod'),
   notes: z.string().optional(),
+  delivery_method: z.enum(['delivery', 'pickup']).default('delivery'),
+  shipping_zone_id: z.string().uuid().optional().nullable(),
+  discount_code_id: z.string().uuid().optional().nullable(),
 });
 
 function generateOrderNumber(): string {
@@ -42,6 +55,32 @@ function getAdminClient() {
 // CHECKOUT API ROUTE (POST)
 // ============================================
 export async function POST(request: NextRequest) {
+  // Demo mode: accept the order without a backend so checkout can be tested.
+  if (!isSupabaseConfigured) {
+    try {
+      const body = await request.json();
+      const shipping = body?.shipping_address ?? {};
+      const name = String(shipping.full_name ?? '').trim();
+
+      if (!name) {
+        return NextResponse.json(
+          { success: false, error: 'Full name is required' },
+          { status: 400 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: { order_number: generateOrderNumber(), demo: true },
+      });
+    } catch {
+      return NextResponse.json(
+        { success: false, error: 'Invalid request body' },
+        { status: 400 }
+      );
+    }
+  }
+
   try {
     const supabase = await createRouteHandlerSupabaseClient();
     const user = await getAuthenticatedUser();
@@ -114,6 +153,8 @@ export async function POST(request: NextRequest) {
       product_image: string | null;
       quantity: number;
       unit_price: number;
+      /** Cost price at the moment of sale — powers the COGS in /admin/accounting */
+      unit_cost: number;
       total_price: number;
       selected_size: string | null;
       selected_color: string | null;
@@ -160,6 +201,7 @@ export async function POST(request: NextRequest) {
         product_image: product.thumbnail,
         quantity: item.quantity,
         unit_price: product.price,
+        unit_cost: Number(product.cost_price ?? 0),
         total_price: itemTotal,
         selected_size: item.selected_size || null,
         selected_color: item.selected_color || null,
@@ -173,7 +215,53 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    const shippingAmount = subtotal > 500 ? 0 : 50;
+    // Delivery is free above the brand threshold (GH₵300) and for pickup.
+    // Below that we use the zone the shopper picked, falling back to the
+    // matching town/region and finally the cheapest active zone.
+    const address = validated.data.shipping_address;
+    const adminClient = getAdminClient();
+    const deliveryMethod = validated.data.delivery_method;
+    const zoneId = validated.data.shipping_zone_id ?? address.zone_id ?? null;
+    let shippingAmount = 0;
+
+    if (deliveryMethod === 'delivery' && subtotal < FREE_DELIVERY_THRESHOLD) {
+      let zoneFee: number | null = null;
+
+      if (zoneId) {
+        const { data: zone } = await adminClient
+          .from('shipping_zones')
+          .select('shipping_fee')
+          .eq('id', zoneId)
+          .maybeSingle();
+        zoneFee = zone ? Number(zone.shipping_fee) : null;
+      }
+
+      if (zoneFee === null && (address.town || address.city || address.region)) {
+        let zoneQuery = adminClient
+          .from('shipping_zones')
+          .select('shipping_fee')
+          .eq('is_active', true)
+          .limit(1);
+        if (address.town || address.city) zoneQuery = zoneQuery.eq('town', address.town ?? address.city);
+        else if (address.region) zoneQuery = zoneQuery.eq('region', address.region);
+
+        const { data: zone } = await zoneQuery;
+        zoneFee = zone && zone[0] ? Number(zone[0].shipping_fee) : null;
+      }
+
+      if (zoneFee === null) {
+        const { data: cheapest } = await adminClient
+          .from('shipping_zones')
+          .select('shipping_fee')
+          .eq('is_active', true)
+          .order('shipping_fee', { ascending: true })
+          .limit(1);
+        zoneFee = cheapest && cheapest[0] ? Number(cheapest[0].shipping_fee) : 0;
+      }
+
+      shippingAmount = zoneFee ?? 0;
+    }
+
     const taxAmount = 0;
     const totalAmount = subtotal + shippingAmount + taxAmount;
 
@@ -186,9 +274,6 @@ export async function POST(request: NextRequest) {
       totalAmount,
       itemCount: orderItemsPayload.length,
     });
-
-    // Use admin client for write operations
-    const adminClient = getAdminClient();
 
     // Create the Order
     console.log('📝 [CHECKOUT] Creating order...');
@@ -206,6 +291,9 @@ export async function POST(request: NextRequest) {
         payment_status: 'pending',
         payment_method: validated.data.payment_method,
         notes: validated.data.notes || null,
+        delivery_method: deliveryMethod,
+        shipping_zone_id: zoneId,
+        discount_amount: 0,
       })
       .select()
       .single();
@@ -244,6 +332,13 @@ export async function POST(request: NextRequest) {
         console.error(`❌ [CHECKOUT] Stock update error for ${update.product_id}:`, stockUpdateError);
       } else {
         console.log(`  ✅ ${update.product_name}: ${update.old_stock} → ${update.new_stock}`);
+        await adminClient.from('inventory_movements').insert({
+          product_id: update.product_id,
+          change: update.new_stock - update.old_stock,
+          reason: 'order-fulfilled',
+          note: `Order ${orderNumber}`,
+          order_id: order.id,
+        });
       }
     }
 

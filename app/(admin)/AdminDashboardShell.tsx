@@ -4,7 +4,8 @@
 import type { ReactNode, MouseEvent } from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Menu, ShieldCheck, X } from 'lucide-react';
+import Link from 'next/link';
+import { AlertTriangle, Menu, ShieldCheck, X } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import Sidebar from './Sidebar';
@@ -13,6 +14,9 @@ interface AdminDashboardShellProps {
   children: ReactNode;
   fullName: string;
   email: string;
+  /** Set when the connected Supabase project has not had schema.sql run yet. */
+  setupRequired?: boolean;
+  missingTables?: string[];
 }
 
 interface AdminMobileChromeProps {
@@ -151,7 +155,7 @@ function AdminMobileChrome({ fullName, email }: AdminMobileChromeProps) {
           </p>
         </div>
 
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 text-red-600">
           <ShieldCheck className="h-5 w-5" />
         </div>
       </header>
@@ -163,6 +167,8 @@ export default function AdminDashboardShell({
   children,
   fullName,
   email,
+  setupRequired = false,
+  missingTables = [],
 }: AdminDashboardShellProps) {
   const pathname = usePathname();
 
@@ -185,6 +191,29 @@ export default function AdminDashboardShell({
 
       {/* Main area */}
       <div className="flex min-h-screen min-w-0 flex-col lg:pl-72">
+        {setupRequired && pathname !== '/admin/setup' ? (
+          <div className="border-b border-amber-200 bg-amber-50 px-4 py-2.5 lg:px-8">
+            <div className="flex flex-wrap items-center gap-2 text-[12.5px] text-amber-900">
+              <AlertTriangle className="h-4 w-4 shrink-0" />
+              <span className="font-bold">Database not initialised.</span>
+              <span className="flex-1">
+                {missingTables.length > 0
+                  ? `Missing: ${missingTables.slice(0, 5).join(', ')}${missingTables.length > 5 ? ` +${missingTables.length - 5} more` : ''}.`
+                  : 'The tables this app needs do not exist yet.'}{' '}
+                Run <code className="rounded bg-white/70 px-1">supabase/schema.sql</code> then{' '}
+                <code className="rounded bg-white/70 px-1">seed.sql</code> in the Supabase SQL
+                editor.
+              </span>
+              <Link
+                href="/admin/setup"
+                className="rounded-md bg-amber-900 px-2.5 py-1 text-[11.5px] font-bold text-white hover:bg-amber-950"
+              >
+                Open setup
+              </Link>
+            </div>
+          </div>
+        ) : null}
+
         {/* Desktop topbar */}
         <header className="hidden h-16 items-center justify-between border-b border-slate-200 bg-white px-8 lg:flex">
           <div>
@@ -197,7 +226,7 @@ export default function AdminDashboardShell({
           </div>
 
           <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-600 text-sm font-black text-white">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-red-600 text-sm font-black text-white">
               {fullName?.[0]?.toUpperCase() || 'A'}
             </div>
 

@@ -25,7 +25,7 @@ export default async function BannersPage() {
         </div>
         <Link
           href="/admin/banners/new"
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
         >
           + New Banner
         </Link>
@@ -78,7 +78,7 @@ export default async function BannersPage() {
                 <div className="flex gap-2">
                   <Link
                     href={`/admin/banners/${banner.id}/edit`}
-                    className="px-3 py-1.5 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                    className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                   >
                     Edit
                   </Link>
@@ -92,7 +92,7 @@ export default async function BannersPage() {
           <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
             <div className="text-4xl mb-3">🖼️</div>
             <p className="text-gray-500 mb-4">No banners yet</p>
-            <Link href="/admin/banners/new" className="text-indigo-600 hover:text-indigo-700 font-medium">
+            <Link href="/admin/banners/new" className="text-red-600 hover:text-red-700 font-medium">
               Create your first banner →
             </Link>
           </div>
@@ -112,7 +112,7 @@ export default async function BannersPage() {
                 <p className="font-medium text-gray-900 text-sm">{banner.title}</p>
                 <Link
                   href={`/admin/banners/${banner.id}/edit`}
-                  className="text-sm text-indigo-600 hover:text-indigo-700 mt-2 inline-block"
+                  className="text-sm text-red-600 hover:text-red-700 mt-2 inline-block"
                 >
                   Edit / Restore
                 </Link>

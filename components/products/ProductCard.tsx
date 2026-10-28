@@ -1,130 +1,169 @@
-// src/components/products/ProductCard.tsx
 'use client';
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { ShoppingCart, Check, Loader2 } from 'lucide-react';
+import { Check, Loader2, ShoppingBag, Star, Truck } from 'lucide-react';
 import { useState } from 'react';
-import { formatPrice } from '@/lib/utils';
+import { formatCedis, metaNumber, metaString } from '@/lib/utils';
 import { useCart } from '@/hooks/useCart';
 import type { Product } from '@/types';
 
 interface ProductCardProps {
   product: Product;
+  compact?: boolean;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, compact = false }: ProductCardProps) {
   const { addToCart } = useCart();
   const [status, setStatus] = useState<'idle' | 'loading' | 'done'>('idle');
 
-  const handleAddToCart = async (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (product.stock_quantity === 0 || status !== 'idle') return;
-
-    setStatus('loading');
-
-    // ✅ Quick add from card - no size/color selection (pass null)
-    await addToCart(product.id, 1, null, null);
-
-    setStatus('done');
-    setTimeout(() => setStatus('idle'), 1500);
-  };
-
-  const discount = product.compare_at_price
-    ? Math.round(
-        ((product.compare_at_price - product.price) / product.compare_at_price) * 100
-      )
-    : null;
+  const discount =
+    product.compare_at_price && product.compare_at_price > product.price
+      ? Math.round(
+          ((product.compare_at_price - product.price) /
+            product.compare_at_price) *
+            100
+        )
+      : null;
 
   const categoryName =
     typeof product.category === 'string'
       ? product.category
       : product.category?.name ?? '';
 
-  const isOutOfStock = product.stock_quantity === 0;
+  const rating = product.rating ?? metaNumber(product.metadata, 'rating', 4.8);
+  const reviews =
+    product.reviews_count ?? metaNumber(product.metadata, 'reviews', 0);
+  const sold = product.sold_count ?? metaNumber(product.metadata, 'sold', 0);
+  const badge = metaString(product.metadata, 'badge');
+
+  const isOutOfStock = product.stock_quantity <= 0;
+
+  const handleAddToCart = async (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (isOutOfStock || status !== 'idle') return;
+
+    // pick the first option automatically so quick-add needs no picker
+    const firstOption = product.sizes?.[0] ?? null;
+
+    setStatus('loading');
+    try {
+      await addToCart(product.id, 1, firstOption, null);
+      setStatus('done');
+      setTimeout(() => setStatus('idle'), 1600);
+    } catch {
+      setStatus('idle');
+    }
+  };
 
   return (
-    <Link href={`/products/${product.slug}`} className="group">
-      <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-gray-200 hover:shadow-xl hover:shadow-gray-900/5 transition-all duration-300">
-        {/* Image */}
-        <div className="relative aspect-square overflow-hidden bg-gray-50">
-          {product.thumbnail ? (
-            <Image
-              src={product.thumbnail}
-              alt={product.name}
-              fill
-              className="object-cover group-hover:scale-105 transition-transform duration-500"
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-gray-300">
-              <svg className="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1}
-                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </div>
-          )}
+    <Link
+      href={`/products/${product.slug}`}
+      className="product-card group"
+      aria-label={product.name}
+    >
+      <div className="product-card__media">
+        {product.thumbnail ? (
+          <Image
+            src={product.thumbnail}
+            alt={product.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
+          />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center text-gray-300">
+            <ShoppingBag className="h-10 w-10" strokeWidth={1.2} />
+          </div>
+        )}
 
-          {discount && (
-            <span className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
-              -{discount}%
+        {/* discount */}
+        {discount ? (
+          <span className="absolute left-0 top-0 rounded-br-lg bg-brand px-2 py-1 text-[11px] font-extrabold text-white">
+            -{discount}%
+          </span>
+        ) : badge ? (
+          <span className="absolute left-0 top-0 rounded-br-lg bg-ink px-2 py-1 text-[10.5px] font-bold uppercase tracking-wide text-white">
+            {badge}
+          </span>
+        ) : null}
+
+        {isOutOfStock && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+            <span className="rounded-full bg-white px-3 py-1 text-[11px] font-bold text-ink">
+              Sold out
             </span>
-          )}
+          </div>
+        )}
 
-          {isOutOfStock && (
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-              <span className="bg-white text-gray-900 text-sm font-semibold px-4 py-1.5 rounded-full">
-                Sold Out
-              </span>
-            </div>
-          )}
+        {/* quick add */}
+        {!isOutOfStock && (
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={status !== 'idle'}
+            className={`absolute bottom-2 right-2 flex h-9 w-9 items-center justify-center rounded-full shadow-md transition-all duration-200 md:translate-y-2 md:opacity-0 md:group-hover:translate-y-0 md:group-hover:opacity-100 ${
+              status === 'done'
+                ? 'bg-emerald-500 text-white'
+                : 'bg-white text-ink hover:bg-brand hover:text-white'
+            }`}
+            aria-label={`Add ${product.name} to cart`}
+          >
+            {status === 'loading' ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : status === 'done' ? (
+              <Check className="h-4 w-4" />
+            ) : (
+              <ShoppingBag className="h-4 w-4" />
+            )}
+          </button>
+        )}
+      </div>
 
-          {!isOutOfStock && (
-            <button
-              onClick={handleAddToCart}
-              disabled={status !== 'idle'}
-              className={`absolute bottom-3 right-3 w-10 h-10 rounded-full flex items-center justify-center
-                opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0
-                transition-all duration-300 disabled:cursor-not-allowed
-                ${status === 'done'
-                  ? 'bg-green-500 text-white'
-                  : 'bg-gray-900 text-white hover:bg-indigo-600'
-                }`}
-              aria-label="Add to cart"
-            >
-              {status === 'loading' ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : status === 'done' ? (
-                <Check className="w-4 h-4" />
-              ) : (
-                <ShoppingCart className="w-4 h-4" />
-              )}
-            </button>
+      <div className="flex flex-1 flex-col p-2.5">
+        {(product.brand || categoryName) && (
+          <p className="mb-1 truncate text-[10px] font-semibold uppercase tracking-wide text-gray-400">
+            {product.brand ?? categoryName}
+          </p>
+        )}
+
+        <h3 className="line-clamp-2 min-h-[34px] text-[12.5px] font-semibold leading-[1.35] text-gray-800 transition-colors group-hover:text-brand">
+          {product.name}
+        </h3>
+
+        <div className="mt-1 flex items-center gap-1 text-[10.5px] text-gray-500">
+          <span className="flex items-center gap-0.5 text-amber-500">
+            <Star className="h-3 w-3 fill-current" />
+            <span className="font-bold text-gray-700">{rating.toFixed(1)}</span>
+          </span>
+          {reviews > 0 && <span>({reviews})</span>}
+          {sold > 0 && (
+            <>
+              <span className="text-gray-300">·</span>
+              <span>{sold >= 1000 ? `${(sold / 1000).toFixed(1)}k` : sold} sold</span>
+            </>
           )}
         </div>
 
-        {/* Content */}
-        <div className="p-4">
-          {categoryName && (
-            <p className="text-xs text-gray-500 mb-1 uppercase tracking-wide">
-              {categoryName}
-            </p>
-          )}
-          <h3 className="font-medium text-gray-900 mb-2 line-clamp-1 group-hover:text-indigo-600 transition-colors">
-            {product.name}
-          </h3>
-          <div className="flex items-baseline gap-2">
-            <span className="text-lg font-bold text-gray-900">
-              {formatPrice(product.price)}
-            </span>
-            {product.compare_at_price && (
-              <span className="text-sm text-gray-400 line-through">
-                {formatPrice(product.compare_at_price)}
+        {!compact && (
+          <div className="mt-1.5 flex items-center gap-1 text-[10px] font-semibold text-emerald-600">
+            <Truck className="h-3 w-3" />
+            Express delivery
+          </div>
+        )}
+
+        <div className="mt-auto flex items-baseline gap-1.5 pt-2">
+          <span className="text-[15px] font-extrabold tracking-tight text-ink">
+            {formatCedis(product.price)}
+          </span>
+          {product.compare_at_price &&
+            product.compare_at_price > product.price && (
+              <span className="text-[11.5px] text-gray-400 line-through">
+                {formatCedis(product.compare_at_price)}
               </span>
             )}
-          </div>
         </div>
       </div>
     </Link>

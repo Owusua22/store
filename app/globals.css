@@ -3,26 +3,290 @@
 @import "tw-animate-css";
 
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a;
+  /* Brand palette — Deep Botanical Teal, Warm Terracotta, Crisp Cream */
+  --brand: #1b4d3e;
+  --brand-dark: #123a2e;
+  --brand-soft: #e9f2ed;
+
+  --accent: #c86d51;
+  --accent-dark: #a9533b;
+  --accent-ink: #8f4331;
+  --accent-soft: #f9e7df;
+
+  --cream: #fdf8f5;
+  --ink: #13251f;
+  --muted: #5f6f68;
+  --line: #e9e1da;
+  --surface: #ffffff;
+  --surface-soft: #fdf8f5;
+  --gold: #c86d51;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-soft: var(--brand-soft);
+  --color-accent: var(--accent);
+  --color-accent-dark: var(--accent-dark);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-cream: var(--cream);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-surface: var(--surface);
+  --color-surface-soft: var(--surface-soft);
+  --color-gold: var(--gold);
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
 }
 
 * {
-  border-color: rgb(229 231 235);
+  border-color: var(--line);
 }
 
 html {
   overflow-x: hidden;
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-sans);
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--brand);
+  color: var(--cream);
+}
+
+/* ── Layout helpers ─────────────────────────────────────────── */
+.container-page {
+  width: 100%;
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: 14px;
+}
+
+@media (min-width: 640px) {
+  .container-page {
+    padding-inline: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-page {
+    padding-inline: 32px;
+  }
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ── Product card ───────────────────────────────────────────── */
+.product-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: box-shadow 0.2s ease, transform 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.product-card:hover {
+  border-color: #bfd6ca;
+  box-shadow: 0 10px 28px rgba(19, 37, 31, 0.1);
+  transform: translateY(-2px);
+}
+
+.product-card__media {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: var(--surface-soft);
+  overflow: hidden;
+}
+
+.product-card__media img {
+  transition: transform 0.4s ease;
+}
+
+.product-card:hover .product-card__media img {
+  transform: scale(1.045);
+}
+
+/* ── Section headings (ishtari style) ───────────────────────── */
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.section-title {
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+@media (min-width: 768px) {
+  .section-title {
+    font-size: 24px;
+  }
+}
+
+.section-subtitle {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.section-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--brand);
+  white-space: nowrap;
+}
+
+.section-link:hover {
+  color: var(--brand-dark);
+  text-decoration: underline;
+}
+
+/* ── Buttons ────────────────────────────────────────────────── */
+.btn-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--brand);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 8px;
+  transition: background 0.18s ease, transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.btn-brand:hover {
+  background: var(--brand-dark);
+  box-shadow: 0 8px 20px rgba(27, 77, 62, 0.26);
+}
+
+.btn-brand:active {
+  transform: scale(0.98);
+}
+
+/* Terracotta accent button — used for warm, promotional actions */
+.btn-accent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  /* Deep burnt-sienna: #c86d51 itself only reaches 3.6:1 with white text */
+  background: var(--accent-dark);
+  color: #fff;
+  font-weight: 700;
+  border-radius: 8px;
+  transition: background 0.18s ease, transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.btn-accent:hover {
+  background: var(--accent-ink);
+  box-shadow: 0 8px 20px rgba(169, 83, 59, 0.28);
+}
+
+.btn-accent:active {
+  transform: scale(0.98);
+}
+
+/* Small uppercase label above a section or on a coloured panel */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* Thin terracotta rule used to separate brand panels */
+.rule-accent {
+  height: 3px;
+  width: 64px;
+  border-radius: 999px;
+  background: var(--accent);
+}
+
+/* ── Content sections ────────────────────────────────────────── */
+.panel {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+/* ── Rich text ──────────────────────────────────────────────── */
+.prose-soft p {
+  margin-bottom: 0.75rem;
+  line-height: 1.7;
+}
+
+.prose-soft p:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Animations ─────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-up {
+  animation: fadeUp 0.5s ease both;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 26s linear infinite;
+}
+
+/* react-toastify tweaks */
+.Toastify__toast {
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
 }

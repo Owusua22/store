@@ -12,13 +12,15 @@ function getAdminClient() {
 }
 
 const zoneUpdateSchema = z.object({
-  name: z.string().min(1, 'Zone name is required').optional(),
-  region: z.string().min(1, 'Region is required').optional(),
-  town: z.string().optional(),
-  postal_code_prefix: z.string().optional(),
+  name: z.string().trim().optional(),
+  postal_code_prefix: z.string().trim().optional(),
+  country: z.string().trim().optional(),
+  region: z.string().trim().min(1, 'Region is required').optional(),
+  town: z.string().trim().min(1, 'Town is required').optional(),
   shipping_fee: z.number().nonnegative().optional(),
   estimated_days_min: z.number().int().positive().optional(),
   estimated_days_max: z.number().int().positive().optional(),
+  free_over_amount: z.number().nonnegative().nullable().optional(),
   free_shipping_threshold: z.number().nonnegative().nullable().optional(),
   is_active: z.boolean().optional(),
   sort_order: z.number().int().optional(),
@@ -48,10 +50,13 @@ export async function PUT(
       return NextResponse.json({ success: false, error: formatZodError(validated.error) }, { status: 400 });
     }
 
-    // Always force country to Ghana on update
+    // Only persist real columns; default the country to Ghana
+    const { free_shipping_threshold, ...fields } = validated.data;
     const payload = {
-      ...validated.data,
-      country: 'Ghana',
+      ...fields,
+      ...(validated.data.town && !validated.data.name ? { name: validated.data.town } : {}),
+      country: validated.data.country || 'Ghana',
+      free_over_amount: validated.data.free_over_amount ?? free_shipping_threshold ?? null,
       updated_at: new Date().toISOString(),
     };
 

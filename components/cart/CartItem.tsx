@@ -4,7 +4,7 @@
 import Image from 'next/image';
 import { AlertTriangle, Minus, Plus, Trash2 } from 'lucide-react';
 import { useCart, type CartItem as CartItemType } from '@/hooks/useCart';
-import { formatPrice } from '@/lib/utils';
+import { formatCedis } from '@/lib/utils';
 
 interface CartItemProps {
   item: CartItemType;
@@ -86,9 +86,9 @@ export function CartItem({ item }: CartItemProps) {
   return (
     <div
       className={[
-        'flex gap-3 rounded-xl border p-3 transition-colors',
+        'flex gap-3 rounded-lg border p-2.5 transition-colors',
         hasCheckoutIssue
-          ? 'border-red-200 bg-red-50/70'
+          ? 'border-brand/25 bg-brand-soft/70'
           : 'border-gray-200 bg-gray-50',
       ].join(' ')}
     >
@@ -144,13 +144,13 @@ export function CartItem({ item }: CartItemProps) {
             {/* Status badges */}
             <div className="mt-0.5 flex flex-wrap items-center gap-2">
               {isInactive && (
-                <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700">
+                <span className="rounded bg-brand-soft px-1.5 py-0.5 text-[10px] font-semibold text-brand-dark">
                   Unavailable
                 </span>
               )}
 
               {isOutOfStock && !isInactive && (
-                <span className="rounded bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700">
+                <span className="rounded bg-brand-soft px-1.5 py-0.5 text-[10px] font-semibold text-brand-dark">
                   Out of stock
                 </span>
               )}
@@ -193,13 +193,13 @@ export function CartItem({ item }: CartItemProps) {
 
             {/* Price row */}
             <div className="mt-0.5 flex items-baseline gap-2">
-              <p className="text-sm font-medium text-indigo-600">
-                {formatPrice(item.product.price)}
+              <p className="text-sm font-medium text-brand">
+                {formatCedis(item.product.price)}
               </p>
 
               {hasCompareAtPrice && compareAtPrice != null && (
                 <p className="text-xs text-gray-400 line-through">
-                  {formatPrice(compareAtPrice)}
+                  {formatCedis(compareAtPrice)}
                 </p>
               )}
             </div>
@@ -209,7 +209,7 @@ export function CartItem({ item }: CartItemProps) {
             type="button"
             onClick={handleRemove}
             disabled={isLoading}
-            className="flex-shrink-0 p-1 text-gray-400 transition-colors hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-50"
+            className="flex-shrink-0 p-1 text-gray-400 transition-colors hover:text-brand disabled:cursor-not-allowed disabled:opacity-50"
             aria-label={`Remove ${item.product.name}`}
           >
             <Trash2 className="h-4 w-4" />
@@ -231,7 +231,7 @@ export function CartItem({ item }: CartItemProps) {
               }
             >
               {quantity === 1 ? (
-                <Trash2 className="h-3 w-3 text-red-500" />
+                <Trash2 className="h-3 w-3 text-brand" />
               ) : (
                 <Minus className="h-3 w-3" />
               )}
@@ -263,19 +263,19 @@ export function CartItem({ item }: CartItemProps) {
               hasCheckoutIssue ? 'text-gray-700' : 'text-gray-900',
             ].join(' ')}
           >
-            {formatPrice(item.product.price * quantity)}
+            {formatCedis(item.product.price * quantity)}
           </span>
         </div>
 
         {/* Checkout-blocking message */}
         {hasCheckoutIssue && issueMessage && (
-          <div className="mt-2 flex gap-2 rounded-lg border border-red-200 bg-white/80 px-2 py-2 text-xs text-red-700">
+          <div className="mt-2 flex gap-2 rounded-lg border border-brand/25 bg-white/80 px-2 py-2 text-xs text-brand-dark">
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
 
             <div>
               <p className="font-semibold">{issueMessage}</p>
 
-              <p className="mt-0.5 text-red-600">
+              <p className="mt-0.5 text-brand">
                 {isOverStock
                   ? `Reduce the quantity to ${maxQty} or remove this item to continue checkout.`
                   : 'Remove this item to continue checkout.'}

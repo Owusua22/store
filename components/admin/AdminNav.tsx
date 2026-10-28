@@ -45,7 +45,7 @@ export function AdminNav() {
               className={cn(
                 'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm',
                 isActive
-                  ? 'bg-indigo-600 text-white'
+                  ? 'bg-red-600 text-white'
                   : 'text-gray-300 hover:bg-gray-800 hover:text-white'
               )}
             >

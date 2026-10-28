@@ -48,7 +48,7 @@ export default async function CategoriesPage() {
         </div>
         <Link
           href="/admin/categories/new"
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
         >
           + Add Category
         </Link>
@@ -89,7 +89,7 @@ export default async function CategoriesPage() {
                     <div className="flex items-center gap-2">
                       <Link
                         href={`/admin/categories/${category.id}/edit`}
-                        className="px-3 py-1.5 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                        className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       >
                         Edit
                       </Link>
@@ -114,7 +114,7 @@ export default async function CategoriesPage() {
             <div className="text-center py-12">
               <div className="text-4xl mb-3">📁</div>
               <p className="text-gray-500 mb-4">No active categories</p>
-              <Link href="/admin/categories/new" className="text-indigo-600 hover:text-indigo-700 font-medium">
+              <Link href="/admin/categories/new" className="text-red-600 hover:text-red-700 font-medium">
                 Add your first category →
               </Link>
             </div>
@@ -153,7 +153,7 @@ export default async function CategoriesPage() {
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/admin/categories/${category.id}/edit`}
-                          className="px-3 py-1.5 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                          className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         >
                           Edit
                         </Link>

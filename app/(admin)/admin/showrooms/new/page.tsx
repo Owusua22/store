@@ -90,7 +90,7 @@ export default function NewShowroomPage() {
             value={formData.name}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             placeholder="e.g., New Arrivals, Best Sellers, Summer Deals"
           />
         </div>
@@ -103,7 +103,7 @@ export default function NewShowroomPage() {
             value={formData.description}
             onChange={handleChange}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             placeholder="A brief description of this collection..."
           />
         </div>
@@ -119,7 +119,7 @@ export default function NewShowroomPage() {
                 onClick={() => setFormData((prev) => ({ ...prev, type: opt.value }))}
                 className={`p-4 rounded-xl border-2 text-left transition-all ${
                   formData.type === opt.value
-                    ? 'border-indigo-600 bg-indigo-50'
+                    ? 'border-red-600 bg-red-50'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
@@ -141,7 +141,7 @@ export default function NewShowroomPage() {
                 onClick={() => setFormData((prev) => ({ ...prev, icon }))}
                 className={`w-10 h-10 flex items-center justify-center text-xl rounded-lg transition-colors ${
                   formData.icon === icon
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-red-600 text-white'
                     : 'bg-white hover:bg-gray-100 border border-gray-200'
                 }`}
               >
@@ -169,7 +169,7 @@ export default function NewShowroomPage() {
               value={formData.sort_order}
               onChange={handleChange}
               min="0"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             />
           </div>
           <div>
@@ -181,7 +181,7 @@ export default function NewShowroomPage() {
               onChange={handleChange}
               min="1"
               max="50"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             />
           </div>
         </div>
@@ -189,18 +189,18 @@ export default function NewShowroomPage() {
         {/* Toggles */}
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <input type="checkbox" name="is_active" id="is_active" checked={formData.is_active} onChange={handleChange} className="w-4 h-4 text-indigo-600 rounded" />
+            <input type="checkbox" name="is_active" id="is_active" checked={formData.is_active} onChange={handleChange} className="w-4 h-4 text-red-600 rounded" />
             <label htmlFor="is_active" className="text-sm font-medium text-gray-700">Active</label>
           </div>
           <div className="flex items-center gap-2">
-            <input type="checkbox" name="show_on_homepage" id="show_on_homepage" checked={formData.show_on_homepage} onChange={handleChange} className="w-4 h-4 text-indigo-600 rounded" />
+            <input type="checkbox" name="show_on_homepage" id="show_on_homepage" checked={formData.show_on_homepage} onChange={handleChange} className="w-4 h-4 text-red-600 rounded" />
             <label htmlFor="show_on_homepage" className="text-sm font-medium text-gray-700">Show on Homepage</label>
           </div>
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-4 pt-4 border-t">
-          <button type="submit" disabled={isSubmitting} className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 font-medium">
+          <button type="submit" disabled={isSubmitting} className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 font-medium">
             {isSubmitting ? 'Creating...' : 'Create Showroom'}
           </button>
           <button type="button" onClick={() => router.back()} className="px-6 py-2 text-gray-700 hover:bg-gray-100 rounded-lg font-medium">

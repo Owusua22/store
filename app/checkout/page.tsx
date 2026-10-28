@@ -34,9 +34,12 @@ import {
 import { toast } from 'react-toastify';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
-import { cn, formatPrice } from '@/lib/utils';
+import { cn, formatCedis } from '@/lib/utils';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { clearDemoLines } from '@/lib/demo/cart';
+import { site } from '@/lib/site';
 
-type PaymentMethod = 'cod' | 'card' | 'mpesa';
+type PaymentMethod = 'cod' | 'momo';
 type DeliveryMethod = 'delivery' | 'pickup';
 type LocationStep = 'region' | 'town' | 'address';
 
@@ -103,7 +106,7 @@ function SectionTitle({
 }) {
   return (
     <div className="mb-5 flex items-start gap-3">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand">
         {icon}
       </div>
 
@@ -256,7 +259,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (authLoading) return;
 
-    if (!isAuthenticated) {
+    if (!isAuthenticated && isSupabaseConfigured) {
       toast.error('Please sign in to continue checkout.');
       router.replace('/');
       return;
@@ -388,21 +391,14 @@ export default function CheckoutPage() {
   const paymentCopy = useMemo(() => {
     if (paymentMethod === 'cod') {
       return {
-        title: 'Cash on Delivery',
-        subtitle: 'Pay when your order arrives.',
-      };
-    }
-
-    if (paymentMethod === 'mpesa') {
-      return {
-        title: 'Mobile Money',
-        subtitle: 'We will contact you with payment instructions.',
+        title: 'Cash on pickup or delivery',
+        subtitle: 'Pay the rider or the shop when you collect your order.',
       };
     }
 
     return {
-      title: 'Card Payment',
-      subtitle: 'Card payment instructions will be provided after placing order.',
+      title: 'MTN MoMo Pay',
+      subtitle: `Send the amount to MoMo Pay till ${site.momo.payTill}, then send the screenshot on WhatsApp so we can confirm it.`,
     };
   }, [paymentMethod]);
 
@@ -699,7 +695,14 @@ export default function CheckoutPage() {
 
       setOrderNumber(json.data.order_number);
       setOrderSuccess(true);
-      setCart(null);
+
+      if (isSupabaseConfigured) {
+        setCart(null);
+      } else {
+        // Demo mode keeps the cart in localStorage — empty it properly.
+        clearDemoLines();
+        setCart({ id: 'demo-cart', user_id: 'demo-user', items: [] });
+      }
       toast.success('Order placed successfully.');
     } catch (error) {
       console.error(error);
@@ -709,11 +712,11 @@ export default function CheckoutPage() {
     }
   };
 
-  if (authLoading || (!bootstrapped && isAuthenticated)) {
+  if (authLoading || (isSupabaseConfigured && !bootstrapped && isAuthenticated)) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
         <div className="text-center">
-          <Loader2 className="mx-auto h-10 w-10 animate-spin text-indigo-600" />
+          <Loader2 className="mx-auto h-10 w-10 animate-spin text-brand" />
           <p className="mt-4 text-sm font-medium text-gray-500">
             Preparing your checkout...
           </p>
@@ -722,13 +725,21 @@ export default function CheckoutPage() {
     );
   }
 
-  if (!isAuthenticated) return null;
+  if (isSupabaseConfigured && !isAuthenticated) return null;
+
+  if (!bootstrapped) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+        <Loader2 className="mx-auto h-8 w-8 animate-spin text-brand" />
+      </div>
+    );
+  }
 
   if (orderSuccess) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-indigo-50 via-white to-purple-50 px-4 py-12">
-        <div className="w-full max-w-md rounded-3xl border border-gray-100 bg-white p-6 text-center shadow-xl shadow-indigo-100/60 sm:p-8">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-lg">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-brand-soft via-white to-accent-soft px-4 py-12">
+        <div className="w-full max-w-md rounded-3xl border border-gray-100 bg-white p-6 text-center shadow-xl shadow-brand-soft/60 sm:p-8">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-brand to-brand-dark text-white shadow-lg">
             <CheckCircle className="h-10 w-10" />
           </div>
 
@@ -741,18 +752,18 @@ export default function CheckoutPage() {
             confirmation details.
           </p>
 
-          <div className="mt-6 rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
-            <p className="text-xs font-bold uppercase tracking-wider text-indigo-500">
+          <div className="mt-6 rounded-2xl border border-brand-soft bg-brand-soft p-4">
+            <p className="text-xs font-bold uppercase tracking-wider text-brand">
               Order number
             </p>
-            <p className="mt-1 text-xl font-black text-indigo-950">
+            <p className="mt-1 text-xl font-black text-brand-dark">
               {orderNumber}
             </p>
           </div>
 
           {activeShippingZone && (
             <div className="mt-4 flex items-center justify-center gap-2 rounded-2xl bg-gray-50 px-4 py-3 text-sm font-medium text-gray-600">
-              <Clock className="h-4 w-4 text-indigo-600" />
+              <Clock className="h-4 w-4 text-brand" />
               Estimated delivery:{' '}
               {activeShippingZone.estimated_days_min}–
               {activeShippingZone.estimated_days_max} business days
@@ -762,7 +773,7 @@ export default function CheckoutPage() {
           <div className="mt-8 grid gap-3">
             <Link
               href="/orders"
-              className="rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-200 transition hover:opacity-95"
+              className="rounded-2xl bg-gradient-to-r from-brand to-brand-dark px-5 py-3 text-sm font-bold text-white shadow-lg shadow-brand-soft transition hover:opacity-95"
             >
               View my orders
             </Link>
@@ -783,7 +794,7 @@ export default function CheckoutPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <header className="border-b border-gray-200 bg-white">
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
             <Link
               href="/products"
               className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-950"
@@ -815,7 +826,7 @@ export default function CheckoutPage() {
 
             <Link
               href="/products"
-              className="mt-6 inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-200"
+              className="mt-6 inline-flex items-center justify-center rounded-2xl bg-gradient-to-r from-brand to-brand-dark px-6 py-3 text-sm font-bold text-white shadow-lg shadow-brand-soft"
             >
               Shop products
             </Link>
@@ -829,8 +840,8 @@ export default function CheckoutPage() {
     <>
       <div className="min-h-screen bg-gray-50 pb-32 lg:pb-10">
         {/* Header */}
-        <header className="sticky top-0 z-30 border-b border-gray-200 bg-white/90 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+        <header className="border-b border-line bg-white">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
             <Link
               href="/products"
               className="inline-flex items-center gap-2 text-sm font-semibold text-gray-600 hover:text-gray-950"
@@ -850,7 +861,7 @@ export default function CheckoutPage() {
           {/* Main form */}
           <div className="space-y-5">
             <div>
-              <p className="text-sm font-bold uppercase tracking-wider text-indigo-600">
+              <p className="text-sm font-bold uppercase tracking-wider text-brand">
                 Checkout
               </p>
               <h1 className="mt-1 text-3xl font-black tracking-tight text-gray-950 sm:text-4xl">
@@ -864,22 +875,22 @@ export default function CheckoutPage() {
 
             {/* Cart issues */}
             {hasCheckoutIssues && (
-              <div className="rounded-3xl border border-red-200 bg-red-50 p-4">
+              <div className="rounded-3xl border border-brand/25 bg-brand-soft p-4">
                 <div className="flex gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-red-100 text-red-600">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand">
                     <AlertTriangle className="h-5 w-5" />
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <h2 className="font-bold text-red-900">
+                    <h2 className="font-bold text-brand-dark">
                       Your cart needs attention
                     </h2>
-                    <p className="mt-1 text-sm text-red-700">
+                    <p className="mt-1 text-sm text-brand-dark">
                       Remove unavailable or out-of-stock items before placing
                       your order.
                     </p>
 
-                    <ul className="mt-3 space-y-1 text-sm text-red-700">
+                    <ul className="mt-3 space-y-1 text-sm text-brand-dark">
                       {checkoutIssues.map((issue) => (
                         <li key={issue.itemId}>
                           <span className="font-bold">{issue.productName}</span>
@@ -891,7 +902,7 @@ export default function CheckoutPage() {
                     <button
                       type="button"
                       onClick={toggleCart}
-                      className="mt-4 rounded-xl bg-red-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-red-700"
+                      className="mt-4 rounded-xl bg-brand px-4 py-2 text-sm font-bold text-white transition hover:bg-brand-dark"
                     >
                       Open cart to fix
                     </button>
@@ -922,9 +933,9 @@ export default function CheckoutPage() {
                     onChange={handleShippingChange}
                     placeholder="Enter your full name"
                     className={cn(
-                      'w-full rounded-2xl border bg-gray-50 px-4 py-3 text-sm text-gray-950 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100',
+                      'w-full rounded-2xl border bg-gray-50 px-4 py-3 text-sm text-gray-950 outline-none transition focus:border-brand focus:bg-white focus:ring-4 focus:ring-brand-soft',
                       fieldErrors.full_name
-                        ? 'border-red-300'
+                        ? 'border-brand/30'
                         : 'border-gray-200'
                     )}
                   />
@@ -942,7 +953,7 @@ export default function CheckoutPage() {
                     onChange={handleShippingChange}
                     placeholder="you@example.com"
                     className={cn(
-                      'w-full rounded-2xl border bg-gray-50 px-4 py-3 text-sm text-gray-950 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100',
+                      'w-full rounded-2xl border bg-gray-50 px-4 py-3 text-sm text-gray-950 outline-none transition focus:border-brand focus:bg-white focus:ring-4 focus:ring-brand-soft',
                       fieldErrors.email ? 'border-red-300' : 'border-gray-200'
                     )}
                   />
@@ -960,7 +971,7 @@ export default function CheckoutPage() {
                     onChange={handleShippingChange}
                     placeholder="+233 20 123 4567"
                     className={cn(
-                      'w-full rounded-2xl border bg-gray-50 px-4 py-3 text-sm text-gray-950 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100',
+                      'w-full rounded-2xl border bg-gray-50 px-4 py-3 text-sm text-gray-950 outline-none transition focus:border-brand focus:bg-white focus:ring-4 focus:ring-brand-soft',
                       fieldErrors.phone ? 'border-red-300' : 'border-gray-200'
                     )}
                   />
@@ -1011,15 +1022,15 @@ export default function CheckoutPage() {
                       className={cn(
                         'flex items-center gap-3 rounded-2xl border p-4 text-left transition',
                         selected
-                          ? 'border-indigo-500 bg-indigo-50 ring-4 ring-indigo-100'
-                          : 'border-gray-200 bg-white hover:border-indigo-200 hover:bg-gray-50'
+                          ? 'border-brand bg-brand-soft ring-4 ring-brand-soft'
+                          : 'border-gray-200 bg-white hover:border-brand-soft hover:bg-gray-50'
                       )}
                     >
                       <div
                         className={cn(
                           'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl',
                           selected
-                            ? 'bg-indigo-600 text-white'
+                            ? 'bg-brand text-white'
                             : 'bg-gray-100 text-gray-500'
                         )}
                       >
@@ -1043,9 +1054,9 @@ export default function CheckoutPage() {
                     className={cn(
                       'flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition',
                       fieldErrors.location
-                        ? 'border-red-300 bg-red-50'
+                        ? 'border-brand/30 bg-brand-soft'
                         : shipping.region && shipping.town
-                          ? 'border-indigo-200 bg-indigo-50'
+                          ? 'border-brand-soft bg-brand-soft'
                           : 'border-dashed border-gray-300 bg-gray-50 hover:bg-white'
                     )}
                   >
@@ -1053,7 +1064,7 @@ export default function CheckoutPage() {
                       className={cn(
                         'flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl',
                         shipping.region && shipping.town
-                          ? 'bg-indigo-600 text-white'
+                          ? 'bg-brand text-white'
                           : 'bg-white text-gray-400'
                       )}
                     >
@@ -1071,7 +1082,7 @@ export default function CheckoutPage() {
                           </p>
 
                           {activeShippingZone && (
-                            <p className="mt-1 flex flex-wrap items-center gap-2 text-xs font-semibold text-indigo-700">
+                            <p className="mt-1 flex flex-wrap items-center gap-2 text-xs font-semibold text-brand-dark">
                               <span className="inline-flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
                                 {activeShippingZone.estimated_days_min}–
@@ -1080,7 +1091,7 @@ export default function CheckoutPage() {
                               <span>
                                 {shippingCost === 0
                                   ? 'Free delivery'
-                                  : formatPrice(shippingCost)}
+                                  : formatCedis(shippingCost)}
                               </span>
                             </p>
                           )}
@@ -1134,24 +1145,17 @@ export default function CheckoutPage() {
                 {[
                   {
                     id: 'cod' as PaymentMethod,
-                    label: 'Cash on Delivery',
-                    desc: 'Pay when you receive your order.',
+                    label: 'Cash on pickup or delivery',
+                    desc: 'Pay cash at the shop in East Doboro, or to the rider.',
                     icon: Banknote,
                     color: 'bg-green-600',
                   },
                   {
-                    id: 'mpesa' as PaymentMethod,
-                    label: 'Mobile Money',
-                    desc: 'We will contact you with payment instructions.',
+                    id: 'momo' as PaymentMethod,
+                    label: 'MTN MoMo Pay',
+                    desc: `Till ${site.momo.payTill} — send the screenshot on WhatsApp to confirm.`,
                     icon: Smartphone,
-                    color: 'bg-emerald-600',
-                  },
-                  {
-                    id: 'card' as PaymentMethod,
-                    label: 'Credit / Debit Card',
-                    desc: 'Card instructions will be shared after placing order.',
-                    icon: CreditCard,
-                    color: 'bg-indigo-600',
+                    color: 'bg-amber-500',
                   },
                 ].map(({ id, label, desc, icon: Icon, color }) => {
                   const selected = paymentMethod === id;
@@ -1164,8 +1168,8 @@ export default function CheckoutPage() {
                       className={cn(
                         'flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition',
                         selected
-                          ? 'border-indigo-500 bg-indigo-50 ring-4 ring-indigo-100'
-                          : 'border-gray-200 bg-white hover:border-indigo-200 hover:bg-gray-50'
+                          ? 'border-brand bg-brand-soft ring-4 ring-brand-soft'
+                          : 'border-gray-200 bg-white hover:border-brand-soft hover:bg-gray-50'
                       )}
                     >
                       <div
@@ -1185,11 +1189,11 @@ export default function CheckoutPage() {
                       <div
                         className={cn(
                           'flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2',
-                          selected ? 'border-indigo-600' : 'border-gray-300'
+                          selected ? 'border-brand' : 'border-gray-300'
                         )}
                       >
                         {selected && (
-                          <span className="h-2.5 w-2.5 rounded-full bg-indigo-600" />
+                          <span className="h-2.5 w-2.5 rounded-full bg-brand" />
                         )}
                       </div>
                     </button>
@@ -1215,7 +1219,7 @@ export default function CheckoutPage() {
                   onChange={(e) => setNotes(e.target.value)}
                   rows={4}
                   placeholder="Any delivery instructions or special requests..."
-                  className="w-full resize-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-950 outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                  className="w-full resize-none rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-950 outline-none transition focus:border-brand focus:bg-white focus:ring-4 focus:ring-brand-soft"
                 />
               </div>
             </section>
@@ -1236,14 +1240,14 @@ export default function CheckoutPage() {
                     setTermsAccepted(e.target.checked);
                     if (e.target.checked) setTermsError(false);
                   }}
-                  className="mt-1 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-brand focus:ring-brand"
                 />
 
                 <span className="text-sm leading-6 text-gray-600">
                   I have read and agree to the{' '}
                   <Link
                     href="/terms"
-                    className="font-semibold text-indigo-600 underline underline-offset-2"
+                    className="font-semibold text-brand underline underline-offset-2"
                   >
                     Terms and Conditions
                   </Link>
@@ -1252,7 +1256,7 @@ export default function CheckoutPage() {
               </label>
 
               {termsError && (
-                <p className="mt-2 text-sm font-medium text-red-600">
+                <p className="mt-2 text-sm font-medium text-brand">
                   Please accept the terms before placing your order.
                 </p>
               )}
@@ -1275,7 +1279,7 @@ export default function CheckoutPage() {
                   </div>
 
                   {isSyncing && (
-                    <Loader2 className="h-5 w-5 animate-spin text-indigo-600" />
+                    <Loader2 className="h-5 w-5 animate-spin text-brand" />
                   )}
                 </div>
               </div>
@@ -1293,7 +1297,7 @@ export default function CheckoutPage() {
                         className={cn(
                           'flex gap-3 rounded-2xl border p-3',
                           issue
-                            ? 'border-red-200 bg-red-50'
+                            ? 'border-brand/25 bg-brand-soft'
                             : 'border-gray-100 bg-gray-50'
                         )}
                       >
@@ -1338,14 +1342,14 @@ export default function CheckoutPage() {
                           </div>
 
                           {issue && (
-                            <p className="mt-1 text-xs font-semibold text-red-600">
+                            <p className="mt-1 text-xs font-semibold text-brand">
                               {issue.reason}
                             </p>
                           )}
                         </div>
 
                         <p className="shrink-0 text-sm font-bold text-gray-950">
-                          {formatPrice(item.product.price * item.quantity)}
+                          {formatCedis(item.product.price * item.quantity)}
                         </p>
                       </div>
                     );
@@ -1367,7 +1371,7 @@ export default function CheckoutPage() {
 	                            ? 'Free shipping applied'
 	                            : activeDiscount.discount_type === 'percentage'
 	                              ? `${activeDiscount.discount_value}% off`
-	                              : `${formatPrice(
+	                              : `${formatCedis(
 	                                  activeDiscount.discount_value
 	                                )} off`}
 	                        </p>
@@ -1396,7 +1400,7 @@ export default function CheckoutPage() {
                           }
                         }}
                         placeholder="Discount code"
-                        className="min-w-0 flex-1 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold uppercase outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                        className="min-w-0 flex-1 rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold uppercase outline-none transition focus:border-brand focus:bg-white focus:ring-4 focus:ring-brand-soft"
                       />
 
                       <button
@@ -1420,7 +1424,7 @@ export default function CheckoutPage() {
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-500">Subtotal</span>
                     <span className="font-bold text-gray-950">
-                      {formatPrice(totalPrice)}
+                      {formatCedis(totalPrice)}
                     </span>
                   </div>
 
@@ -1446,7 +1450,7 @@ export default function CheckoutPage() {
                           ? '—'
                           : shippingCost === 0
                             ? 'Free'
-                            : formatPrice(shippingCost)}
+                            : formatCedis(shippingCost)}
                     </span>
                   </div>
 
@@ -1457,13 +1461,13 @@ export default function CheckoutPage() {
                         Discount
                       </span>
                       <span className="font-bold text-green-600">
-                        −{formatPrice(discountAmount)}
+                        −{formatCedis(discountAmount)}
                       </span>
                     </div>
                   )}
 
                   {activeShippingZone && deliveryMethod === 'delivery' && (
-                    <div className="rounded-2xl bg-indigo-50 px-4 py-3 text-xs font-semibold text-indigo-700">
+                    <div className="rounded-2xl bg-brand-soft px-4 py-3 text-xs font-semibold text-brand-dark">
                       <Clock className="mr-1 inline h-3.5 w-3.5" />
                       Estimated delivery:{' '}
                       {activeShippingZone.estimated_days_min}–
@@ -1474,7 +1478,7 @@ export default function CheckoutPage() {
                   <div className="flex items-end justify-between border-t border-gray-100 pt-4">
                     <span className="font-black text-gray-950">Total</span>
                     <span className="text-2xl font-black text-gray-950">
-                      {formatPrice(orderTotal)}
+                      {formatCedis(orderTotal)}
                     </span>
                   </div>
                 </div>
@@ -1484,7 +1488,7 @@ export default function CheckoutPage() {
                   type="button"
                   onClick={() => void handlePlaceOrder()}
                   disabled={placeOrderDisabled}
-                  className="mt-5 hidden w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-5 py-4 text-base font-black text-white shadow-lg shadow-indigo-200 transition hover:opacity-95 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:bg-none disabled:text-gray-500 disabled:shadow-none lg:flex"
+                  className="mt-5 hidden w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand via-brand-dark to-accent px-5 py-4 text-base font-black text-white shadow-lg shadow-brand-soft transition hover:opacity-95 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:bg-none disabled:text-gray-500 disabled:shadow-none lg:flex"
                 >
                   {isSubmitting ? (
                     <>
@@ -1499,18 +1503,18 @@ export default function CheckoutPage() {
                   ) : (
                     <>
                       <Lock className="h-5 w-5" />
-                      Place Order — {formatPrice(orderTotal)}
+                      Place Order — {formatCedis(orderTotal)}
                     </>
                   )}
                 </button>
 
                 <div className="mt-4 grid gap-2 border-t border-gray-100 pt-4 text-xs font-medium text-gray-500">
                   <p className="inline-flex items-center gap-2">
-                    <ShieldCheck className="h-4 w-4 text-indigo-600" />
+                    <ShieldCheck className="h-4 w-4 text-brand" />
                     Secure checkout
                   </p>
                   <p className="inline-flex items-center gap-2">
-                    <Truck className="h-4 w-4 text-indigo-600" />
+                    <Truck className="h-4 w-4 text-brand" />
                     Delivery updates after confirmation
                   </p>
                 </div>
@@ -1527,7 +1531,7 @@ export default function CheckoutPage() {
             <div>
               <p className="text-xs font-semibold text-gray-500">Total</p>
               <p className="text-xl font-black text-gray-950">
-                {formatPrice(orderTotal)}
+                {formatCedis(orderTotal)}
               </p>
             </div>
 
@@ -1544,7 +1548,7 @@ export default function CheckoutPage() {
             type="button"
             onClick={() => void handlePlaceOrder()}
             disabled={placeOrderDisabled}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 px-5 py-4 text-base font-black text-white shadow-lg shadow-indigo-200 transition disabled:cursor-not-allowed disabled:bg-gray-300 disabled:bg-none disabled:text-gray-500 disabled:shadow-none"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand via-brand-dark to-accent px-5 py-4 text-base font-black text-white shadow-lg shadow-brand-soft transition disabled:cursor-not-allowed disabled:bg-gray-300 disabled:bg-none disabled:text-gray-500 disabled:shadow-none"
           >
             {isSubmitting ? (
               <>
@@ -1620,7 +1624,7 @@ export default function CheckoutPage() {
               <div className="mt-4 flex items-center gap-2 text-xs font-bold text-gray-400">
                 <span
                   className={cn(
-                    tempRegion && 'text-indigo-600',
+                    tempRegion && 'text-brand',
                     modalStep === 'region' && 'text-gray-950'
                   )}
                 >
@@ -1629,7 +1633,7 @@ export default function CheckoutPage() {
                 <ChevronRight className="h-3 w-3" />
                 <span
                   className={cn(
-                    tempTown && 'text-indigo-600',
+                    tempTown && 'text-brand',
                     modalStep === 'town' && 'text-gray-950'
                   )}
                 >
@@ -1654,7 +1658,7 @@ export default function CheckoutPage() {
                         ? 'Search regions...'
                         : 'Search towns...'
                     }
-                    className="w-full rounded-2xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                    className="w-full rounded-2xl border border-gray-200 bg-gray-50 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-brand focus:bg-white focus:ring-4 focus:ring-brand-soft"
                   />
                 </div>
               )}
@@ -1663,7 +1667,7 @@ export default function CheckoutPage() {
             <div className="flex-1 overflow-y-auto p-5">
               {zonesLoading ? (
                 <div className="flex min-h-56 items-center justify-center">
-                  <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+                  <Loader2 className="h-8 w-8 animate-spin text-brand" />
                 </div>
               ) : (
                 <>
@@ -1686,9 +1690,9 @@ export default function CheckoutPage() {
                               key={region}
                               type="button"
                               onClick={() => handleSelectRegion(region)}
-                              className="flex w-full items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-4 text-left transition hover:border-indigo-200 hover:bg-indigo-50"
+                              className="flex w-full items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-4 text-left transition hover:border-brand-soft hover:bg-brand-soft"
                             >
-                              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-indigo-600">
+                              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-brand">
                                 <MapPin className="h-5 w-5" />
                               </div>
 
@@ -1736,9 +1740,9 @@ export default function CheckoutPage() {
                               key={town}
                               type="button"
                               onClick={() => handleSelectTown(town)}
-                              className="flex w-full items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-4 text-left transition hover:border-indigo-200 hover:bg-indigo-50"
+                              className="flex w-full items-center gap-4 rounded-2xl border border-gray-100 bg-gray-50 p-4 text-left transition hover:border-brand-soft hover:bg-brand-soft"
                             >
-                              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-indigo-600">
+                              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-brand">
                                 <MapPin className="h-5 w-5" />
                               </div>
 
@@ -1768,7 +1772,7 @@ export default function CheckoutPage() {
                                   >
                                     {qualifiesFree
                                       ? 'Free'
-                                      : formatPrice(zone.shipping_fee)}
+                                      : formatCedis(zone.shipping_fee)}
                                   </p>
                                   <ChevronRight className="ml-auto mt-1 h-4 w-4 text-gray-300" />
                                 </div>
@@ -1782,9 +1786,9 @@ export default function CheckoutPage() {
 
                   {modalStep === 'address' && (
                     <div className="space-y-5">
-                      <div className="rounded-2xl border border-indigo-100 bg-indigo-50 p-4">
+                      <div className="rounded-2xl border border-brand-soft bg-brand-soft p-4">
                         <div className="flex gap-3">
-                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand text-white">
                             <MapPin className="h-5 w-5" />
                           </div>
 
@@ -1802,12 +1806,12 @@ export default function CheckoutPage() {
                                 totalPrice >= zone.free_shipping_threshold;
 
                               return (
-                                <p className="mt-1 text-sm font-semibold text-indigo-700">
+                                <p className="mt-1 text-sm font-semibold text-brand-dark">
                                   {zone.estimated_days_min}–
                                   {zone.estimated_days_max} days ·{' '}
                                   {qualifiesFree
                                     ? 'Free delivery'
-                                    : formatPrice(zone.shipping_fee)}
+                                    : formatCedis(zone.shipping_fee)}
                                 </p>
                               );
                             })()}
@@ -1825,7 +1829,7 @@ export default function CheckoutPage() {
                             setTempAddressLine1(e.target.value)
                           }
                           placeholder="House number, street name, area"
-                          className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                          className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-brand focus:bg-white focus:ring-4 focus:ring-brand-soft"
                         />
                       </div>
 
@@ -1839,7 +1843,7 @@ export default function CheckoutPage() {
                             setTempAddressLine2(e.target.value)
                           }
                           placeholder="Near landmark, apartment, suite, etc."
-                          className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-indigo-500 focus:bg-white focus:ring-4 focus:ring-indigo-100"
+                          className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm outline-none transition focus:border-brand focus:bg-white focus:ring-4 focus:ring-brand-soft"
                         />
                       </div>
                     </div>
@@ -1853,7 +1857,7 @@ export default function CheckoutPage() {
                 <button
                   type="button"
                   onClick={handleConfirmLocation}
-                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-indigo-600 to-purple-600 px-5 py-4 text-sm font-black text-white shadow-lg shadow-indigo-200 transition hover:opacity-95"
+                  className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand to-brand-dark px-5 py-4 text-sm font-black text-white shadow-lg shadow-brand-soft transition hover:opacity-95"
                 >
                   <CheckCircle className="h-5 w-5" />
                   Confirm address

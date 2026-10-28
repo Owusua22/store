@@ -1,0 +1,165 @@
+// lib/admin/schemas.ts
+// Shared zod schemas for the admin API routes.
+import { z } from 'zod';
+
+const variantSchema = z.object({
+  id: z.string().uuid().optional(),
+  size: z.string().min(1).default('default'),
+  color: z.string().min(1).default('default'),
+  price: z.number().nonnegative(),
+  compare_at_price: z.number().nonnegative().nullable().optional(),
+  stock_quantity: z.number().int().nonnegative().default(0),
+  sku: z.string().nullable().optional(),
+  is_active: z.boolean().optional(),
+});
+
+const optionalText = z
+  .string()
+  .trim()
+  .max(20000)
+  .optional()
+  .transform((value) => (value ? value : null));
+
+export const productSchema = z.object({
+  name: z.string().trim().min(2, 'Name is required').max(160),
+  slug: z.string().trim().max(120).optional(),
+  description: optionalText,
+  short_description: optionalText,
+  price: z.coerce.number().nonnegative('Price must be zero or more'),
+  compare_at_price: z.coerce.number().nonnegative().nullable().optional(),
+  category_id: z.string().uuid().nullable().optional(),
+  brand: optionalText,
+  brand_id: z.string().uuid().nullable().optional(),
+  /** What you pay the supplier — admin only, never shown to shoppers */
+  cost_price: z.coerce.number().nonnegative().optional(),
+  /** Who it is for, e.g. "Oily / blemish-prone skin", "Newborns 0+ months" */
+  who_for: optionalText,
+
+  // Skin care attributes
+  skin_types: z.array(z.string()).default([]),
+  concerns: z.array(z.string()).default([]),
+  ingredients: optionalText,
+  how_to_use: optionalText,
+  benefits: optionalText,
+
+  sizes: z.array(z.string().trim().min(1)).default([]),
+  colors: z.array(z.string().trim().min(1)).default([]),
+  images: z.array(z.string()).default([]),
+  thumbnail: z.string().nullable().optional(),
+
+  sku: optionalText,
+  stock_quantity: z.coerce.number().int().nonnegative('Stock must be zero or more').default(0),
+  low_stock_threshold: z.coerce.number().int().nonnegative().default(10),
+  weight_grams: z.coerce.number().int().nonnegative().nullable().optional(),
+
+  rating: z.coerce.number().min(0).max(5).optional(),
+  reviews_count: z.coerce.number().int().nonnegative().optional(),
+  sold_count: z.coerce.number().int().nonnegative().optional(),
+  is_featured: z.boolean().default(false),
+  is_active: z.boolean().default(true),
+
+  seo_title: optionalText,
+  seo_description: optionalText,
+
+  variants: z.array(variantSchema).optional().default([]),
+});
+
+export type ProductInput = z.infer<typeof productSchema>;
+
+export const categorySchema = z.object({
+  name: z.string().trim().min(2, 'Name is required').max(120),
+  slug: z.string().trim().max(120).optional(),
+  description: z.string().trim().max(2000).optional().nullable(),
+  icon: z.string().trim().max(16).optional().nullable(),
+  image_url: z.string().trim().optional().nullable(),
+  parent_id: z.string().uuid().optional().nullable(),
+  sort_order: z.coerce.number().int().optional(),
+  is_active: z.boolean().optional(),
+});
+
+export const brandSchema = z.object({
+  name: z.string().trim().min(2, 'Brand name is required').max(80),
+  slug: z.string().trim().max(80).optional(),
+  description: z.string().trim().max(1000).optional().nullable(),
+  logo_url: z.string().trim().max(500).optional().nullable(),
+  website_url: z.string().trim().max(500).optional().nullable(),
+  country: z.string().trim().max(80).optional().nullable(),
+  sort_order: z.coerce.number().int().optional(),
+  is_active: z.boolean().optional(),
+});
+
+export const skinTypeSchema = z.object({
+  label: z.string().trim().min(2, 'Label is required').max(60),
+  slug: z.string().trim().max(60).optional(),
+  emoji: z.string().trim().max(8).optional().nullable(),
+  description: z.string().trim().max(1000).optional().nullable(),
+  sort_order: z.coerce.number().int().optional(),
+  is_active: z.boolean().optional(),
+});
+
+export const blogPostSchema = z.object({
+  title: z.string().trim().min(3, 'Title is required').max(200),
+  slug: z.string().trim().max(180).optional(),
+  excerpt: z.string().trim().max(400).optional().nullable(),
+  content: z.string().default(''),
+  cover_image: z.string().trim().optional().nullable(),
+  category: z.string().trim().max(80).optional().nullable(),
+  tags: z.array(z.string()).default([]),
+  skin_types: z.array(z.string()).default([]),
+  author_name: z.string().trim().max(120).optional(),
+  status: z.enum(['draft', 'published', 'archived']).default('draft'),
+  is_featured: z.boolean().optional(),
+  seo_title: z.string().trim().max(200).optional().nullable(),
+  seo_description: z.string().trim().max(400).optional().nullable(),
+});
+
+export const stockAdjustmentSchema = z.object({
+  product_id: z.string().uuid('Product is required'),
+  quantity: z.coerce.number().int().refine((value) => value !== 0, 'Quantity cannot be zero'),
+  mode: z.enum(['add', 'remove', 'set']).default('add'),
+  reason: z.string().trim().max(80).default('manual-adjustment'),
+  note: z.string().trim().max(500).optional().nullable(),
+});
+
+// ── Bookkeeping ────────────────────────────────────────────────────────────
+
+export const supplierSchema = z.object({
+  name: z.string().trim().min(2, 'Supplier name is required').max(120),
+  contact_person: z.string().trim().max(120).optional().nullable(),
+  phone: z.string().trim().max(40).optional().nullable(),
+  email: z.string().trim().max(160).optional().nullable(),
+  address: z.string().trim().max(300).optional().nullable(),
+  notes: z.string().trim().max(1000).optional().nullable(),
+  payment_terms: z.string().trim().max(80).optional().nullable(),
+  is_active: z.boolean().optional(),
+});
+
+export const purchaseSchema = z.object({
+  supplier_id: z.string().uuid().nullable().optional(),
+  product_id: z.string().uuid('Choose the product you bought'),
+  quantity: z.coerce.number().int().positive('Quantity must be at least 1'),
+  unit_cost: z.coerce.number().nonnegative('Unit cost must be zero or more'),
+  amount_paid: z.coerce.number().nonnegative().optional(),
+  payment_method: z.enum(['cash', 'momo', 'bank', 'credit']).default('cash'),
+  reference: z.string().trim().max(80).optional().nullable(),
+  note: z.string().trim().max(500).optional().nullable(),
+  purchased_at: z.string().trim().max(20).optional(),
+  /** Also add the quantity to on-hand stock (default true). */
+  add_to_stock: z.boolean().optional().default(true),
+});
+
+export const expenseSchema = z.object({
+  category: z
+    .enum(['rent', 'transport', 'utilities', 'internet', 'salaries', 'packaging', 'marketing', 'repairs', 'fees', 'other'])
+    .default('other'),
+  description: z.string().trim().min(2, 'Describe the expense').max(200),
+  amount: z.coerce.number().positive('Amount must be more than zero'),
+  payment_method: z.enum(['cash', 'momo', 'bank']).default('cash'),
+  supplier_id: z.string().uuid().nullable().optional(),
+  reference: z.string().trim().max(80).optional().nullable(),
+  spent_at: z.string().trim().max(20).optional(),
+});
+
+export type PurchaseInput = z.infer<typeof purchaseSchema>;
+export type ExpenseInput = z.infer<typeof expenseSchema>;
+export type SupplierInput = z.infer<typeof supplierSchema>;

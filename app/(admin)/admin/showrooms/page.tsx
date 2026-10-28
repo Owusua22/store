@@ -31,7 +31,7 @@ export default async function ShowroomsPage() {
         </div>
         <Link
           href="/admin/showrooms/new"
-          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
         >
           + New Showroom
         </Link>
@@ -69,7 +69,7 @@ export default async function ShowroomsPage() {
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                       {TYPE_LABELS[showroom.type] || showroom.type}
                     </span>
                   </td>
@@ -92,7 +92,7 @@ export default async function ShowroomsPage() {
                     <div className="flex items-center gap-2">
                       <Link
                         href={`/admin/showrooms/${showroom.id}/edit`}
-                        className="px-3 py-1.5 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                        className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       >
                         Edit
                       </Link>
@@ -113,7 +113,7 @@ export default async function ShowroomsPage() {
             <div className="text-center py-12">
               <div className="text-4xl mb-3">🏪</div>
               <p className="text-gray-500 mb-4">No showrooms yet</p>
-              <Link href="/admin/showrooms/new" className="text-indigo-600 hover:text-indigo-700 font-medium">
+              <Link href="/admin/showrooms/new" className="text-red-600 hover:text-red-700 font-medium">
                 Create your first showroom →
               </Link>
             </div>
@@ -149,7 +149,7 @@ export default async function ShowroomsPage() {
                     <td className="px-6 py-4">
                       <Link
                         href={`/admin/showrooms/${showroom.id}/edit`}
-                        className="px-3 py-1.5 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
+                        className="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       >
                         Edit / Restore
                       </Link>

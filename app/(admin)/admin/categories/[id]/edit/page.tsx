@@ -123,7 +123,7 @@ export default function EditCategoryPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading category...</p>
         </div>
       </div>
@@ -147,7 +147,7 @@ export default function EditCategoryPage() {
             value={formData.name}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
           />
         </div>
 
@@ -159,7 +159,7 @@ export default function EditCategoryPage() {
             name="slug"
             value={formData.slug}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
           />
         </div>
 
@@ -171,7 +171,7 @@ export default function EditCategoryPage() {
             value={formData.description}
             onChange={handleChange}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
           />
         </div>
 
@@ -182,7 +182,7 @@ export default function EditCategoryPage() {
             name="parent_id"
             value={formData.parent_id}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
           >
             <option value="">None (Top-level category)</option>
             {parentCategories
@@ -206,7 +206,7 @@ export default function EditCategoryPage() {
                 onClick={() => setFormData((prev) => ({ ...prev, icon }))}
                 className={`w-10 h-10 flex items-center justify-center text-xl rounded-lg transition-colors ${
                   formData.icon === icon
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-red-600 text-white'
                     : 'bg-white hover:bg-gray-100 border border-gray-200'
                 }`}
               >
@@ -237,7 +237,7 @@ export default function EditCategoryPage() {
             value={formData.sort_order}
             onChange={handleChange}
             min="0"
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
           />
         </div>
 
@@ -249,7 +249,7 @@ export default function EditCategoryPage() {
             id="is_active"
             checked={formData.is_active}
             onChange={handleChange}
-            className="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500"
+            className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
           />
           <label htmlFor="is_active" className="text-sm font-medium text-gray-700">
             Active (visible on store)
@@ -261,7 +261,7 @@ export default function EditCategoryPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors font-medium"
+            className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors font-medium"
           >
             {isSubmitting ? 'Saving...' : 'Save Changes'}
           </button>

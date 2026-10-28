@@ -146,7 +146,7 @@ export default function EditShowroomPage() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto mb-4"></div>
           <p className="text-gray-600">Loading showroom...</p>
         </div>
       </div>
@@ -187,7 +187,7 @@ export default function EditShowroomPage() {
             value={formData.name}
             onChange={handleChange}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             placeholder="e.g., New Arrivals, Best Sellers"
           />
         </div>
@@ -200,7 +200,7 @@ export default function EditShowroomPage() {
             value={formData.description}
             onChange={handleChange}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             placeholder="A brief description..."
           />
         </div>
@@ -216,7 +216,7 @@ export default function EditShowroomPage() {
                 onClick={() => setFormData((prev) => ({ ...prev, type: opt.value }))}
                 className={`p-4 rounded-xl border-2 text-left transition-all ${
                   formData.type === opt.value
-                    ? 'border-indigo-600 bg-indigo-50'
+                    ? 'border-red-600 bg-red-50'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
@@ -238,7 +238,7 @@ export default function EditShowroomPage() {
                 onClick={() => setFormData((prev) => ({ ...prev, icon }))}
                 className={`w-10 h-10 flex items-center justify-center text-xl rounded-lg transition-colors ${
                   formData.icon === icon
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-red-600 text-white'
                     : 'bg-white hover:bg-gray-100 border border-gray-200'
                 }`}
               >
@@ -270,7 +270,7 @@ export default function EditShowroomPage() {
               value={formData.sort_order}
               onChange={handleChange}
               min="0"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             />
             <p className="text-xs text-gray-500 mt-1">Lower numbers appear first</p>
           </div>
@@ -283,7 +283,7 @@ export default function EditShowroomPage() {
               onChange={handleChange}
               min="1"
               max="50"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
             />
             <p className="text-xs text-gray-500 mt-1">Maximum products to display</p>
           </div>
@@ -302,7 +302,7 @@ export default function EditShowroomPage() {
               id="is_active"
               checked={formData.is_active}
               onChange={handleChange}
-              className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+              className="w-5 h-5 text-red-600 rounded focus:ring-red-500"
             />
           </div>
           <div className="border-t border-gray-200 pt-3 flex items-center justify-between">
@@ -316,7 +316,7 @@ export default function EditShowroomPage() {
               id="show_on_homepage"
               checked={formData.show_on_homepage}
               onChange={handleChange}
-              className="w-5 h-5 text-indigo-600 rounded focus:ring-indigo-500"
+              className="w-5 h-5 text-red-600 rounded focus:ring-red-500"
             />
           </div>
         </div>
@@ -327,7 +327,7 @@ export default function EditShowroomPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 transition-colors font-medium"
+              className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 transition-colors font-medium"
             >
               {isSubmitting ? 'Saving...' : 'Save Changes'}
             </button>

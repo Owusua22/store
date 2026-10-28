@@ -1,198 +1,258 @@
 // app/api/admin/products/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { createRouteHandlerSupabaseClient, getAuthenticatedUser } from '@/lib/supabase/route-handler';
-import { createClient } from '@supabase/supabase-js';
-import { z } from 'zod';
+import { NextResponse } from 'next/server';
 import { formatZodError } from '@/lib/validation';
+import { productSchema, type ProductInput } from '@/lib/admin/schemas';
+import {
+  readJson,
+  requireAdmin,
+  slugify,
+  uniqueSlug,
+} from '@/lib/admin/guard';
+import { resolveBrand } from '@/lib/admin/brands';
 
-function getAdminClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+
+function derivedFromVariants(input: ProductInput) {
+  const variants = input.variants ?? [];
+  if (variants.length === 0) return null;
+
+  const sizes = [...new Set(variants.map((variant) => variant.size))];
+  const colors = [...new Set(variants.map((variant) => variant.color))];
+  const prices = variants.map((variant) => variant.price).filter((price) => price > 0);
+  const comparePrices = variants
+    .map((variant) => variant.compare_at_price)
+    .filter((price): price is number => typeof price === 'number' && price > 0);
+
+  return {
+    sizes,
+    colors,
+    stock_quantity: variants.reduce((sum, variant) => sum + variant.stock_quantity, 0),
+    price: prices.length > 0 ? Math.min(...prices) : input.price,
+    compare_at_price: comparePrices.length > 0 ? Math.min(...comparePrices) : input.compare_at_price ?? null,
+  };
+}
+
+function cleanPayload(input: Partial<ProductInput>) {
+  const { variants: _variants, slug: _slug, ...rest } = input;
+
+  if (rest.images && rest.images.length > 0 && !rest.thumbnail) {
+    rest.thumbnail = rest.images[0];
+  }
+
+  return rest;
+}
+
+// --- GET: list products (admin view, includes archived) ---------------------
+export async function GET(request: Request) {
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard.response;
+
+  const { searchParams } = new URL(request.url);
+  const search = searchParams.get('q')?.trim();
+  const status = searchParams.get('status'); // active | inactive | archived
+  const skinType = searchParams.get('skin');
+
+  let query = guard.db
+    .from('products')
+    .select('*, category:categories(id, name, slug)')
+    .order('created_at', { ascending: false })
+    .limit(500);
+
+  if (search) {
+    query = query.or(`name.ilike.%${search}%,brand.ilike.%${search}%,sku.ilike.%${search}%`);
+  }
+  if (status === 'active') query = query.eq('is_active', true).eq('archived', false);
+  if (status === 'inactive') query = query.eq('is_active', false).eq('archived', false);
+  if (status === 'archived') query = query.eq('archived', true);
+  if (skinType) query = query.contains('skin_types', [skinType]);
+
+  const { data, error } = await query;
+  if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+
+  return NextResponse.json({ success: true, data });
+}
+
+// --- POST: create ----------------------------------------------------------
+export async function POST(request: Request) {
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard.response;
+
+  const parsed = await readJson(request);
+  if (!parsed.ok) return parsed.response;
+
+  const validated = productSchema.safeParse(parsed.body);
+  if (!validated.success) {
+    return NextResponse.json(
+      { success: false, error: formatZodError(validated.error), issues: validated.error.issues },
+      { status: 400 }
+    );
+  }
+
+  const input = validated.data;
+  const derived = derivedFromVariants(input);
+
+  // Typing a brand that is not in /admin/brands yet creates it, so brands stay a
+  // managed vocabulary without blocking product entry.
+  const brand = await resolveBrand(guard.db, input.brand);
+
+  const payload = {
+    ...cleanPayload(input),
+    ...(derived ?? {}),
+    brand: brand.brand,
+    ...(brand.brand_id ? { brand_id: brand.brand_id } : {}),
+  };
+
+  const slug = await uniqueSlug(
+    guard.db,
+    'products',
+    input.slug ? slugify(input.slug) : slugify(input.name)
   );
-}
 
-const variantSchema = z.object({
-  size: z.string().min(1),
-  color: z.string().min(1),
-  price: z.number().positive(),
-  compare_at_price: z.number().positive().nullable().optional(),
-  stock_quantity: z.number().int().nonnegative().default(0),
-  sku: z.string().optional(),
-});
+  const { data: product, error } = await guard.db
+    .from('products')
+    .insert({ ...payload, slug })
+    .select('*')
+    .single();
 
-const productSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  description: z.string().optional(),
-  price: z.number().positive('Price must be positive'),
-  compare_at_price: z.number().positive().nullable().optional(),
-  stock_quantity: z.number().int().nonnegative('Stock must be non-negative'),
-  category: z.string().optional(),
-  category_id: z.string().uuid().nullable().optional(),
-  thumbnail: z.string().url().optional().or(z.literal('')),
-  images: z.array(z.string().url()).optional().default([]),
-  sizes: z.array(z.string()).optional().default([]),
-  colors: z.array(z.string()).optional().default([]),
-  is_active: z.boolean().default(true),
-  variants: z.array(variantSchema).optional().default([]),
-});
+  if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500 });
 
-function generateSlug(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
-}
+  if (input.variants.length > 0) {
+    const { error: variantError } = await guard.db.from('product_variants').insert(
+      input.variants.map((variant) => ({
+        product_id: product.id,
+        size: variant.size,
+        color: variant.color,
+        price: variant.price,
+        compare_at_price: variant.compare_at_price ?? null,
+        stock_quantity: variant.stock_quantity,
+        sku: variant.sku ?? null,
+        is_active: variant.is_active ?? true,
+      }))
+    );
 
-// GET
-export async function GET() {
-  try {
-    const supabase = await createRouteHandlerSupabaseClient();
-    const user = await getAuthenticatedUser();
-    if (!user) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-    if (profile?.role !== 'admin') return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-
-    const adminClient = getAdminClient();
-    const { data: products, error } = await adminClient
-      .from('products')
-      .select('*, variants:product_variants(*)')
-      .order('created_at', { ascending: false });
-
-    if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-    return NextResponse.json({ success: true, data: products });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: error instanceof Error ? error.message : 'Server error' }, { status: 500 });
+    if (variantError) {
+      console.error('product variants insert failed', variantError);
+    }
   }
-}
 
-// POST
-export async function POST(request: NextRequest) {
-  try {
-    const supabase = await createRouteHandlerSupabaseClient();
-    const user = await getAuthenticatedUser();
-    if (!user) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-    if (profile?.role !== 'admin') return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
-
-    let body: unknown;
-    try { body = await request.json(); } catch {
-      return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
-    }
-
-    const validated = productSchema.safeParse(body);
-    if (!validated.success) {
-      return NextResponse.json({ success: false, error: formatZodError(validated.error) }, { status: 400 });
-    }
-
-    const adminClient = getAdminClient();
-    const { variants, ...productData } = validated.data;
-
-    // Auto-calculate from variants if they exist
-    if (variants.length > 0) {
-      productData.sizes = [...new Set(variants.map((v) => v.size))];
-      productData.colors = [...new Set(variants.map((v) => v.color))];
-      productData.stock_quantity = variants.reduce((sum, v) => sum + v.stock_quantity, 0);
-      productData.price = Math.min(...variants.map((v) => v.price));
-      const comparePrices = variants.filter((v) => v.compare_at_price).map((v) => v.compare_at_price!);
-      if (comparePrices.length > 0) {
-        productData.compare_at_price = Math.min(...comparePrices);
-      }
-    }
-
-    let slug = generateSlug(productData.name);
-    const { data: existing } = await adminClient.from('products').select('slug').eq('slug', slug).maybeSingle();
-    if (existing) slug = `${slug}-${Date.now()}`;
-
-    const { data: product, error } = await adminClient
-      .from('products')
-      .insert({ ...productData, slug })
-      .select()
-      .single();
-
-    if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-
-    // Save variants
-    if (variants.length > 0) {
-      const { error: variantsError } = await adminClient
-        .from('product_variants')
-        .insert(variants.map((v) => ({ ...v, product_id: product.id })));
-
-      if (variantsError) {
-        console.error('Variants error:', variantsError);
-      }
-    }
-
-    return NextResponse.json({ success: true, data: product }, { status: 201 });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: error instanceof Error ? error.message : 'Server error' }, { status: 500 });
+  if (input.stock_quantity > 0) {
+    await guard.db.from('inventory_movements').insert({
+      product_id: product.id,
+      change: input.stock_quantity,
+      reason: 'initial-stock',
+      note: 'Product created',
+      created_by: guard.userId,
+    });
   }
+
+  return NextResponse.json({ success: true, data: product }, { status: 201 });
 }
 
-// PATCH
-export async function PATCH(request: NextRequest) {
-  try {
-    const supabase = await createRouteHandlerSupabaseClient();
-    const user = await getAuthenticatedUser();
-    if (!user) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+// --- PATCH: update ---------------------------------------------------------
+export async function PATCH(request: Request) {
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard.response;
 
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-    if (profile?.role !== 'admin') return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
+  const parsed = await readJson(request);
+  if (!parsed.ok) return parsed.response;
 
-    let body: unknown;
-    try { body = await request.json(); } catch {
-      return NextResponse.json({ success: false, error: 'Invalid JSON' }, { status: 400 });
-    }
-
-    const { id, variants, ...updateData } = body as { id: string; variants?: Array<{ size: string; color: string; price: number; compare_at_price?: number | null; stock_quantity: number; sku?: string }>; [key: string]: unknown };
-    if (!id) return NextResponse.json({ success: false, error: 'Product ID required' }, { status: 400 });
-
-    const adminClient = getAdminClient();
-
-    // Auto-calculate from variants
-    if (variants && variants.length > 0) {
-      updateData.sizes = [...new Set(variants.map((v) => v.size))];
-      updateData.colors = [...new Set(variants.map((v) => v.color))];
-      updateData.stock_quantity = variants.reduce((sum, v) => sum + v.stock_quantity, 0);
-      updateData.price = Math.min(...variants.map((v) => v.price));
-    }
-
-    const { error } = await adminClient.from('products').update(updateData).eq('id', id);
-    if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-
-    // Replace variants
-    if (variants) {
-      await adminClient.from('product_variants').delete().eq('product_id', id);
-      if (variants.length > 0) {
-        await adminClient.from('product_variants').insert(variants.map((v) => ({ ...v, product_id: id })));
-      }
-    }
-
-    return NextResponse.json({ success: true, data: { message: 'Product updated' } });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: error instanceof Error ? error.message : 'Server error' }, { status: 500 });
+  const id = typeof parsed.body.id === 'string' ? parsed.body.id : null;
+  if (!id) {
+    return NextResponse.json({ success: false, error: 'Product ID required' }, { status: 400 });
   }
+
+  const { id: _ignored, ...body } = parsed.body;
+  const validated = productSchema.partial().safeParse(body);
+  if (!validated.success) {
+    return NextResponse.json(
+      { success: false, error: formatZodError(validated.error), issues: validated.error.issues },
+      { status: 400 }
+    );
+  }
+
+  const input = validated.data;
+
+  // Current stock lets us log the delta for the audit trail
+  const { data: existing } = await guard.db
+    .from('products')
+    .select('stock_quantity')
+    .eq('id', id)
+    .maybeSingle();
+
+  const derived = input.variants ? derivedFromVariants(input as ProductInput) : null;
+
+  const update: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(cleanPayload(input))) {
+    if (value !== undefined) update[key] = value;
+  }
+  if (derived) Object.assign(update, derived);
+  if (input.slug) update.slug = slugify(input.slug);
+
+  const { data: product, error } = await guard.db
+    .from('products')
+    .update(update)
+    .eq('id', id)
+    .select('*')
+    .single();
+
+  if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+
+  if (input.variants) {
+    await guard.db.from('product_variants').delete().eq('product_id', id);
+    if (input.variants.length > 0) {
+      await guard.db.from('product_variants').insert(
+        input.variants.map((variant) => ({
+          product_id: id,
+          size: variant.size,
+          color: variant.color,
+          price: variant.price,
+          compare_at_price: variant.compare_at_price ?? null,
+          stock_quantity: variant.stock_quantity,
+          sku: variant.sku ?? null,
+          is_active: variant.is_active ?? true,
+        }))
+      );
+    }
+  }
+
+  if (
+    typeof input.stock_quantity === 'number' &&
+    existing &&
+    existing.stock_quantity !== input.stock_quantity
+  ) {
+    await guard.db.from('inventory_movements').insert({
+      product_id: id,
+      change: input.stock_quantity - existing.stock_quantity,
+      reason: 'product-edit',
+      note: 'Stock updated from product form',
+      created_by: guard.userId,
+    });
+  }
+
+  return NextResponse.json({ success: true, data: product });
 }
 
-// DELETE - keep as is
-export async function DELETE(request: NextRequest) {
-  try {
-    const supabase = await createRouteHandlerSupabaseClient();
-    const user = await getAuthenticatedUser();
-    if (!user) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+// --- DELETE: archive by default, hard delete with ?hard=1 ------------------
+export async function DELETE(request: Request) {
+  const guard = await requireAdmin();
+  if (!guard.ok) return guard.response;
 
-    const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
-    if (profile?.role !== 'admin') return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
+  if (!id) {
+    return NextResponse.json({ success: false, error: 'Product ID required' }, { status: 400 });
+  }
 
-    const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
-    if (!id) return NextResponse.json({ success: false, error: 'Product ID required' }, { status: 400 });
-
-    const adminClient = getAdminClient();
-    const { error } = await adminClient.from('products').delete().eq('id', id);
+  if (searchParams.get('hard') === '1') {
+    const { error } = await guard.db.from('products').delete().eq('id', id);
     if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500 });
-
     return NextResponse.json({ success: true, message: 'Product deleted' });
-  } catch (error) {
-    return NextResponse.json({ success: false, error: error instanceof Error ? error.message : 'Server error' }, { status: 500 });
   }
+
+  const { error } = await guard.db
+    .from('products')
+    .update({ archived: true, is_active: false })
+    .eq('id', id);
+
+  if (error) return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  return NextResponse.json({ success: true, message: 'Product archived' });
 }

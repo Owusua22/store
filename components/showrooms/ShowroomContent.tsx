@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 import { useCart } from '@/hooks/useCart';
 import { useAuth } from '@/hooks/useAuth';
-import { formatPrice } from '@/lib/utils';
+import { formatCedis } from '@/lib/utils';
 import { toast } from 'react-toastify';
 
 interface ShowroomProduct {
@@ -100,9 +100,9 @@ export function ShowroomContent({ showroom, products, allShowrooms }: ShowroomCo
 
           {/* Breadcrumb */}
           <nav className="flex items-center gap-1 text-[11px] sm:text-xs text-slate-400 pt-2 sm:pt-2.5 overflow-x-auto whitespace-nowrap scrollbar-hide">
-            <Link href="/" className="hover:text-indigo-600 transition">Home</Link>
+            <Link href="/" className="hover:text-brand transition">Home</Link>
             <ChevronRight className="w-3 h-3 shrink-0" />
-            <Link href="/products" className="hover:text-indigo-600 transition">Shop</Link>
+            <Link href="/products" className="hover:text-brand transition">Shop</Link>
             <ChevronRight className="w-3 h-3 shrink-0" />
             <span className="text-slate-700 font-medium truncate">{showroom.name}</span>
           </nav>
@@ -156,7 +156,7 @@ export function ShowroomContent({ showroom, products, allShowrooms }: ShowroomCo
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="h-9 flex-1 lg:flex-none lg:ml-auto px-3 text-xs sm:text-sm rounded-lg bg-slate-100/80 border border-slate-200/60 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+              className="h-9 flex-1 lg:flex-none lg:ml-auto px-3 text-xs sm:text-sm rounded-lg bg-slate-100/80 border border-slate-200/60 text-slate-700 font-medium focus:outline-none focus:ring-2 focus:ring-brand/20"
             >
               <option value="default">✨ Featured</option>
               <option value="price_asc">↑ Price: Low to High</option>
@@ -195,8 +195,8 @@ export function ShowroomContent({ showroom, products, allShowrooms }: ShowroomCo
           <div className="flex-1 min-w-0">
             {sortedProducts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-center">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center mb-4 border border-indigo-100">
-                  <Package className="w-7 h-7 text-indigo-400" />
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-soft to-accent-soft flex items-center justify-center mb-4 border border-brand-soft">
+                  <Package className="w-7 h-7 text-accent" />
                 </div>
                 <h3 className="text-lg font-semibold text-slate-900 mb-1.5">No products yet</h3>
                 <p className="text-sm text-slate-500 mb-5 max-w-sm">
@@ -293,7 +293,7 @@ function ProductCard({
             {/* Badges */}
             <div className="absolute top-1.5 left-1.5 flex flex-col gap-1">
               {discount && (
-                <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded shadow-sm leading-none">
+                <span className="px-1.5 py-0.5 bg-brand text-white text-[10px] font-bold rounded shadow-sm leading-none">
                   -{discount}%
                 </span>
               )}
@@ -324,7 +324,7 @@ function ProductCard({
           {/* Details */}
           <div className="flex-1 min-w-0 p-3 sm:p-3.5 flex flex-col justify-between">
             <div className="min-w-0">
-              <h3 className="text-sm font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1 leading-snug">
+              <h3 className="text-sm font-semibold text-slate-900 group-hover:text-brand transition-colors line-clamp-1 leading-snug">
                 {product.name}
               </h3>
               {product.description && (
@@ -336,9 +336,9 @@ function ProductCard({
 
             <div className="flex items-center justify-between mt-2 gap-2">
               <div className="flex items-baseline gap-1.5">
-                <span className="text-sm font-bold text-slate-900">{formatPrice(product.price)}</span>
+                <span className="text-sm font-bold text-slate-900">{formatCedis(product.price)}</span>
                 {product.compare_at_price && (
-                  <span className="text-xs text-slate-400 line-through">{formatPrice(product.compare_at_price)}</span>
+                  <span className="text-xs text-slate-400 line-through">{formatCedis(product.compare_at_price)}</span>
                 )}
               </div>
 
@@ -382,7 +382,7 @@ function ProductCard({
 
           <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5">
             {discount && (
-              <span className="px-2 py-0.5 bg-red-500 text-white text-[11px] font-bold rounded-md shadow-md">
+              <span className="px-2 py-0.5 bg-brand text-white text-[11px] font-bold rounded-md shadow-md">
                 -{discount}%
               </span>
             )}
@@ -411,13 +411,13 @@ function ProductCard({
         </div>
 
         <div className="flex-1 flex flex-col p-3 sm:p-4">
-          <h3 className="font-semibold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1 text-[13px] sm:text-sm">
+          <h3 className="font-semibold text-slate-900 group-hover:text-brand transition-colors line-clamp-1 text-[13px] sm:text-sm">
             {product.name}
           </h3>
           <div className="flex items-baseline gap-2 mt-1.5">
-            <span className="font-bold text-slate-900 text-[15px] sm:text-base">{formatPrice(product.price)}</span>
+            <span className="font-bold text-slate-900 text-[15px] sm:text-base">{formatCedis(product.price)}</span>
             {product.compare_at_price && (
-              <span className="text-xs sm:text-sm text-slate-400 line-through">{formatPrice(product.compare_at_price)}</span>
+              <span className="text-xs sm:text-sm text-slate-400 line-through">{formatCedis(product.compare_at_price)}</span>
             )}
           </div>
         </div>

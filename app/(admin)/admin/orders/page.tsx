@@ -33,8 +33,8 @@ interface Order {
 const STATUS_COLORS: Record<string, string> = {
   pending: 'bg-yellow-100 text-yellow-800',
   confirmed: 'bg-blue-100 text-blue-800',
-  processing: 'bg-indigo-100 text-indigo-800',
-  shipped: 'bg-purple-100 text-purple-800',
+  processing: 'bg-red-100 text-red-800',
+  shipped: 'bg-red-100 text-amber-800',
   delivered: 'bg-green-100 text-green-800',
   cancelled: 'bg-red-100 text-red-800',
   refunded: 'bg-gray-100 text-gray-800',
@@ -108,7 +108,7 @@ function StatusUpdateModal({ order, isOpen, onClose, onStatusChange }: StatusMod
         {/* Body */}
         <div className="px-6 py-4">
           <div className="mb-4">
-            <p className="text-sm text-gray-600 mb-2">Order: <span className="font-semibold text-indigo-600">{order.order_number}</span></p>
+            <p className="text-sm text-gray-600 mb-2">Order: <span className="font-semibold text-red-600">{order.order_number}</span></p>
             <p className="text-sm text-gray-600">Current Status: <span className={`font-semibold capitalize ${STATUS_COLORS[order.status]?.split(' ')[1]}`}>{order.status}</span></p>
           </div>
 
@@ -124,7 +124,7 @@ function StatusUpdateModal({ order, isOpen, onClose, onStatusChange }: StatusMod
                       value={status}
                       checked={selectedStatus === status}
                       onChange={(e) => setSelectedStatus(e.target.value)}
-                      className="w-4 h-4 text-indigo-600"
+                      className="w-4 h-4 text-red-600"
                     />
                     <div className="flex-1">
                       <p className="font-medium text-gray-900 capitalize">{status}</p>
@@ -156,7 +156,7 @@ function StatusUpdateModal({ order, isOpen, onClose, onStatusChange }: StatusMod
           <button
             onClick={handleUpdate}
             disabled={!selectedStatus || isUpdating}
-            className="flex-1 px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
+            className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 disabled:opacity-50 transition-colors flex items-center justify-center gap-2"
           >
             {isUpdating ? (
               <>
@@ -312,9 +312,9 @@ export default function AdminOrdersPage() {
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {[
-          { label: 'Total Orders', value: stats.total, icon: '📦', color: 'from-indigo-500 to-indigo-600' },
+          { label: 'Total Orders', value: stats.total, icon: '📦', color: 'from-red-500 to-red-600' },
           { label: 'Pending', value: stats.pending, icon: '⏳', color: 'from-yellow-500 to-amber-500' },
-          { label: 'Processing', value: stats.processing, icon: '🔄', color: 'from-blue-500 to-indigo-500' },
+          { label: 'Processing', value: stats.processing, icon: '🔄', color: 'from-blue-500 to-red-500' },
           { label: 'Revenue', value: formatPrice(stats.revenue), icon: '💰', color: 'from-green-500 to-emerald-500' },
         ].map(({ label, value, icon, color }) => (
           <div key={label} className="bg-white rounded-xl border border-gray-200 p-5">
@@ -340,7 +340,7 @@ export default function AdminOrdersPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search orders..."
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
           />
         </div>
         <div className="flex items-center gap-2 overflow-x-auto">
@@ -370,7 +370,7 @@ export default function AdminOrdersPage() {
       <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+            <Loader2 className="w-8 h-8 animate-spin text-red-600" />
           </div>
         ) : filteredOrders.length === 0 ? (
           <div className="text-center py-20">
@@ -409,7 +409,7 @@ export default function AdminOrdersPage() {
                 {filteredOrders.map((order) => (
                   <tr key={order.id} className="hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4">
-                      <p className="font-semibold text-sm text-indigo-600">{order.order_number}</p>
+                      <p className="font-semibold text-sm text-red-600">{order.order_number}</p>
                       <p className="text-xs text-gray-400 capitalize">{order.payment_method || 'N/A'}</p>
                     </td>
                     <td className="px-6 py-4">
@@ -443,7 +443,7 @@ export default function AdminOrdersPage() {
                         </span>
                         <button
                           onClick={() => openStatusModal(order)}
-                          className="text-gray-400 hover:text-indigo-600 transition-colors"
+                          className="text-gray-400 hover:text-red-600 transition-colors"
                           title="Update status"
                         >
                           ✎
@@ -456,7 +456,7 @@ export default function AdminOrdersPage() {
                     <td className="px-6 py-4">
                       <Link
                         href={`/admin/orders/${order.id}`}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors font-medium"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors font-medium"
                       >
                         <Eye className="w-4 h-4" />
                         View
