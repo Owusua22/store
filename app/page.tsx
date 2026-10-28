@@ -1,7 +1,6 @@
 // app/page.tsx
 import type { Metadata } from 'next';
 import { HeroBanner } from '@/components/home/HeroBanner';
-import { HomeBrandBand } from '@/components/home/HomeBrandBand';
 import { CategoryStrip } from '@/components/home/CategoryStrip';
 import { ProductSection } from '@/components/home/ProductSection';
 import { ProductRail } from '@/components/home/ProductRail';
@@ -11,7 +10,7 @@ import { StoreSetupNotice } from '@/components/layout/StoreSetupNotice';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { checkDatabaseHealth } from '@/lib/supabase/health';
 import Link from 'next/link';
-import { ArrowRight, Clock, MapPin } from 'lucide-react';
+import { Clock, MapPin } from 'lucide-react';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { site } from '@/lib/site';
 import { breadcrumbSchema, itemListSchema } from '@/lib/seo/jsonld';
@@ -53,8 +52,11 @@ export default async function HomePage() {
         ]}
       />
       {awaitingCatalogue ? <StoreSetupNotice /> : null}
+      <h1 className="sr-only">
+        100% Authentic Skincare, Body Care &amp; Mothercare in East Doboro — Beside St.
+        George&apos;s Height
+      </h1>
       <HeroBanner banners={banners} />
-      <HomeBrandBand />
       <CategoryStrip categories={categories} />
       <ValueStrip />
 
@@ -94,20 +96,7 @@ export default async function HomePage() {
         products={hotSellers.slice(0, 10)}
       />
 
-      <section className="container-page pt-8 sm:pt-10" aria-labelledby="reviews-heading">
-        <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
-          <div>
-            <h2 id="reviews-heading" className="section-title">
-              Verified customer reviews
-            </h2>
-            <p className="section-subtitle">
-              Real messages from customers in Nsawam, Doboro, Accra and beyond
-            </p>
-          </div>
-          <Link href="/contact" className="section-link">
-            Leave a review <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
+      <section className="container-page pt-8 sm:pt-10">
         <div className="grid gap-3 rounded-xl border border-line bg-white p-5 sm:grid-cols-3 sm:p-6">
           {[
             {
@@ -150,28 +139,6 @@ export default async function HomePage() {
             </figure>
           ))}
         </div>
-
-        {/* Google Reviews widget — appears once NEXT_PUBLIC_GOOGLE_PLACE_ID is set
-            (after the shop collects 10+ reviews). */}
-        {process.env.NEXT_PUBLIC_GOOGLE_PLACE_ID ? (
-          <div className="mt-3 rounded-xl border border-line bg-white p-4">
-            <p className="mb-2 text-[11px] font-extrabold uppercase tracking-[0.14em] text-muted">
-              On Google
-            </p>
-            <div
-              className="elfsight-app-google-reviews"
-              data-place-id={process.env.NEXT_PUBLIC_GOOGLE_PLACE_ID}
-            />
-            <a
-              href={site.mapLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[12px] font-bold text-brand hover:underline"
-            >
-              Read all Google reviews →
-            </a>
-          </div>
-        ) : null}
       </section>
 
       {/* Visit us — local SEO and directions */}
