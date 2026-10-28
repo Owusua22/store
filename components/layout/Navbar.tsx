@@ -42,9 +42,10 @@ interface SearchResult {
 const PRIMARY_LINKS = [
   { href: '/products?sort=newest', label: 'New Arrivals' },
   { href: '/products?sort=popular', label: 'Best Sellers' },
-  { href: '/categories/body-lotions', label: 'Body Care' },
-  { href: '/categories/face-care', label: 'Face Care' },
-  { href: '/categories/baby-care', label: 'Baby Care' },
+  { href: '/categories/facial-skincare', label: 'Facial Skincare' },
+  { href: '/categories/bath-body-care', label: 'Bath & Body' },
+  { href: '/categories/mothercare-pregnancy', label: 'Mothercare' },
+  { href: '/categories/baby-care-essentials', label: 'Baby Care' },
   { href: '/blog', label: 'Journal' },
 ] as const;
 
@@ -530,7 +531,7 @@ export function Navbar() {
           {[
             { href: '/', label: 'Home', icon: Home },
             { href: '/products', label: 'Shop', icon: Search },
-            { href: '/categories/body-lotions', label: 'Categories', icon: Grid2X2 },
+            { href: '/categories/bath-body-care', label: 'Categories', icon: Grid2X2 },
           ].map(({ href, label, icon: Icon }) => {
             const active = href === '/' ? pathname === '/' : pathname.startsWith(href);
             return (

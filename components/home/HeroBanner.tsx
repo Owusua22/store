@@ -133,7 +133,7 @@ export function HeroBanner({ banners }: HeroBannerProps) {
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                   <Link
-                    href="/categories/baby-care"
+                    href="/categories/baby-care-essentials"
                     className="inline-flex h-10 items-center rounded-md border border-white/30 bg-white/10 px-4 text-[12.5px] font-bold text-white backdrop-blur-sm transition-colors hover:bg-white/20 sm:h-11 sm:px-5 sm:text-[13.5px]"
                   >
                     Baby care

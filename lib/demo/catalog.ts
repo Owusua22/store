@@ -703,7 +703,7 @@ export const demoBanners = [
     description:
       'Shea-rich lotions and shower creams that keep ash away for 24 hours. Free delivery over GH₵300.',
     image_url: '/images/hero-skincare.webp',
-    link_url: '/categories/body-lotions',
+    link_url: '/categories/bath-body-care',
     link_text: 'Shop body care',
     is_active: true,
     sort_order: 2,
@@ -715,7 +715,7 @@ export const demoBanners = [
     description:
       'Paediatrician-tested lotions, washes and jumbo diaper packs — now at bundle prices.',
     image_url: '/images/hero-skincare.webp',
-    link_url: '/categories/baby-care',
+    link_url: '/categories/baby-care-essentials',
     link_text: 'Shop baby care',
     is_active: true,
     sort_order: 3,

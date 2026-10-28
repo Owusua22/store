@@ -33,7 +33,7 @@ export function PromoBands() {
   return (
     <section className="container-page grid gap-3 pt-7 sm:grid-cols-2 sm:pt-9" aria-label="Promotions">
       <Link
-        href="/categories/body-lotions"
+        href="/categories/bath-body-care"
         className="group relative flex min-h-[150px] overflow-hidden rounded-xl bg-[#a01118] sm:min-h-[190px]"
       >
         <Image
@@ -62,7 +62,7 @@ export function PromoBands() {
       </Link>
 
       <Link
-        href="/categories/baby-care"
+        href="/categories/baby-care-essentials"
         className="group relative flex min-h-[150px] overflow-hidden rounded-xl bg-[#115e59] sm:min-h-[190px]"
       >
         <Image
